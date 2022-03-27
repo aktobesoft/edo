@@ -1,0 +1,10 @@
+alembic init migrations
+
+file env.py
+from db import Base, SQLALCHEMY_DATABASE_URL
+target_metadata = Base.metadata
+url = config.get_main_option(SQLALCHEMY_DATABASE_URL)
+
+*************alembic****************
+alembic revision --autogenerate -m "first"
+alembic upgrade head
