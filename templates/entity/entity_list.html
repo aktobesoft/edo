@@ -1,0 +1,43 @@
+{% extends 'index.html' %}
+
+{% block form_content %}
+
+<form method="POST" action='{{ request.path }}' novalidate >
+    
+    <div class="card">
+    <div class="card-header">
+      Список организации
+    </div>
+    <div class="card-body">
+      <a class="btn btn-primary" href="{{ request.path }}create/" role="button">Создать новый элемент</a>
+      <div class="pt-2 col">
+        <table class="table table-hover">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">ИИН</th>
+              <th scope="col">Наименование</th>
+              <th scope="col">Тип организации</th>
+              <th scope="col">Дата начало работы</th>
+              <th scope="col">Действие по</th>
+              <th scope="col">Пользователь</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entity in entityList %}
+              <tr>
+                <th scope="row">{{ entity.iin }}</th>
+                <td><a href="{{request.path}}{{entity.id}}" class="link-dark">{{ entity.name }}</a></td>
+                <td>{{ entity.type }}</td>
+                <td>{{ entity.startDate }}</td>
+                <td>{{ entity.endDate }}</td>
+                <td>{{ entity.user }}</td>
+              </tr>  
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>  
+  </div>
+</form>
+
+{% endblock %}

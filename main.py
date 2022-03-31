@@ -1,12 +1,22 @@
 from fastapi import FastAPI
-from ws.websocket import wsRouter
-from api.v1 import apiRouter
+from ws.views import wsRouter
+from api.views import apiRouter
 from core.db import database
+from init.views import initRouter
+from interface.views import interfaceRoute
 import uvicorn
+from fastapi.staticfiles import StaticFiles
+
 
 app = FastAPI(title="1c edo client")
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+app.include_router(interfaceRoute, prefix="", tags=["interface"])
 app.include_router(wsRouter, prefix="/ws", tags=["ws"])
 app.include_router(apiRouter, prefix="/api", tags=["api"])
+app.include_router(initRouter, prefix="/init", tags=["init"])
 
 @app.on_event("startup")
 async def startup():

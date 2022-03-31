@@ -1,2 +1,2 @@
 from .db import Base
-from models.models import Entity, DocumentType
+from models.references import Entity, DocumentType

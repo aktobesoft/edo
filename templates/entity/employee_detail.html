@@ -1,0 +1,68 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block form_content %}
+
+<form method="POST" action='{{ request.path }}' novalidate >
+    
+  {% csrf_token %}
+
+  <div class="card">
+    <div class="card-header">
+      {{ form.instance }}
+    </div>
+    <div class="card-body">
+      <div class="form-group row">
+      {% for field in form %}
+        <div class="pt-2 row">
+        <label for="id_{{field.name}}" class="col-sm-2 col-form-label">{{ field.label }}</label>
+        <div class="col-sm-10">
+          {% if field.errors %}
+            {% render_field field class+="is-invalid" %}
+            <div class="invalid-feedback">
+              {{ field.errors }}
+            </div>
+          {% else %}
+            {{ field }}
+          {% endif %}
+          
+        </div>
+      </div>
+      {% endfor %}
+      </div>
+
+      <div class="pt-3 row">
+        <div class="col">  
+          <button class="btn btn-primary btn-block">Сохранить</button> 
+          <button type="button" class="btn btn-primary btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal">
+            Удалить
+          </button>
+          {% comment %} <a href="{{ form.instance.get_absolute_url }}delete" class="btn btn-primary btn-danger" role="button">Удалить</a> {% endcomment %}
+        </div> 
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="deleteEmployeeModalLabel">Подтвердите действие</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Вы действительно хотите удалить запись?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+              <a href="{{ form.instance.get_absolute_url }}delete" class="btn btn-primary btn-danger" role="button">Удалить</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</form>
+
+{% endblock %}
