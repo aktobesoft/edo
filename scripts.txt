@@ -5,6 +5,25 @@ from db import Base, SQLALCHEMY_DATABASE_URL
 target_metadata = Base.metadata
 url = config.get_main_option(SQLALCHEMY_DATABASE_URL)
 
+*************sqlalchemy*************
+<sqlalchemy.engine.result.ChunkedIteratorResult object at 0x00000280D9236520>
+<databases.backends.postgres.Record object at 0x000002054544DE50>
+
 *************alembic****************
 alembic revision --autogenerate -m "first"
 alembic upgrade head
+
+*************vue js****************
+var app = new Vue({
+  el: '#app',
+  data: {
+    message: 'Hello Vue!'
+  },
+  delimiters: ['[[',']]']
+})
+Then in your HTML you can mix your Jinja and Vue.js template tags:
+
+    <div id="app">
+      {{normaltemplatetag}}
+      [[ message ]] 
+    </div>

@@ -14,6 +14,7 @@
         <table class="table table-hover">
           <thead class="thead-light">
             <tr>
+              <th scope="col">ИД</th>
               <th scope="col">ИИН</th>
               <th scope="col">Наименование</th>
               <th scope="col">Тип организации</th>
@@ -25,9 +26,10 @@
           <tbody>
             {% for entity in entityList %}
               <tr>
-                <th scope="row">{{ entity.iin }}</th>
-                <td><a href="{{request.path}}{{entity.id}}" class="link-dark">{{ entity.name }}</a></td>
-                <td>{{ entity.type }}</td>
+                <th scope="row">{{ entity.id }}</th>
+                <td>{{ entity.iin }}</td>
+                <td><a href="{{request.path}}{{entity.id}}" class="link-dark">{{ entity.type }} "{{ entity.name }}" </a></td>
+                <td>{{ entity.type_full_name }}</td>
                 <td>{{ entity.startDate }}</td>
                 <td>{{ entity.endDate }}</td>
                 <td>{{ entity.user }}</td>

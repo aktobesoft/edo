@@ -15,6 +15,9 @@
 
     <!-- Bootstrap core CSS -->
     <link href="{{ url_for('static', path='css/bootstrap5/bootstrap.min.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static', path='js/bootstrap5/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', path='js/vue.js') }}"></script>
+    <script src="{{ url_for('static', path='js/axios.min.js') }}"></script>
 
     <style>
         .bd-placeholder-img {
@@ -72,12 +75,14 @@
 
     <main class="container">
         <div class="shadow-lg p-3 mb-5 bg-body rounded">
+            <div>
             {% block form_content %} 
             {% endblock %}
+            </div>
         </div>
     </main>
 
-    <script src="{{ url_for('static', path='js/bootstrap5/bootstrap.bundle.min.js') }}"></script>
 
+    
 </body>
 </html>

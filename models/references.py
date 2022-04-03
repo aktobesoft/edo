@@ -1,5 +1,5 @@
 from enum import unique
-from sqlalchemy import Column, String, Integer, Table, DateTime, Boolean, MetaData, ForeignKey, Date
+from sqlalchemy import Column, String, Integer, Table, DateTime, Boolean, MetaData, ForeignKey, Date, event
 from sqlalchemy.orm import relationship
 from core.db import Base, metadata
 
@@ -10,6 +10,9 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
+
+    def __repr__(self) -> str:
+        return '<{0} ({1})>'.format(self.id, self.email)
 
 class BusinessType(Base):
     __tablename__ = "business_type"
@@ -54,6 +57,11 @@ class Entity(Base):
 
     def __repr__(self) -> str:
         return '<{0} ({1})>'.format(self.name, self.iin)
+
+@event.listens_for(Table, 'before_insert')
+def do_stuff(mapper, connect, target):
+    # target is an instance of Table
+    target.value = ...
 
 class Employee(Base):
     __tablename__ = "employee"

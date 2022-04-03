@@ -2,8 +2,6 @@ from typing import List
 from unicodedata import name
 from fastapi import APIRouter
 from models.references import *
-from schemas.entity import EntityOut
-from schemas.notes import NotesOut
 from core.db import database, SessionLocal
 from sqlalchemy import select, insert, tuple_, join
 
