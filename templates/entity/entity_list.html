@@ -9,7 +9,7 @@
       Список организации
     </div>
     <div class="card-body">
-      <a class="btn btn-primary" href="{{ request.path }}create/" role="button">Создать новый элемент</a>
+      <a class="btn btn-primary" href="{{ url_for('post_new_entity') }}" role="button">Создать новый элемент</a>
       <div class="pt-2 col">
         <table class="table table-hover">
           <thead class="thead-light">
@@ -32,7 +32,7 @@
                 <td>{{ entity.type_full_name }}</td>
                 <td>{{ entity.startDate }}</td>
                 <td>{{ entity.endDate }}</td>
-                <td>{{ entity.user }}</td>
+                <td>{{ entity.user_name }} ({{entity.user_email}})</td>
               </tr>  
             {% endfor %}
           </tbody>

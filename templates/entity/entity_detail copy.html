@@ -11,8 +11,9 @@
       </div>
       <div class="card-body">
         <div class="form-group row">
-
-        {% for field in entity if not entityLabel[field]['skip'] %}
+          {{entityLabel}}
+          {{entity}}
+        {% for field in entityLabel if not entityLabel[field]['skip'] %}
           <div class="pt-2 row">
             <label for="{{field}}" class="col-sm-2 col-form-label">{{entityLabel[field]['label']}}</label>
             <div class="col-sm-10">
@@ -20,14 +21,21 @@
                 <input type="text" name="{{field}}" class="form-control" id="{{field}}" placeholder="{{entityLabel[field]['label']}}" value="{{entity[field]}}" {{entityLabel[field]['readonly']}}>
               {% elif entityLabel[field]['type'] == 'textarea' %}
                 <textarea name="{{field}}" cols="40" rows="3" class="form-control" id="{{field}}">{{entity[field]}}</textarea>
-              {% elif entityLabel[field]['type'] == 'select' and entityLabel[field]['get_from_api'] %}
-                <select v-model="selected_{{field}}" name="{{field}}" class="form-select" aria-label="Default select example" id="{{field}}" {{entityLabel[field]['readonly']}}>
-                  <option value="0">---------</option>
-                  <option v-for="option in {{field}}_options" v-bind:value="option.value">
-                  [[ option.text ]]
-                </option>
-              </select>
-              {% else %}
+              {% elif entityLabel[field]['type'] == 'select' and entityLabel[field]['get_from_api'] and field == 'type_id'%}
+                <select v-model="selected_type_id" name="{{field}}" class="form-select" aria-label="Default select example" id="{{field}}" {{entityLabel[field]['readonly']}}>
+                  <option value="">---------</option>
+                  <option v-for="option in type_options" v-bind:value="option.value">
+                    [[ option.text ]]
+                  </option>
+                </select>
+              {% elif entityLabel[field]['type'] == 'select' and entityLabel[field]['get_from_api'] and field == 'user_id'%}
+                <select v-model="selected_user_id" name="{{field}}" class="form-select" aria-label="Default select example" id="{{field}}" {{entityLabel[field]['readonly']}}>
+                  <option value="">---------</option>
+                  <option v-for="option in user_options" v-bind:value="option.value">
+                    [[ option.text ]]
+                  </option>
+                </select>
+              {% elif entityLabel[field]['type'] == 'date' %}
                 <input type="{{entityLabel[field]['type']}}" name="{{field}}" class="form-control" 
                   id="{{field}}" placeholder="{{entityLabel[field]['label']}}" value="{{entity[field]}}" {{entityLabel[field]['readonly']}}>
               {% endif %}
@@ -49,26 +57,24 @@
       delimiters: ['[[', ']]'],
       el: '#vue',
       data: {
-        type_id_options: [],
-        user_id_options: [],
-        selected_type_id: 
-        {% if not is_new %} {{entity['type_id']}} {% else %}0{% endif %},
-        selected_user_id: 
-        {% if not is_new %} {{entity['user_id']}} {% else %}0{% endif %},
+        type_options: [],
+        user_options: [],
+        selected_type_id: {{entity['type_id']}},
+        selected_user_id: {{entity['user_id']}},
       },
       async mounted() {
         console.log(Vue.version);
         try{
           let response = await axios.get("{{url_for('get_business_type_options_list')}}")
           console.log(response.data)
-          this.type_id_options = response.data
+          this.type_options = response.data
         }catch(err){
           console.log(err)
         };
         try{
           let response = await axios.get("{{url_for('get_user_options_list')}}")
           console.log(response.data)
-          this.user_id_options = response.data
+          this.user_options = response.data
         }catch(err){
           console.log(err)
         }

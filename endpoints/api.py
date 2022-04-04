@@ -1,15 +1,21 @@
-from typing import List
-from fastapi import APIRouter
-from models.references import Entity, Notes, User, BusinessType
-from schemas.references import EntityIn, EntityOut, BusinessTypeOut, UserOptionsOut, UserOut, NotesOut, BusinessTypeOptionsOut
+import email
+from typing import List, Optional
+from fastapi import APIRouter, Depends
+from models.entity import Entity, EntityIn, EntityOut
+from services import entity, user
+from models.business_type import BusinessTypeOut, BusinessTypeOptionsOut, BusinessType
+from models.user import UserIn, UserOptionsOut, UserOut, User
+from models.notes import NotesOut, Notes
 from core.db import database
 from sqlalchemy import select, insert, tuple_, join
 
+async def common_parameters(q: Optional[str] = None, skip: int = 0, limit: int = 100):
+    return {"q": q, "skip": skip, "limit": limit}
 
 apiRouter = APIRouter()
 
 @apiRouter.get('/business_type/', response_model = List[BusinessTypeOut])
-async def get_business_type_list(skip: int = 0, limit: int = 10):
+async def get_business_type_list(commons: dict = Depends(common_parameters)):
     query = select(BusinessType.id, BusinessType.name, BusinessType.full_name)
     records = await database.fetch_all(query)
     listValue = []
@@ -20,7 +26,7 @@ async def get_business_type_list(skip: int = 0, limit: int = 10):
     return listValue
 
 @apiRouter.get('/business_type_options/', response_model = List[BusinessTypeOptionsOut])
-async def get_business_type_options_list(skip: int = 0, limit: int = 10):
+async def get_business_type_options_list(commons: dict = Depends(common_parameters)):
     query = select(BusinessType.id, BusinessType.name, BusinessType.full_name)
     records = await database.fetch_all(query)
     listValue = []
@@ -34,23 +40,17 @@ async def get_business_type_options_list(skip: int = 0, limit: int = 10):
     return listValue
 
 @apiRouter.get('/user_options/', response_model = List[UserOptionsOut])
-async def get_user_options_list():
-    query = select(User.id, User.email, User.is_active).where(User.is_active)
+async def get_user_options_list(commons: dict = Depends(common_parameters)):
+    query = select(User.id.label('value'), User.email.label('text')).where(User.is_active)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
-        print(rec)
-        print(rec.id)
-        recordDict = dict(rec)
-        recordDictOption = {}
-        recordDictOption['text'] =  recordDict['email']
-        recordDictOption['value'] =  recordDict['id'] 
-        listValue.append(recordDictOption) 
+        listValue.append(dict(rec))
     return listValue
 
 @apiRouter.get('/user/', response_model = List[UserOut])
-async def get_user_list():
-    query = select(User.id, User.email, User.is_active).where(User.is_active)
+async def get_user_list(commons: dict = Depends(common_parameters)):
+    query = select(User.id, User.name, User.email, User.is_active, User.is_company).where(User.is_active)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -59,21 +59,9 @@ async def get_user_list():
     return listValue
 
 # ---------------- entity ------------------
-@apiRouter.get('/entity/', response_model = List[EntityOut])
-async def get_entity_list():
-    query = select(Entity.name, Entity.iin, Entity.address, Entity.comment, Entity.director, 
-            Entity.director_phone, Entity.administrator, Entity.administrator_phone, Entity.token, Entity.startDate, 
-            Entity.type_id, Entity.endDate, Entity.user_id)
-    #query = select(Entity).join(User, Entity.user_id == User.id)
-    records = await database.fetch_all(query)
-    listValue = []
-    for rec in records:
-        recordDict = dict(rec)
-        #print(recordDict)
-        # recordDict['user'] = {'id': recordDict['user_id'], 'email': recordDict['email'], 'is_active': recordDict['is_active']}
-        listValue.append(recordDict)
-    #print(records)
-    return listValue
+@apiRouter.get('/entity/', response_model=list[EntityOut])
+async def get_entity_list(commons: dict = Depends(common_parameters)):
+    return await entity.get_entity_list(**commons)
 
 @apiRouter.post('/entity/', response_model = EntityOut)
 async def post_entity(newEntity : EntityIn):
@@ -88,19 +76,18 @@ async def post_entity(newEntity : EntityIn):
         records = await database.fetch_all(query)
         for rec in records:
             return dict(rec)
-    #print(record)
     return record
+
+# ---------------- user ------------------
+@apiRouter.post('/user/', response_model = UserOut)
+async def post_user(newUser : UserIn):
+    newUser = await user.post_user(newUser)
+    return dict(newUser)
      
 # ---------------- notes ------------------
 @apiRouter.get("/notes", response_model=List[NotesOut])
-async def read_notes():
-    # for i in range(100):
-    #     query = insert(Notes).values(text ='{0} - {1}'.format("some text", i), completed = True)
-    #     print(query)
-    #     await database.fetch_all(query)
+async def read_notes(commons: dict = Depends(common_parameters)):
     list1 = [tuple_(50, True),tuple_(51, True)]
     query = select(Notes.id, Notes.text, Notes.completed).where(tuple_(Notes.id, Notes.completed).in_(list1))
-    #print(query)
     listValue = await database.fetch_all(query)
-    #print(listValue)
     return listValue

@@ -1,7 +1,7 @@
 from typing import List
 from unicodedata import name
 from fastapi import APIRouter
-from models.references import *
+from models.entity import *
 from core.db import database, SessionLocal
 from sqlalchemy import select, insert, tuple_, join
 
