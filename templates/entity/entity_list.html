@@ -6,7 +6,7 @@
     
     <div class="card">
     <div class="card-header">
-      Список организации
+      Список сотрудников
     </div>
     <div class="card-body">
       <a class="btn btn-primary" href="{{ url_for('post_new_entity') }}" role="button">Создать новый элемент</a>
@@ -18,8 +18,8 @@
               <th scope="col">ИИН</th>
               <th scope="col">Наименование</th>
               <th scope="col">Тип организации</th>
-              <th scope="col">Дата начало работы</th>
-              <th scope="col">Действие по</th>
+              <th scope="col">Дата начало</th>
+              <th scope="col">Дата конец</th>
               <th scope="col">Пользователь</th>
             </tr>
           </thead>
@@ -28,10 +28,11 @@
               <tr>
                 <th scope="row">{{ entity.id }}</th>
                 <td>{{ entity.iin }}</td>
-                <td><a href="{{request.path}}{{entity.id}}" class="link-dark">{{ entity.type }} "{{ entity.name }}" </a></td>
+                <td><a href="{{request.path}}{{entity.id}}" class="link-dark">{{ entity.name }} </a></td>
                 <td>{{ entity.type_full_name }}</td>
-                <td>{{ entity.startDate }}</td>
-                <td>{{ entity.endDate }}</td>
+                <td>{{ entity.start_date }}</td>
+                <td>{{ entity.start_date }}</td>
+                <td>{{ entity.end_date }}</td>
                 <td>{{ entity.user_name }} ({{entity.user_email}})</td>
               </tr>  
             {% endfor %}

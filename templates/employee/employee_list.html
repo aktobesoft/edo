@@ -4,46 +4,34 @@
 
 <form method="POST" action='{{ request.path }}' novalidate >
     
-  {% csrf_token %}
-  <div class="card">
+    <div class="card">
     <div class="card-header">
       Список сотрудников
     </div>
     <div class="card-body">
-      <a class="btn btn-primary" href="{{ request.path }}create/" role="button">Создать новый элемент</a>
+      <a class="btn btn-primary" href="{{ url_for('post_new_employee') }}" role="button">Создать новый элемент</a>
       <div class="pt-2 col">
         <table class="table table-hover">
           <thead class="thead-light">
             <tr>
-              <th scope="col">ID</th>
-              <th scope="col">Наименование</th>
+              <th scope="col">ИД</th>
               <th scope="col">Email</th>
-              <th scope="col">Активный</th>
+              <th scope="col">Наименование</th>
               <th scope="col">Организация</th>
+              <th scope="col">Дата рождение</th>
               <th scope="col">Пользователь</th>
             </tr>
           </thead>
           <tbody>
             {% for employee in employeeList %}
-            <tr>
-              <th scope="row">{{ employee.id }}</th>
-              <td>
-                {% comment %} <a href="{{ employee.get_absolute_url }}" class="link-dark"> {% endcomment %}
-                  <a href="#" class="link-dark">
-                  {{ employee }}
-                </a>
-              </td>
-              <td>{{ employee.email }}</td>
-              <td>
-                {% if employee.is_active %} 
-                  <img src="{% static '/icons/check-square.svg' %}" alt="check-square" width="16" height="16">
-                {% else %}
-                  <img src="{% static '/icons/square.svg' %}" alt="check-square" width="16" height="16">
-                {% endif %}
-              </td>
-              <td>{{ employee.entity }}</td>
-              <td>{{ employee.user }}</td>
-            </tr>
+              <tr>
+                <th scope="row">{{ employee.id }}</th>
+                <td>{{ employee.email }}</td>
+                <td><a href="{{request.path}}{{employee.id}}" class="link-dark">{{ employee.name }} </a></td>
+                <td>{{ employee.entity_id }}</td>
+                <td>{{ employee.description }}</td>
+                <td>{{ employee.user_id }}</td>
+              </tr>  
             {% endfor %}
           </tbody>
         </table>

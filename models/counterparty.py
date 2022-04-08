@@ -15,7 +15,7 @@ class Сounterparty(Base):
     contact = Column(String(150))
     type_id = Column(Integer, ForeignKey('business_type.id', ondelete="CASCADE"))
     type = relationship("BusinessType")
-    endDate = Column(Date)
+    end_date = Column(Date)
     user_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"))
     user = relationship("User")
 

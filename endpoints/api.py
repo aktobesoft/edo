@@ -1,8 +1,9 @@
 import email
 from typing import List, Optional
 from fastapi import APIRouter, Depends
-from models.entity import Entity, EntityIn, EntityOut
-from services import entity, user
+from models.entity import Entity, EntityIn, EntityOptionsOut, EntityOut
+from models.employee import Employee, EmployeeIn, EmployeeOut
+from services import entity as entityService, user as userService, employee as employeeService
 from models.business_type import BusinessTypeOut, BusinessTypeOptionsOut, BusinessType
 from models.user import UserIn, UserOptionsOut, UserOut, User
 from models.notes import NotesOut, Notes
@@ -41,47 +42,81 @@ async def get_business_type_options_list(commons: dict = Depends(common_paramete
 
 @apiRouter.get('/user_options/', response_model = List[UserOptionsOut])
 async def get_user_options_list(commons: dict = Depends(common_parameters)):
-    query = select(User.id.label('value'), User.email.label('text')).where(User.is_active)
-    records = await database.fetch_all(query)
-    listValue = []
-    for rec in records:
-        listValue.append(dict(rec))
+    listValue = await userService.get_user_options_list(**commons)
     return listValue
 
 @apiRouter.get('/user/', response_model = List[UserOut])
 async def get_user_list(commons: dict = Depends(common_parameters)):
-    query = select(User.id, User.name, User.email, User.is_active, User.is_company).where(User.is_active)
-    records = await database.fetch_all(query)
-    listValue = []
-    for rec in records:
-        recordDict = dict(rec)
-        listValue.append(recordDict)
+    listValue = await userService.get_user_list(**commons)
     return listValue
 
-# ---------------- entity ------------------
+# ----------------------------------------------
+# +++ ---------------- entity ------------------
 @apiRouter.get('/entity/', response_model=list[EntityOut])
 async def get_entity_list(commons: dict = Depends(common_parameters)):
-    return await entity.get_entity_list(**commons)
+    return await entityService.get_entity_list(**commons)
+
+@apiRouter.get('/entity/{entity_id}', response_model=EntityOut)
+async def get_entity_by_id(entity_id: int):
+    return await entityService.get_entity_by_id(entity_id)
 
 @apiRouter.post('/entity/', response_model = EntityOut)
-async def post_entity(newEntity : EntityIn):
-    query = insert(Entity).values(name = newEntity.name, address = newEntity.address, comment = newEntity.comment,
-                 director = newEntity.director, director_phone = newEntity.director_phone, iin = newEntity.iin, 
-                 administrator = newEntity.administrator, administrator_phone = newEntity.administrator_phone, 
-                 startDate = newEntity.startDate, endDate = newEntity.endDate, type_id = newEntity.type_id, 
-                 user_id = newEntity.user_id)
-    record = await database.fetch_all(query)
-    if len(record) == 1:
-        query = select(Entity).where(Entity.id == record[0]['id'])
-        records = await database.fetch_all(query)
-        for rec in records:
-            return dict(rec)
-    return record
+async def post_entity(newEntityIn : EntityIn):
+    newEntity = await entityService.post_entity(newEntityIn)
+    return newEntity
+
+@apiRouter.delete('/entity/{entity_id}')
+async def post_entity(entity_id : int):
+    newEntity = await entityService.delete_entity_by_id(entity_id)
+    return newEntity
+
+@apiRouter.put('/entity/', response_model = EntityOut)
+async def update_entity(newEntityIn : EntityOut):
+    newEntityIn = dict(newEntityIn)
+    newEntity = await entityService.update_entity(newEntityIn['id'], newEntityIn)
+    newEntity = await entityService.get_entity_by_id(newEntityIn['id'])
+    return newEntity
+
+@apiRouter.get('/entity_options/', response_model = List[EntityOptionsOut])
+async def get_entity_options_list(commons: dict = Depends(common_parameters)):
+    listValue = await entityService.get_entity_options_list(**commons)
+    return listValue
+# +++ ---------------- entity ------------------
+# ----------------------------------------------
+
+# ----------------------------------------------
+# +++ ---------------- employee ------------------
+@apiRouter.get('/employee/', response_model=list[EmployeeOut])
+async def get_employee_list(commons: dict = Depends(common_parameters)):
+    return await employeeService.get_employee_list(**commons)
+
+@apiRouter.get('/employee/{employee_id}', response_model=EmployeeOut)
+async def get_employee_by_id(employee_id: int):
+    return await employeeService.get_employee_by_id(employee_id)
+
+@apiRouter.post('/employee/', response_model = EmployeeOut)
+async def post_employee(newEmployeeIn : EmployeeIn):
+    newEmployee = await employeeService.post_employee(newEmployeeIn)
+    return newEmployee
+
+@apiRouter.delete('/employee/{employee_id}')
+async def post_employee(employee_id : int):
+    newEmployee = await employeeService.delete_employee_by_id(employee_id)
+    return newEmployee
+
+@apiRouter.put('/employee/', response_model = EmployeeOut)
+async def update_employee(newEmployeeIn : EmployeeOut):
+    newEmployeeIn = dict(newEmployeeIn)
+    newEmployee = await employeeService.update_employee(newEmployeeIn['id'], newEmployeeIn)
+    newEmployee = await employeeService.get_employee_by_id(newEmployeeIn['id'])
+    return newEmployee
+# +++ ---------------- employee ------------------
+# ----------------------------------------------
 
 # ---------------- user ------------------
 @apiRouter.post('/user/', response_model = UserOut)
 async def post_user(newUser : UserIn):
-    newUser = await user.post_user(newUser)
+    newUser = await userService.post_user(newUser)
     return dict(newUser)
      
 # ---------------- notes ------------------

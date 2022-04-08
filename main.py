@@ -14,7 +14,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(interfaceRoute, prefix="", tags=["interface"])
 app.include_router(wsRouter, prefix="/ws", tags=["ws"])
-app.include_router(apiRouter, prefix="/api", tags=["api"])
+app.include_router(apiRouter, prefix="/v1/api", tags=["api"])
 app.include_router(initRouter, prefix="/init", tags=["init"])
 
 @app.on_event("startup")

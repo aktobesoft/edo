@@ -33,7 +33,7 @@ def downgrade():
     sa.Column('comment', sa.VARCHAR(length=350), autoincrement=False, nullable=True),
     sa.Column('contact', sa.VARCHAR(length=150), autoincrement=False, nullable=True),
     sa.Column('type_id', sa.INTEGER(), autoincrement=False, nullable=True),
-    sa.Column('endDate', sa.DATE(), autoincrement=False, nullable=True),
+    sa.Column('end_date', sa.DATE(), autoincrement=False, nullable=True),
     sa.Column('user_id', sa.INTEGER(), autoincrement=False, nullable=True),
     sa.ForeignKeyConstraint(['type_id'], ['business_type.id'], name='сounterparty_type_id_fkey', ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], name='сounterparty_user_id_fkey', ondelete='CASCADE'),

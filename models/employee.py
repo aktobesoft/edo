@@ -1,7 +1,10 @@
+from datetime import date, datetime
 from pydantic import BaseModel
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Date, DateTime
 from sqlalchemy.orm import relationship
 from core.db import Base, metadata
+from models.business_type import BusinessTypeOut
+from models.user import UserOut
 
 class Employee(Base):
     __tablename__ = "employee"
@@ -19,16 +22,48 @@ class Employee(Base):
     def __repr__(self) -> str:
         return '<{0} ({1})>'.format(self.name, self.email)
 
-class EmployeeActivity(Base):
-    __tablename__ = "employee_activity"
-    
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    token = Column(String, unique=True)
-    last_activity = Column(DateTime(timezone=True))
-    employee_id = Column(Integer, ForeignKey('employee.id', ondelete="CASCADE"))
-    employee = relationship("Employee")
-    user_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"))
-    user = relationship("User")
+    def asdict(self):
+        return {
+        'id': self.id if self.id != None else 0, 
+        'name': self.name if self.id != None else '',
+        'email': self.email if self.id != None else '',
+        'entity_id': self.entity_id if self.id != None else 0,
+        'user_id': self.user_id if self.id != None else 0, 
+        'description': self.description if self.id != None else '',
+        'date_of_birth': self.start_date if self.id != None else '',
+        }
 
-    def __repr__(self) -> str:
-        return '<{0} - {1}>'.format(self.employee, self.last_activity)
+    def get_html_attr(self):
+        return {
+        'id' : {'label':'ИД', 'type': 'text', 'skip': False, 'readonly': True},
+        'name' : {'label':'Наименование', 'type': 'text', 'skip': False},
+        'email' : {'label':'Email', 'type': 'email', 'skip': False},
+        'entity_id' : {'label':'Jрганизации', 'type': 'select', 'skip': False, 'get_from_api': True},
+        'user_id' : {'label':'Пользователь', 'type': 'select', 'skip': False, 'get_from_api': True},
+        'date_of_birth' : {'label':'День рождения', 'type': 'date', 'skip': False},
+        'description' : {'label':'Контакты руководителя', 'type': 'text', 'skip': False},
+        }
+
+class EmployeeOut(BaseModel):
+    id: int
+    name: str
+    email: str
+    entity_id: int
+    user_id: int
+    description: str
+    date_of_birth: date
+    
+    class Config:
+        orm_mode = True
+
+class EmployeeIn(BaseModel):
+   
+    name: str
+    email: str
+    entity_id: int
+    user_id: int
+    description: str
+    date_of_birth: date
+    
+    class Config:
+        orm_mode = True
