@@ -1,0 +1,15 @@
+Purchase Order Table	Cost Center Table	Vendor Table
+Sales Order Table	Purchase Requisition Table	Display GL Account Table
+Stock Table	Goods Receipt Table	Display Vendor Table
+Invoice Table	Internal Order Table	Trial Balance Table
+Profit Center Table	Vendor Master Table	Display Invoice Table
+Idoc Table	Bom Table	Customer Table
+Display Cost Center Table	Material Master Table	Customer Master Table
+Display Material Document Table	Inventory Table	Contract Table
+Info Record Table	WBS Element Table	Display Document Table
+Spool Table	SE16 Table	Exchange Rate Table
+Outbound Delivery Table	Transfer Order Table	Display Vendor List Table
+Delivery Table	Asset Table	Factory Calendar Table
+Storage Location Table	Number Ranges Table	Reservation Table
+Billing Document Table	Migo Table	Business Partner Table
+Material Document Table	Material Table	Miro Table

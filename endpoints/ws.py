@@ -71,8 +71,8 @@ manager = ConnectionManager()
 
 wsRouter = APIRouter()
 
-@wsRouter.get("/")
-async def get():
+@wsRouter.get("/", response_class=HTMLResponse)
+async def websocket_index():
     return HTMLResponse(html)
 
 

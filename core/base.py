@@ -4,4 +4,6 @@ from models.business_type import BusinessType
 from models.document_type import DocumentType
 from models.employee import Employee
 from models.user import User
+from models.counterparty import Сounterparty
 from models.notes import Notes
+from models.documents import *
