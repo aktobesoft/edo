@@ -8,7 +8,7 @@ from references.business_type.models import BusinessTypeOut, BusinessType
 from references.document_type.models import DocumentType
 from references.notes.models import Notes
 from references.user.models import UserOut, User
-from references.counterparty.models import Сounterparty
+from references.counterparty.models import Counterparty
 from sqlalchemy.orm import declared_attr
 
 class BaseDocument:
@@ -25,7 +25,7 @@ class BaseDocument:
         return Column(Integer, ForeignKey('сounterparty.id', ondelete="CASCADE"), nullable=False)
     @declared_attr 
     def сounterparty(cls):
-        return relationship("Сounterparty")
+        return relationship("Counterparty")
 
     @declared_attr
     def document_type_id(cls):

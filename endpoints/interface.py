@@ -63,7 +63,7 @@ async def entity_detail(request: Request, entity_id: int):
 async def update_entity(request: Request, entity_id: int):
     form_data = await request.form()
     entityInstance = dict(form_data)
-    resultEntity = await entityService.update_entity(entity_id, entityInstance)
+    resultEntity = await entityService.update_entity(entityInstance)
     return RedirectResponse(status_code=HTTP_302_FOUND, url='/entity/')
 # +++ ---------------- entity ------------------
 # ----------------------------------------------
@@ -110,7 +110,7 @@ async def employee_detail(request: Request, employee_id: int):
 async def update_employee(request: Request, employee_id: int):
     form_data = await request.form()
     employeeInstance = dict(form_data)
-    resultEmployee = await employeeService.update_employee(employee_id, employeeInstance)
+    resultEmployee = await employeeService.update_employee(employeeInstance)
     return RedirectResponse(status_code=HTTP_302_FOUND, url='/employee/')
 # +++ ---------------- employee ------------------
 # ----------------------------------------------

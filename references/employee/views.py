@@ -1,21 +1,22 @@
-from references.entity.models import Entity
-from references.employee.models import Employee, EmployeeIn, EmployeeOut
 from sqlalchemy import select, insert, update, delete
 from core.db import database
 import asyncpg
 from datetime import date, datetime
+from common_module.urls_module import correct_date
+
 from references.user.models import User
+from references.entity.models import Entity
+from references.employee.models import Employee, EmployeeIn, EmployeeOut
 
 async def get_employee_by_id(employee_id: int):
-    queryEmployee = select(Employee).where(Employee.id == employee_id)
-    resultEmployee = await database.fetch_one(queryEmployee)
-    return resultEmployee
+    query = select(Employee).where(Employee.id == employee_id)
+    result = await database.fetch_one(query)
+    return result
 
 async def delete_employee_by_id(employee_id: int):
-    queryEmployee = delete(Employee).where(Employee.id == employee_id)
-    resultEmployee = await database.execute(queryEmployee)
-    print(resultEmployee)
-    return resultEmployee
+    query = delete(Employee).where(Employee.id == employee_id)
+    result = await database.execute(query)
+    return result
 
 async def get_employee_list(limit: int = 100, 
                         skip: int = 0,
@@ -40,50 +41,33 @@ async def get_employee_list(limit: int = 100,
         listValue.append(recordDict)
     return listValue
 
-async def post_employee(employeeInstance : EmployeeOut):
-    newEmployee = dict(employeeInstance)
-
-    if type(newEmployee["date_of_birth"]) is date:
-        date_of_birth = newEmployee["date_of_birth"]
-    elif type(newEmployee["date_of_birth"]) is str and newEmployee["date_of_birth"] != 'None' or newEmployee["date_of_birth"] != '':  
-        date_of_birth = datetime.now()
+async def post_employee(employeeInstance : dict):
+    employeeInstance["date_of_birth"] = correct_date(employeeInstance["date_of_birth"])
 
     query = insert(Employee).values(
-                name = newEmployee["name"], 
-                email = newEmployee["email"], 
-                date_of_birth = date_of_birth,
-                description = newEmployee["description"], 
-                entity_id = int(newEmployee["entity_id"]),
-                user_id = int(newEmployee["user_id"])
+                name = employeeInstance["name"], 
+                email = employeeInstance["email"], 
+                date_of_birth = employeeInstance["date_of_birth"],
+                description = employeeInstance["description"], 
+                entity_id = int(employeeInstance["entity_id"]),
+                user_id = int(employeeInstance["user_id"])
                 )
-    print(query)
     try:
-        newEmployee = await database.fetch_one(query)
+        newEmloyeeId = await database.execute(query)
     except asyncpg.exceptions.ForeignKeyViolationError as e:
         raise ValueError('Не уникальный email')
     
-    if newEmployee != None:
-        query = select(Employee).where(Employee.id == newEmployee.id)
-        record = await database.fetch_one(query)
-        if (record != None):
-            return dict(record)
-    return EmployeeIn
+    return {**employeeInstance, 'id': newEmloyeeId}
 
-async def update_employee(employee_id: int, employeeInstance: dict):
-
-    queryEmployee = select(Employee).where(Employee.id == employee_id)
-    resultEmployee = await database.fetch_one(queryEmployee)
-
-    if type(employeeInstance["date_of_birth"]) is date:
-        date_of_birth = employeeInstance["date_of_birth"]
-    elif type(employeeInstance["date_of_birth"]) is str and employeeInstance["date_of_birth"] != 'None' or employeeInstance["date_of_birth"] != '':  
-        date_of_birth = datetime.now()
+async def update_employee(employeeInstance : dict):
+    employeeInstance['date_of_birth'] = correct_date(employeeInstance['date_of_birth'])
     
     query = update(Employee).values(name = employeeInstance["name"], 
                 email = employeeInstance["email"], 
-                date_of_birth = date_of_birth,
+                date_of_birth = employeeInstance['date_of_birth'],
                 description = employeeInstance["description"], 
                 entity_id = int(employeeInstance["entity_id"]),
-                user_id = int(employeeInstance["user_id"])).where(Employee.id == employee_id)
-
-    return await database.execute(query)
+                user_id = int(employeeInstance["user_id"])).where(Employee.id == int(employeeInstance['id']))
+    print(query)
+    result = await database.execute(query)
+    return {**employeeInstance}

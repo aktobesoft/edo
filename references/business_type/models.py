@@ -22,6 +22,14 @@ class BusinessTypeOut(BaseModel):
     class Config:
         orm_mode = True
 
+class BusinessTypeIn(BaseModel):
+    
+    name: str
+    full_name: str
+    
+    class Config:
+        orm_mode = True
+
 class BusinessTypeOptionsOut(BaseModel):
     
     value: int

@@ -16,17 +16,15 @@ async def get_employee_by_id(employee_id: int):
 
 @employeeRouter.post('/', response_model = EmployeeOut)
 async def post_employee(newEmployeeIn : EmployeeIn):
-    newEmployee = await views.post_employee(newEmployeeIn)
-    return newEmployee
+    result = await views.post_employee(newEmployeeIn.dict())
+    return result
 
 @employeeRouter.delete('/{employee_id}')
-async def post_employee(employee_id : int):
-    newEmployee = await views.delete_employee_by_id(employee_id)
-    return newEmployee
+async def delete_employee_by_id(employee_id : int):
+    result = await views.delete_employee_by_id(employee_id)
+    return result
 
 @employeeRouter.put('/', response_model = EmployeeOut)
 async def update_employee(newEmployeeIn : EmployeeOut):
-    newEmployeeIn = dict(newEmployeeIn)
-    newEmployee = await views.update_employee(newEmployeeIn['id'], newEmployeeIn)
-    newEmployee = await views.get_employee_by_id(newEmployeeIn['id'])
-    return newEmployee
+    result = await views.update_employee(newEmployeeIn.dict())
+    return result
