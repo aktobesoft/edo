@@ -1,15 +1,11 @@
-from lib2to3.pgen2 import token
-from typing import List
-
-from databases import Database
-from models.entity import Entity, EntityIn, EntityOut
-from models.business_type import BusinessType
+from references.entity.models import Entity, EntityIn
+from references.business_type.models import BusinessType
+from references.user.models import User
 from sqlalchemy import select, insert, update, delete
 from core.db import database
 import asyncpg
 from datetime import date, datetime
 
-from models.user import User
 
 async def get_entity_by_id(entity_id: int):
     queryEntity = select(Entity).where(Entity.id == entity_id)

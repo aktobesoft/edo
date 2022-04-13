@@ -4,11 +4,13 @@ from fastapi import APIRouter, HTTPException, Request, Form
 from sqlalchemy import select, insert, update
 from core.db import database, engine, SessionLocal
 from fastapi.templating import Jinja2Templates
-from models.employee import Employee
-from models.user import UserOut, User
-from services import user as userService, entity as entityService, employee as employeeService
-from models.business_type import BusinessType
-from models.entity import EntityOut, EntityNestedOut, Entity
+from references.employee.models import Employee
+from references.user.models import UserOut, User
+from references.employee import views as employeeService
+from references.entity import views as entityService
+from references.user import views as userService
+from references.business_type.models import BusinessType
+from references.entity.models import EntityOut, EntityNestedOut, Entity
 from datetime import datetime
 from starlette.status import HTTP_302_FOUND
 

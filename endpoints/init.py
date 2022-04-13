@@ -1,7 +1,9 @@
 from typing import List
 from unicodedata import name
 from fastapi import APIRouter
-from models.entity import *
+from references.entity.models import *
+from references.business_type.models import BusinessType
+from references.document_type.models import DocumentType
 from core.db import database, SessionLocal
 from sqlalchemy import select, insert, tuple_, join
 

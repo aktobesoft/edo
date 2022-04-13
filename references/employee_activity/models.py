@@ -1,8 +1,7 @@
 
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Date, DateTime
 from sqlalchemy.orm import relationship
-from models.employee import Employee
-from models.user import User
+from core.db import Base
 
 class EmployeeActivity(Base):
     __tablename__ = "employee_activity"

@@ -1,4 +1,4 @@
-from models.user import UserIn, User
+from references.user.models import UserIn, User
 from core.db import database
 from sqlalchemy import select, insert
 from sqlalchemy import exc

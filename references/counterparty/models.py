@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Date
 from core.db import Base, metadata
 from sqlalchemy.orm import relationship
+from references.business_type.models import BusinessType
+from references.user.models import User
 
 class Сounterparty(Base):
     __tablename__ = "сounterparty"

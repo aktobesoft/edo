@@ -1,13 +1,13 @@
 from enum import unique
 from sqlalchemy import Column, String, Integer, Table, DateTime, Boolean, MetaData, ForeignKey, Date, event
 from sqlalchemy.orm import relationship
-from core.db import Base, metadata
+from core.db import Base
 from datetime import date, datetime
 from pydantic import BaseModel, validator
-from .business_type import BusinessTypeOut, BusinessType
-from .document_type import DocumentType
-from .notes import Notes
-from .user import UserOut, User
+from references.business_type.models import BusinessTypeOut, BusinessType
+from references.document_type.models import DocumentType
+from references.notes.models import Notes
+from references.user.models import UserOut, User
 
 class Entity(Base):
     __tablename__ = 'entity'

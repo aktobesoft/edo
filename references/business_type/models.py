@@ -1,19 +1,19 @@
 from pydantic import BaseModel
 from sqlalchemy import Column, String, Integer, Boolean 
-from core.db import Base, metadata
+from core.db import Base
 
-class DocumentType(Base):
-    __tablename__ = "document_type"
+class BusinessType(Base):
+    __tablename__ = "business_type"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(150), nullable=False, unique=True)
-    description = Column(String(350), nullable=False)
+    name = Column(String(150), unique=True)
+    full_name = Column(String(360))
 
     def __repr__(self) -> str:
-        return self.description
+        return self.name
+        
 
-
-class BusinessTypeOut(BaseModel): 
+class BusinessTypeOut(BaseModel):
     
     id: int
     name: str

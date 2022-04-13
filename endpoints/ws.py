@@ -6,7 +6,6 @@ from fastapi.responses import HTMLResponse
 from core.db import engine, SessionLocal
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import insert
-from models.entity import DocumentType, Entity
 from datetime import datetime
 
 

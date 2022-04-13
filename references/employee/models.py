@@ -1,10 +1,10 @@
-from datetime import date, datetime
+from datetime import date
 from pydantic import BaseModel
-from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Date, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, Date, DateTime
 from sqlalchemy.orm import relationship
-from core.db import Base, metadata
-from models.business_type import BusinessTypeOut
-from models.user import UserOut
+from core.db import Base
+from references.business_type.models import BusinessTypeOut
+from references.entity.models import Entity
 
 class Employee(Base):
     __tablename__ = "employee"
@@ -38,7 +38,7 @@ class Employee(Base):
         'id' : {'label':'ИД', 'type': 'text', 'skip': False, 'readonly': True},
         'name' : {'label':'Наименование', 'type': 'text', 'skip': False},
         'email' : {'label':'Email', 'type': 'email', 'skip': False},
-        'entity_id' : {'label':'Jрганизации', 'type': 'select', 'skip': False, 'get_from_api': True},
+        'entity_id' : {'label':'Организации', 'type': 'select', 'skip': False, 'get_from_api': True},
         'user_id' : {'label':'Пользователь', 'type': 'select', 'skip': False, 'get_from_api': True},
         'date_of_birth' : {'label':'День рождения', 'type': 'date', 'skip': False},
         'description' : {'label':'Контакты руководителя', 'type': 'text', 'skip': False},

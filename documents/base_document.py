@@ -4,11 +4,11 @@ from sqlalchemy.orm import relationship
 from core.db import Base, metadata
 from datetime import date, datetime
 from pydantic import BaseModel, validator
-from .business_type import BusinessTypeOut, BusinessType
-from .document_type import DocumentType
-from .notes import Notes
-from .user import UserOut, User
-from .counterparty import Сounterparty
+from references.business_type.models import BusinessTypeOut, BusinessType
+from references.document_type.models import DocumentType
+from references.notes.models import Notes
+from references.user.models import UserOut, User
+from references.counterparty.models import Сounterparty
 from sqlalchemy.orm import declared_attr
 
 class BaseDocument:
@@ -41,8 +41,3 @@ class BaseDocument:
     def entity(cls):
         return relationship("Entity")
 
-class PurchaseRequisition(BaseDocument, Base):
-    __tablename__ = "purchase_requisition"
-
-    def __repr__(self) -> str:
-        return '<{0} ({1})>'.format(self.number, self.date)

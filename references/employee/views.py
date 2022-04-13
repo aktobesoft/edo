@@ -1,16 +1,10 @@
-from lib2to3.pgen2 import token
-from typing import List
-
-from databases import Database
-from models.entity import Entity, EntityIn, EntityOut
-from models.employee import Employee, EmployeeIn, EmployeeOut
-from models.business_type import BusinessType
+from references.entity.models import Entity
+from references.employee.models import Employee, EmployeeIn, EmployeeOut
 from sqlalchemy import select, insert, update, delete
 from core.db import database
 import asyncpg
 from datetime import date, datetime
-
-from models.user import User
+from references.user.models import User
 
 async def get_employee_by_id(employee_id: int):
     queryEmployee = select(Employee).where(Employee.id == employee_id)
