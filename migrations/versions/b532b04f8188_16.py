@@ -1,8 +1,8 @@
-"""12
+"""16
 
-Revision ID: ffa88176b497
-Revises: 389b23247900
-Create Date: 2022-04-12 19:51:34.705813
+Revision ID: b532b04f8188
+Revises: d10c2e4fb98c
+Create Date: 2022-04-14 12:05:20.552147
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ffa88176b497'
-down_revision = '389b23247900'
+revision = 'b532b04f8188'
+down_revision = 'd10c2e4fb98c'
 branch_labels = None
 depends_on = None
 
@@ -22,7 +22,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('guid', sa.String(length=36), nullable=False),
     sa.Column('number', sa.String(length=150), nullable=False),
-    sa.Column('date', sa.DateTime(), nullable=False),
+    sa.Column('date', sa.DateTime(timezone=True), nullable=False),
     sa.Column('comment', sa.String(length=350), nullable=True),
     sa.Column('sum', sa.Integer(), nullable=True),
     sa.Column('counterparty_id', sa.Integer(), nullable=False),

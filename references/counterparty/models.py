@@ -8,7 +8,7 @@ from references.user.models import User
 from datetime import date, datetime
 
 class Counterparty(Base):
-    __tablename__ = "сounterparty"
+    __tablename__ = "counterparty"
 
     id = Column(Integer, primary_key=True, autoincrement=True) 
     name = Column(String(150), nullable=False)
@@ -35,6 +35,26 @@ class CounterpartyOut(BaseModel):
     class Config:
         orm_mode = True
 
+class CounterpartySmallOut(BaseModel):
+    id: int
+    name: str
+    iin: str
+        
+    class Config:
+        orm_mode = True
+
+class CounterpartyNestedOut(BaseModel):
+    id: int
+    name: str
+    iin: str
+    address: str
+    comment: str
+    contact: str
+    type: BusinessTypeOut
+    
+    class Config:
+        orm_mode = True
+
 class CounterpartyIn(BaseModel):
     name: str
     iin: str
@@ -45,3 +65,10 @@ class CounterpartyIn(BaseModel):
     
     class Config:
         orm_mode = True
+
+def counterparty_fillDataFromDict(queryResult : dict):
+    return {
+        'id': queryResult['counterparty_id'],
+        'iin': queryResult['counterparty_iin'],
+        'name': queryResult['counterparty_name']
+        } 

@@ -16,15 +16,15 @@ class BaseDocument:
     id = Column(Integer, primary_key=True, autoincrement=True)
     guid = Column(String(36), nullable=False, index=True, unique=True)
     number = Column(String(150), nullable=False)
-    date = Column(DateTime, nullable=False)
+    date = Column(DateTime(timezone=True), nullable=False)
     comment = Column(String(350), nullable=True)
     sum = Column(Integer, nullable=True)
 
     @declared_attr
     def counterparty_id(cls):
-        return Column(Integer, ForeignKey('сounterparty.id', ondelete="CASCADE"), nullable=False)
+        return Column(Integer, ForeignKey('counterparty.id', ondelete="CASCADE"), nullable=False)
     @declared_attr 
-    def сounterparty(cls):
+    def counterparty(cls):
         return relationship("Counterparty")
 
     @declared_attr
@@ -40,4 +40,12 @@ class BaseDocument:
     @declared_attr 
     def entity(cls):
         return relationship("Entity")
+
+class OptionsStructure(BaseModel):
+    
+    value: int
+    text: str
+    
+    class Config:
+        orm_mode = True
 

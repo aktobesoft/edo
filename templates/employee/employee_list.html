@@ -28,9 +28,9 @@
                 <th scope="row">{{ employee.id }}</th>
                 <td>{{ employee.email }}</td>
                 <td><a href="{{request.path}}{{employee.id}}" class="link-dark">{{ employee.name }} </a></td>
-                <td>{{ employee.entity_id }}</td>
-                <td>{{ employee.description }}</td>
-                <td>{{ employee.user_id }}</td>
+                <td>{{ employee.entity.name }}</td>
+                <td>{{ employee.date_of_birth }}</td>
+                <td>{{ employee.user_name }} ({{employee.user_email}})</td>
               </tr>  
             {% endfor %}
           </tbody>

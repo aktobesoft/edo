@@ -101,14 +101,14 @@
       async mounted() {
         console.log(Vue.version);
         try{
-          let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true")
+          let response = await axios.get("{{url_for('get_business_type_options_list')}}")
           console.log(response.data)
           this.type_id_options = response.data
         }catch(err){
           console.log(err)
         };
         try{
-          let response = await axios.get("{{url_for('get_user_list')}}?optional=true")
+          let response = await axios.get("{{url_for('get_user_options_list')}}")
           console.log(response.data)
           this.user_id_options = response.data
         }catch(err){

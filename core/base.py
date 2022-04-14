@@ -6,4 +6,5 @@ from references.employee.models import Employee
 from references.user.models import User
 from references.counterparty.models import Counterparty
 from references.notes.models import Notes
-from documents.base_document import BaseDocument
+from documents.base_document.models import BaseDocument
+from documents.purchase_requisition.models import PurchaseRequisition

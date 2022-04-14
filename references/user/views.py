@@ -18,6 +18,10 @@ async def post_user(newUser : dict):
     return dict(instanceUser)
     
 async def get_user_list(limit: int = 100, skip: int = 0, **kwargs):
+
+    if(kwargs['optional']):
+        return await get_user_options_list(limit, skip, **kwargs)
+
     query = select(User.id, User.name, User.email, User.is_active, User.is_company
             ).where(User.is_active).order_by(User.id).limit(limit).offset(skip)
     records = await database.fetch_all(query)
@@ -35,4 +39,5 @@ async def get_user_options_list(limit: int = 100, skip: int = 0, **kwargs):
     for rec in records:
         listValue.append(dict(rec))
     return listValue
+
     

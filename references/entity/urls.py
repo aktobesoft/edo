@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends
 from common_module.urls_module import common_parameters
+from documents.base_document.models import OptionsStructure
 from references.entity import views
-from references.entity.models import EntityOut, EntityIn, EntityOptionsOut, EntityNestedOut
-from typing import List
+from references.entity.models import EntityOut, EntityIn, EntityNestedOut
+from typing import List, Union
 
 entityRouter = APIRouter()
 
 
-@entityRouter.get('/', response_model=list[EntityOut])
+@entityRouter.get('/', response_model = Union[list[EntityNestedOut],list[EntityOut],List[OptionsStructure]])
 async def get_entity_list(commons: dict = Depends(common_parameters)):
     return await views.get_entity_list(**commons)
 
@@ -31,8 +32,3 @@ async def update_entity(newEntityIn : EntityOut):
     newEntityIn = dict(newEntityIn)
     result = await views.update_entity(newEntityIn)
     return newEntityIn
-
-@entityRouter.get('/options/', response_model = List[EntityOptionsOut])
-async def get_entity_options_list(commons: dict = Depends(common_parameters)):
-    listValue = await views.get_entity_options_list(**commons)
-    return listValue

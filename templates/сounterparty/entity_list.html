@@ -29,7 +29,8 @@
                 <th scope="row">{{ entity.id }}</th>
                 <td>{{ entity.iin }}</td>
                 <td><a href="{{request.path}}{{entity.id}}" class="link-dark">{{ entity.name }} </a></td>
-                <td>{{ entity.business_type_full_name }}</td>
+                <td>{{ entity.type_full_name }}</td>
+                <td>{{ entity.start_date }}</td>
                 <td>{{ entity.start_date }}</td>
                 <td>{{ entity.end_date }}</td>
                 <td>{{ entity.user_name }} ({{entity.user_email}})</td>

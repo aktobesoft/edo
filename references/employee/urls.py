@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends
 from common_module.urls_module import common_parameters
 from references.employee import views
-from references.employee.models import EmployeeOut, EmployeeIn
-from typing import List
+from references.employee.models import EmployeeOut, EmployeeIn, EmployeeNestedOut
+from typing import List, Union
+from documents.base_document.models import OptionsStructure
 
 employeeRouter = APIRouter()
 
-@employeeRouter.get('/', response_model=list[EmployeeOut])
+@employeeRouter.get('/', response_model = Union[list[EmployeeNestedOut], list[EmployeeOut], List[OptionsStructure]])
 async def get_employee_list(commons: dict = Depends(common_parameters)):
     return await views.get_employee_list(**commons)
 

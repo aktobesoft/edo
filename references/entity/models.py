@@ -104,6 +104,11 @@ class EntityOut(BaseModel):
     class Config:
         orm_mode = True
 
+class EntitySmallOut(BaseModel):
+    id: int
+    name: str
+    iin: str
+
 class EntityIn(BaseModel):
     name: str
     iin: str
@@ -127,14 +132,12 @@ class EntityIn(BaseModel):
             raise ValueError('must contain only digits')
         return v.title()
 
-class EntityOptionsOut(BaseModel):
-    
-    value: int
-    text: str
-    
-    class Config:
-        orm_mode = True
-
+def entity_fillDataFromDict(queryResult : dict):
+    return {
+        'id': queryResult['entity_id'],
+        'iin': queryResult['entity_iin'],
+        'name': queryResult['entity_name']
+        } 
 
 @event.listens_for(Table, 'before_insert')
 def do_stuff(mapper, connect, target):

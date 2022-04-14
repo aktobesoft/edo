@@ -44,3 +44,12 @@ class UserOptionsOut(BaseModel):
     
     class Config:
         orm_mode = True
+
+def user_fillDataFromDict(queryResult : dict):
+    return {
+        'id': queryResult['user_id'],
+        'name': queryResult['user_name'],
+        'email': queryResult['user_email'],
+        'is_active': queryResult['user_is_active'],
+        'is_company': queryResult['user_is_company']
+        } 

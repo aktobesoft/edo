@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends
 from common_module.urls_module import common_parameters
 from references.counterparty import views
-from references.counterparty.models import CounterpartyOut, CounterpartyIn
-from typing import List
+from documents.base_document.models import OptionsStructure
+from references.counterparty.models import CounterpartyOut, CounterpartyIn, CounterpartyNestedOut
+from typing import List, Union
 
 counterpartyRouter = APIRouter()
 
-@counterpartyRouter.get('/', response_model=list[CounterpartyOut])
+@counterpartyRouter.get('/', response_model=Union[list[CounterpartyNestedOut],List[CounterpartyOut], list[OptionsStructure]])
 async def get_counterparty_list(commons: dict = Depends(common_parameters)):
     return await views.get_counterparty_list(**commons)
 

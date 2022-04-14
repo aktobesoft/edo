@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from sqlalchemy import Column, String, Integer, Boolean 
 from core.db import Base
 
+
 class BusinessType(Base):
     __tablename__ = "business_type"
 
@@ -30,10 +31,9 @@ class BusinessTypeIn(BaseModel):
     class Config:
         orm_mode = True
 
-class BusinessTypeOptionsOut(BaseModel):
-    
-    value: int
-    text: str
-    
-    class Config:
-        orm_mode = True
+def business_type_fillDataFromDict(queryResult : dict):
+    return {
+        'id': queryResult['business_type_id'],
+        'name': queryResult['business_type_name'],
+        'full_name': queryResult['business_type_full_name'] 
+        } 

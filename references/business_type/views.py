@@ -1,7 +1,7 @@
 from sqlalchemy import select, insert, update, delete
 import asyncpg
 from core.db import database
-from common_module.urls_module import correct_date
+from common_module.urls_module import correct_datetime
 
 from references.business_type.models import BusinessType, BusinessTypeIn
 
@@ -16,6 +16,12 @@ async def delete_business_type_by_id(business_type_id: int):
     return result
 
 async def get_business_type_list(limit: int = 100,skip: int = 0,**kwargs):
+
+    # if(kwargs['nested']):
+    #     return await get_counterparty_nested_list(limit, skip, **kwargs)
+    if(kwargs['optional']):
+        return await get_business_type_options_list(limit, skip, **kwargs)
+
     query = select(BusinessType.id, BusinessType.name, BusinessType.full_name).limit(limit).offset(skip)
     records = await database.fetch_all(query)
     listValue = []

@@ -13,19 +13,26 @@ class DocumentType(Base):
         return self.description
 
 
-class BusinessTypeOut(BaseModel): 
+class DocumentTypeOut(BaseModel): 
     
     id: int
     name: str
-    full_name: str
+    description: str
     
     class Config:
         orm_mode = True
 
-class BusinessTypeOptionsOut(BaseModel):
+class DocumentTypeOptionsOut(BaseModel):
     
     value: int
     text: str
     
     class Config:
         orm_mode = True
+
+def document_type_fillDataFromDict(queryResult : dict):
+    return {
+        'id': queryResult['document_type_id'],
+        'name': queryResult['document_type_name'],
+        'description': queryResult['document_type_description']
+        }

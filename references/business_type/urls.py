@@ -1,19 +1,15 @@
 from fastapi import APIRouter, Depends
 from common_module.urls_module import common_parameters
-from typing import List
+from typing import List, Union
 
-from references.business_type.models import BusinessTypeOut, BusinessTypeOptionsOut, BusinessTypeIn
+from references.business_type.models import BusinessTypeOut, BusinessTypeIn
 from references.business_type import views
+from documents.base_document.models import OptionsStructure
 
 
 business_typeRouter = APIRouter()
 
-@business_typeRouter.get('/options/', response_model = List[BusinessTypeOptionsOut])
-async def get_business_type_options_list(commons: dict = Depends(common_parameters)):
-    records = await views.get_business_type_options_list(**commons)
-    return records
-
-@business_typeRouter.get('/', response_model = List[BusinessTypeOut])
+@business_typeRouter.get('/', response_model = Union[List[BusinessTypeOut], List[OptionsStructure]])
 async def get_business_type_list(commons: dict = Depends(common_parameters)):
     records = await views.get_business_type_list(**commons)
     return records

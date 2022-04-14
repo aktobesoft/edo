@@ -25,8 +25,8 @@ async def index(request: Request):
 # +++ ---------------- entity ------------------
 @interfaceRoute.get("/entity/", response_class=HTMLResponse)
 async def entity_list(request: Request):
-    commons = {'limit': 100, 'skip': 0}
-    entity_list = await entityService.get_entity_list(**commons, addUser = True, addBusinessType = True)
+    commons = {'limit': 100, 'skip': 0, 'nested': True}
+    entity_list = await entityService.get_entity_list(**commons)
     return templates.TemplateResponse("entity/entity_list.html", context={'request': request, 'entityList': entity_list})
 
 @interfaceRoute.get('/entity/new', response_class=HTMLResponse)
@@ -72,8 +72,8 @@ async def update_entity(request: Request, entity_id: int):
 # +++ ---------------- employee ------------------
 @interfaceRoute.get("/employee/", response_class=HTMLResponse)
 async def employee_list(request: Request):
-    commons = {'limit': 100, 'skip': 0}
-    employee_list = await employeeService.get_employee_list(**commons, addUser = True, addBusinessType = True)
+    commons = {'limit': 100, 'skip': 0, 'nested': True}
+    employee_list = await employeeService.get_employee_list(**commons)
     return templates.TemplateResponse("employee/employee_list.html", context={'request': request, 'employeeList': employee_list})
 
 @interfaceRoute.get('/employee/new', response_class=HTMLResponse)

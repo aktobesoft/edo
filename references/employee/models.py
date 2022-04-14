@@ -4,7 +4,8 @@ from sqlalchemy import Column, String, Integer, ForeignKey, Date, DateTime
 from sqlalchemy.orm import relationship
 from core.db import Base
 from references.business_type.models import BusinessTypeOut
-from references.entity.models import Entity
+from references.entity.models import Entity, EntityOut, EntitySmallOut
+from references.user.models import UserOut
 
 class Employee(Base):
     __tablename__ = "employee"
@@ -50,6 +51,20 @@ class EmployeeOut(BaseModel):
     email: str
     entity_id: int
     user_id: int
+    description: str
+    date_of_birth: date
+    
+    class Config:
+        orm_mode = True
+
+class EmployeeNestedOut(BaseModel):
+    id: int
+    name: str
+    email: str
+    entity_id: int
+    user_id: int
+    user: UserOut
+    entity: EntitySmallOut
     description: str
     date_of_birth: date
     
