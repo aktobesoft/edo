@@ -3,10 +3,16 @@ from datetime import date, datetime, timezone
 
 from sqlalchemy import false
 
-async def common_parameters(q: Optional[str] = None, skip: int = 0, limit: int = 100, nested: bool = False, optional: bool = False):
+async def qp_select_list(q: Optional[str] = None, skip: int = 0, limit: int = 100, nested: bool = False, optional: bool = False):
     return {"q": q, "skip": skip, "limit": limit, 'nested': nested, 'optional': optional}
 
-async def query_params(q: Optional[str] = None, nested: bool = False):
+async def qp_select_one(q: Optional[str] = None, nested: bool = False):
+    return {"q": q, 'nested': nested}
+
+async def qp_update(q: Optional[str] = None, nested: bool = False):
+    return {"q": q, 'nested': nested}
+
+async def qp_insert(q: Optional[str] = None, nested: bool = False):
     return {"q": q, 'nested': nested}
 
 def correct_datetime(date_value):

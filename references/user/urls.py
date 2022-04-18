@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from common_module.urls_module import common_parameters
+from common_module.urls_module import qp_select_list
 from documents.base_document.models import OptionsStructure
 from core.db import database
 from sqlalchemy import select
@@ -12,7 +12,7 @@ from references.user import views as userService
 userRouter = APIRouter()
 
 @userRouter.get('/', response_model = Union[List[UserOut], List[OptionsStructure]])
-async def get_user_list(commons: dict = Depends(common_parameters)):
+async def get_user_list(commons: dict = Depends(qp_select_list)):
     listValue = await userService.get_user_list(**commons)
     return listValue
 

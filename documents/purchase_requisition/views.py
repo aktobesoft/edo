@@ -133,8 +133,9 @@ async def update_purchase_requisition(purchaseRequisitionInstance: dict):
                 sum = purchaseRequisitionInstance["sum"], 
                 counterparty_id = purchaseRequisitionInstance["counterparty_id"], 
                 document_type_id = purchaseRequisitionInstance["document_type_id"], 
+                guid = purchaseRequisitionInstance["guid"], 
                 entity_id = purchaseRequisitionInstance["entity_id"]).where(
-                    PurchaseRequisition.guid == purchaseRequisitionInstance['guid'])
+                    PurchaseRequisition.id == purchaseRequisitionInstance['id'])
 
     result = await database.execute(query)
     return purchaseRequisitionInstance

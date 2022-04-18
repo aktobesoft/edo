@@ -4,11 +4,13 @@ from fastapi import APIRouter, HTTPException, Request, Form
 from sqlalchemy import select, insert, update
 from core.db import database, engine, SessionLocal
 from fastapi.templating import Jinja2Templates
+from references.counterparty.models import Counterparty
 from references.employee.models import Employee
 from references.user.models import UserOut, User
 from references.employee import views as employeeService
 from references.entity import views as entityService
 from references.user import views as userService
+from references.counterparty import views as counterpartyService
 from references.business_type.models import BusinessType
 from references.entity.models import EntityOut, EntityNestedOut, Entity
 from datetime import datetime
@@ -114,3 +116,25 @@ async def update_employee(request: Request, employee_id: int):
     return RedirectResponse(status_code=HTTP_302_FOUND, url='/employee/')
 # +++ ---------------- employee ------------------
 # ----------------------------------------------
+
+@interfaceRoute.get("/counterparty/", response_class=HTMLResponse)
+async def counterparty_list(request: Request):
+    parametrs = {'limit': 100, 'skip': 0, 'nested': True}
+    counterparty_list = await counterpartyService.get_counterparty_nested_list(**parametrs)
+    return templates.TemplateResponse("counterparty/counterparty_list.html", context={'request': request, 'counterpartyList': counterparty_list})
+
+@interfaceRoute.get("/counterparty/{itemId}", response_class=HTMLResponse)
+async def counterparty_detail(request: Request, itemId: int):
+    
+    if itemId == 0:
+        resultDict = {}
+        objectLabel = Counterparty().get_html_attr()
+        return templates.TemplateResponse("counterparty/counterparty_detail.html", context={'request': request, 'counterparty': resultDict, 'counterpartyLabel': objectLabel, 'is_new': True})
+    
+    result = await counterpartyService.get_counterparty_by_id(itemId)
+    if result != None:
+        resultDict = dict(result)
+        objectLabel = Counterparty().get_html_attr()
+        return templates.TemplateResponse("counterparty/counterparty_detail.html", context={'request': request, 'counterparty': resultDict, 'counterpartyLabel': objectLabel, 'is_new': False})
+    else:
+        raise HTTPException(status_code=404, detail="Item not found")

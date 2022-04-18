@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from common_module.urls_module import common_parameters
+from common_module.urls_module import qp_select_list, qp_select_one
 from references.counterparty import views
 from documents.base_document.models import OptionsStructure
 from references.counterparty.models import CounterpartyOut, CounterpartyIn, CounterpartyNestedOut
@@ -8,12 +8,12 @@ from typing import List, Union
 counterpartyRouter = APIRouter()
 
 @counterpartyRouter.get('/', response_model=Union[list[CounterpartyNestedOut],List[CounterpartyOut], list[OptionsStructure]])
-async def get_counterparty_list(commons: dict = Depends(common_parameters)):
+async def get_counterparty_list(commons: dict = Depends(qp_select_list)):
     return await views.get_counterparty_list(**commons)
 
 @counterpartyRouter.get('/{counterparty_id}', response_model=CounterpartyOut)
-async def get_counterparty_by_id(counterparty_id: int):
-    return await views.get_counterparty_by_id(counterparty_id)
+async def get_counterparty_by_id(counterparty_id: int, qp_select_one: dict = Depends(qp_select_one)):
+    return await views.get_counterparty_by_id(counterparty_id,**qp_select_one)
 
 @counterpartyRouter.post('/', response_model = CounterpartyOut)
 async def post_counterparty(newCounterpartyIn : CounterpartyIn):

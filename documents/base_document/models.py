@@ -1,5 +1,5 @@
 from enum import unique
-from sqlalchemy import Column, String, Integer, Table, DateTime, Boolean, MetaData, ForeignKey, Date, event
+from sqlalchemy import Column, Float, String, Integer, Table, DateTime, Boolean, MetaData, ForeignKey, Date, event
 from sqlalchemy.orm import relationship
 from core.db import Base, metadata
 from datetime import date, datetime
@@ -18,7 +18,7 @@ class BaseDocument:
     number = Column(String(150), nullable=False)
     date = Column(DateTime(timezone=True), nullable=False)
     comment = Column(String(350), nullable=True)
-    sum = Column(Integer, nullable=True)
+    sum = Column(Float, nullable=True)
 
     @declared_attr
     def counterparty_id(cls):

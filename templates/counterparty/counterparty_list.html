@@ -9,7 +9,7 @@
       Список сотрудников
     </div>
     <div class="card-body">
-      <a class="btn btn-primary" href="{{ url_for('post_new_entity') }}" role="button">Создать новый элемент</a>
+      <a class="btn btn-primary" href="#" role="button">Создать новый элемент</a>
       <div class="pt-2 col">
         <table class="table table-hover">
           <thead class="thead-light">
@@ -18,22 +18,19 @@
               <th scope="col">ИИН</th>
               <th scope="col">Наименование</th>
               <th scope="col">Тип организации</th>
-              <th scope="col">Дата начало</th>
-              <th scope="col">Дата конец</th>
-              <th scope="col">Пользователь</th>
+              <th scope="col">Комментарий</th>
+              <th scope="col">Контакты</th>
             </tr>
           </thead>
           <tbody>
-            {% for entity in entityList %}
+            {% for counterparty in counterpartyList %}
               <tr>
-                <th scope="row">{{ entity.id }}</th>
-                <td>{{ entity.iin }}</td>
-                <td><a href="{{request.path}}{{entity.id}}" class="link-dark">{{ entity.name }} </a></td>
-                <td>{{ entity.type_full_name }}</td>
-                <td>{{ entity.start_date }}</td>
-                <td>{{ entity.start_date }}</td>
-                <td>{{ entity.end_date }}</td>
-                <td>{{ entity.user_name }} ({{entity.user_email}})</td>
+                <th scope="row">{{ counterparty.id }}</th>
+                <td>{{ counterparty.iin }}</td>
+                <td><a href="{{request.path}}{{counterparty.id}}" class="link-dark">{{ counterparty.name }} </a></td>
+                <td>{{ counterparty.type.full_name }}</td>
+                <td>{{ counterparty.comment }}</td>
+                <td>{{ counterparty.contact }}</td>
               </tr>  
             {% endfor %}
           </tbody>

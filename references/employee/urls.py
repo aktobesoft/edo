@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from common_module.urls_module import common_parameters
+from common_module.urls_module import qp_select_list
 from references.employee import views
 from references.employee.models import EmployeeOut, EmployeeIn, EmployeeNestedOut
 from typing import List, Union
@@ -8,7 +8,7 @@ from documents.base_document.models import OptionsStructure
 employeeRouter = APIRouter()
 
 @employeeRouter.get('/', response_model = Union[list[EmployeeNestedOut], list[EmployeeOut], List[OptionsStructure]])
-async def get_employee_list(commons: dict = Depends(common_parameters)):
+async def get_employee_list(commons: dict = Depends(qp_select_list)):
     return await views.get_employee_list(**commons)
 
 @employeeRouter.get('/{employee_id}', response_model=EmployeeOut)

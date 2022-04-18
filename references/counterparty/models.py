@@ -22,6 +22,17 @@ class Counterparty(Base):
     def __repr__(self) -> str:
         return '<{0} ({1})>'.format(self.name, self.iin)
 
+    def get_html_attr(self):
+            return {
+            'id' : {'label':'ИД', 'type': 'text', 'skip': False, 'readonly': True},
+            'name' : {'label':'Наименование', 'type': 'text', 'skip': False},
+            'iin' : {'label':'ИИН', 'type': 'number', 'skip': False, 'min': '1', 'max': '999999999999', 'maxlength': '12', 'pattern': '[0-9]'},
+            'type_id' : {'label':'Тип организации', 'type': 'select', 'skip': False, 'get_from_api': True},
+            'address' : {'label':'Адрес', 'type': 'text', 'skip': False},
+            'comment' : {'label':'Комментарий', 'type': 'textarea', 'skip': False},
+            'contact' : {'label':'Руководитель', 'type': 'text', 'skip': False},
+            }
+
 class CounterpartyOut(BaseModel):
     id: int
     name: str

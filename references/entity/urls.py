@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from common_module.urls_module import common_parameters
+from common_module.urls_module import qp_select_list
 from documents.base_document.models import OptionsStructure
 from references.entity import views
 from references.entity.models import EntityOut, EntityIn, EntityNestedOut
@@ -9,7 +9,7 @@ entityRouter = APIRouter()
 
 
 @entityRouter.get('/', response_model = Union[list[EntityNestedOut],list[EntityOut],List[OptionsStructure]])
-async def get_entity_list(commons: dict = Depends(common_parameters)):
+async def get_entity_list(commons: dict = Depends(qp_select_list)):
     return await views.get_entity_list(**commons)
 
 @entityRouter.get('/{entity_id}', response_model=EntityOut)

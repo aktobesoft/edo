@@ -9,9 +9,22 @@ from references.user.models import User
 from references.entity.models import Entity
 from references.counterparty.models import Counterparty, CounterpartyIn, CounterpartyOut
 
-async def get_counterparty_by_id(counterparty_id: int):
+async def get_counterparty_by_id(counterparty_id: int, **kwargs):
+    if(kwargs['nested']):
+        return await get_counterparty_nested_by_id(counterparty_id, **kwargs)
     query = select(Counterparty).where(Counterparty.id == counterparty_id)
     result = await database.fetch_one(query)
+    return result
+
+async def get_counterparty_nested_by_id(counterparty_id: int, **kwargs):
+    query = select(Counterparty,
+                BusinessType.name.label("name"), 
+                BusinessType.full_name.label("full_name")).\
+                    join(
+                BusinessType, Counterparty.type_id == BusinessType.id, isouter=True).\
+                    where(Counterparty.id == counterparty_id)
+    result = await database.fetch_one(query)
+    result['business_type']
     return result
 
 async def delete_counterparty_by_id(counterparty_id: int):
