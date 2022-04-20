@@ -21,8 +21,8 @@ class BaseDocument:
     sum = Column(Float, nullable=True)
 
     @declared_attr
-    def counterparty_id(cls):
-        return Column(Integer, ForeignKey('counterparty.id', ondelete="CASCADE"), nullable=False)
+    def counterparty_iin(cls):
+        return Column(String, ForeignKey('counterparty.iin', ondelete="CASCADE"), nullable=False)
     @declared_attr 
     def counterparty(cls):
         return relationship("Counterparty")
@@ -35,8 +35,8 @@ class BaseDocument:
         return relationship("DocumentType")
 
     @declared_attr
-    def entity_id(cls):
-        return Column(Integer, ForeignKey('entity.id', ondelete="CASCADE"), nullable=False)
+    def entity_iin(cls):
+        return Column(String, ForeignKey('entity.iin', ondelete="CASCADE"), nullable=False)
     @declared_attr 
     def entity(cls):
         return relationship("Entity")

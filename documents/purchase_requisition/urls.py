@@ -9,8 +9,8 @@ from documents.purchase_requisition import views
 purchase_requisitionRouter = APIRouter()
 
 @purchase_requisitionRouter.get('/', response_model = Union[List[PurchaseRequisitionNestedOut], List[PurchaseRequisitionOut]])
-async def get_purchase_requisition_list(commons: dict = Depends(qp_select_list)):
-    records = await views.get_purchase_requisition_list(**commons)
+async def get_purchase_requisition_list(qp_select_list: dict = Depends(qp_select_list)):
+    records = await views.get_purchase_requisition_list(**qp_select_list)
     return records
 
 @purchase_requisitionRouter.get('/{purchase_requisition_id}',response_model = Union[PurchaseRequisitionNestedOut, PurchaseRequisitionOut])

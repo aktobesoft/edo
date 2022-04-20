@@ -30,7 +30,7 @@ async def get_employee_list(limit: int = 100, skip: int = 0, **kwargs)->list[Emp
                 Employee.email, 
                 Employee.date_of_birth, 
                 Employee.description, 
-                Employee.entity_id, 
+                Employee.entity_iin, 
                 Employee.user_id).\
                     order_by(
                     Employee.id).limit(limit).offset(skip)
@@ -49,7 +49,7 @@ async def get_employee_nested_list(limit: int = 100, skip: int = 0, **kwargs):
                 Employee.email, 
                 Employee.date_of_birth, 
                 Employee.description, 
-                Employee.entity_id.label("entity_id"), 
+                Employee.entity_iin.label("entity_iin"), 
                 Employee.user_id,
                 User.email.label("user_email"), 
                 User.name.label("user_name"),
@@ -57,7 +57,7 @@ async def get_employee_nested_list(limit: int = 100, skip: int = 0, **kwargs):
                 User.is_company.label("user_is_company"),
                 Entity.name.label("entity_name"),
                 Entity.iin.label("entity_iin")).\
-                    join(Entity, Employee.entity_id == Entity.id, isouter=True).\
+                    join(Entity, Employee.entity_iin == Entity.iin, isouter=True).\
                     join(User, Employee.user_id == User.id, isouter=True).\
                     order_by(Employee.id).limit(limit).offset(skip)
    
@@ -94,7 +94,7 @@ async def post_employee(employeeInstance : dict):
                 email = employeeInstance["email"], 
                 date_of_birth = employeeInstance["date_of_birth"],
                 description = employeeInstance["description"], 
-                entity_id = int(employeeInstance["entity_id"]),
+                entity_iin = int(employeeInstance["entity_iin"]),
                 user_id = int(employeeInstance["user_id"])
                 )
     try:
@@ -111,7 +111,7 @@ async def update_employee(employeeInstance : dict):
                 email = employeeInstance["email"], 
                 date_of_birth = employeeInstance['date_of_birth'],
                 description = employeeInstance["description"], 
-                entity_id = int(employeeInstance["entity_id"]),
+                entity_iin = int(employeeInstance["entity_iin"]),
                 user_id = int(employeeInstance["user_id"])).where(Employee.id == int(employeeInstance['id']))
     result = await database.execute(query)
     return {**employeeInstance}

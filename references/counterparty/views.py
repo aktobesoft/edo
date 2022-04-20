@@ -9,26 +9,26 @@ from references.user.models import User
 from references.entity.models import Entity
 from references.counterparty.models import Counterparty, CounterpartyIn, CounterpartyOut
 
-async def get_counterparty_by_id(counterparty_id: int, **kwargs):
+async def get_counterparty_by_iin(counterparty_iin: str, **kwargs):
     if(kwargs['nested']):
-        return await get_counterparty_nested_by_id(counterparty_id, **kwargs)
-    query = select(Counterparty).where(Counterparty.id == counterparty_id)
+        return await get_counterparty_nested_by_id(counterparty_iin, **kwargs)
+    query = select(Counterparty).where(Counterparty.iin == counterparty_iin)
     result = await database.fetch_one(query)
     return result
 
-async def get_counterparty_nested_by_id(counterparty_id: int, **kwargs):
+async def get_counterparty_nested_by_id(counterparty_iin: str, **kwargs):
     query = select(Counterparty,
                 BusinessType.name.label("name"), 
                 BusinessType.full_name.label("full_name")).\
                     join(
                 BusinessType, Counterparty.type_id == BusinessType.id, isouter=True).\
-                    where(Counterparty.id == counterparty_id)
+                    where(Counterparty.iin == counterparty_iin)
     result = await database.fetch_one(query)
     result['business_type']
     return result
 
-async def delete_counterparty_by_id(counterparty_id: int):
-    query = delete(Counterparty).where(Counterparty.id == counterparty_id)
+async def delete_counterparty_by_iin(counterparty_iin: str):
+    query = delete(Counterparty).where(Counterparty.iin == counterparty_iin)
     result = await database.execute(query)
     return result
 
@@ -39,7 +39,7 @@ async def get_counterparty_list(limit: int = 100, skip: int = 0, **kwargs)->list
     if(kwargs['optional']):
         return await get_counterparty_options_list(limit, skip, **kwargs)
 
-    query = select(Counterparty.id, 
+    query = select(Counterparty.iin, 
                 Counterparty.iin, 
                 Counterparty.name,
                 Counterparty.address, 
@@ -51,7 +51,7 @@ async def get_counterparty_list(limit: int = 100, skip: int = 0, **kwargs)->list
                     join(
                 BusinessType, Counterparty.type_id == BusinessType.id, isouter=True).\
                     order_by(
-                    Counterparty.id).limit(limit).offset(skip)
+                    Counterparty.iin).limit(limit).offset(skip)
    
     records = await database.fetch_all(query)
     listValue = []
@@ -62,7 +62,7 @@ async def get_counterparty_list(limit: int = 100, skip: int = 0, **kwargs)->list
     return listValue
 
 async def get_counterparty_nested_list(limit: int = 100, skip: int = 0, **kwargs):
-    query = select(Counterparty.id, 
+    query = select(Counterparty.iin, 
                 Counterparty.iin, 
                 Counterparty.name,
                 Counterparty.address, 
@@ -74,7 +74,7 @@ async def get_counterparty_nested_list(limit: int = 100, skip: int = 0, **kwargs
                     join(
                 BusinessType, Counterparty.type_id == BusinessType.id, isouter=True).\
                     order_by(
-                    Counterparty.id).limit(limit).offset(skip)
+                    Counterparty.iin).limit(limit).offset(skip)
    
     records = await database.fetch_all(query)
     listValue = []
@@ -87,14 +87,14 @@ async def get_counterparty_nested_list(limit: int = 100, skip: int = 0, **kwargs
 async def get_counterparty_options_list(limit: int = 100, 
                         skip: int = 0,
                         **kwargs)->list[Counterparty]:
-    query = select(Counterparty.id.label('value'), 
+    query = select(Counterparty.iin.label('value'), 
                 Counterparty.iin, 
                 Counterparty.name,
                 BusinessType.name.label("type_name")).\
                     join(
                 BusinessType, Counterparty.type_id == BusinessType.id, isouter=True).\
                 order_by(
-                    Counterparty.id).limit(limit).offset(skip)
+                    Counterparty.iin).limit(limit).offset(skip)
    
     records = await database.fetch_all(query)
     listValue = []
@@ -123,6 +123,6 @@ async def update_counterparty(counterpartyInstance : dict):
                 address = counterpartyInstance["address"], 
                 comment = counterpartyInstance['comment'],
                 contact = counterpartyInstance["contact"],
-                type_id = int(counterpartyInstance["type_id"])).where(Counterparty.id == int(counterpartyInstance['id']))
+                type_id = int(counterpartyInstance["type_id"])).where(Counterparty.iin == int(counterpartyInstance['id']))
     result = await database.execute(query)
     return {**counterpartyInstance}

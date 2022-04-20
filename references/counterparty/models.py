@@ -79,7 +79,7 @@ class CounterpartyIn(BaseModel):
 
 def counterparty_fillDataFromDict(queryResult : dict):
     return {
-        'id': queryResult['counterparty_id'],
+        'id': queryResult['counterparty_iin'],
         'iin': queryResult['counterparty_iin'],
         'name': queryResult['counterparty_name']
         } 

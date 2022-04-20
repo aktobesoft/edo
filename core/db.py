@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 import databases
 
 #SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:62636560@localhost/test"
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:62636560@localhost/edo"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

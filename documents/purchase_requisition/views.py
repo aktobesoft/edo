@@ -28,8 +28,8 @@ async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **
                 Counterparty.name.label("counterparty_name"),
                 DocumentType.name.label("document_type_name"),
                 DocumentType.description.label("document_type_description")).\
-                    join(Entity, PurchaseRequisition.entity_id == Entity.id, isouter=True).\
-                    join(Counterparty, PurchaseRequisition.counterparty_id == Counterparty.id, isouter=True).\
+                    join(Entity, PurchaseRequisition.entity_iin == Entity.iin, isouter=True).\
+                    join(Counterparty, PurchaseRequisition.counterparty_iin == Counterparty.iin, isouter=True).\
                     join(DocumentType, PurchaseRequisition.document_type_id == DocumentType.id, isouter=True).\
                     where(PurchaseRequisition.id == purchase_requisition_id)
 
@@ -57,9 +57,9 @@ async def get_purchase_requisition_list(limit: int = 100, skip: int = 0, **kwarg
                 PurchaseRequisition.date, 
                 PurchaseRequisition.comment, 
                 PurchaseRequisition.sum, 
-                PurchaseRequisition.counterparty_id, 
+                PurchaseRequisition.counterparty_iin, 
                 PurchaseRequisition.document_type_id, 
-                PurchaseRequisition.entity_id).order_by(
+                PurchaseRequisition.entity_iin).order_by(
                 PurchaseRequisition.id).limit(limit).offset(skip)
    
     records = await database.fetch_all(query)
@@ -77,9 +77,9 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
                 PurchaseRequisition.date, 
                 PurchaseRequisition.comment, 
                 PurchaseRequisition.sum, 
-                PurchaseRequisition.counterparty_id.label('counterparty_id'), 
+                PurchaseRequisition.counterparty_iin.label('counterparty_iin'), 
                 PurchaseRequisition.document_type_id.label('document_type_id'), 
-                PurchaseRequisition.entity_id.label('entity_id'),
+                PurchaseRequisition.entity_iin.label('entity_iin'),
                 Entity.name.label("entity_name"),
                 Entity.iin.label("entity_iin"),
                 Counterparty.iin.label("counterparty_iin"), 
@@ -87,9 +87,9 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
                 DocumentType.name.label("document_type_name"),
                 DocumentType.description.label("document_type_description")).\
                     join(
-                Entity, PurchaseRequisition.entity_id == Entity.id, isouter=True).\
+                Entity, PurchaseRequisition.entity_iin == Entity.iin, isouter=True).\
                     join(
-                Counterparty, PurchaseRequisition.counterparty_id == Counterparty.id, isouter=True).\
+                Counterparty, PurchaseRequisition.counterparty_iin == Counterparty.iin, isouter=True).\
                     join(
                 DocumentType, PurchaseRequisition.document_type_id == DocumentType.id, isouter=True).\
                     order_by(
@@ -115,9 +115,9 @@ async def post_purchase_requisition(purchaseRequisitionInstance : dict):
                 date = purchaseRequisitionInstance["date"],
                 comment = purchaseRequisitionInstance["comment"], 
                 sum = float(purchaseRequisitionInstance["sum"]), 
-                counterparty_id = int(purchaseRequisitionInstance["counterparty_id"]), 
+                counterparty_iin = purchaseRequisitionInstance["counterparty_iin"], 
                 document_type_id = int(purchaseRequisitionInstance["document_type_id"]), 
-                entity_id = int(purchaseRequisitionInstance["entity_id"]))
+                entity_iin = purchaseRequisitionInstance["entity_iin"])
     newPurchaseRequisitionId = await database.execute(query)
 
     return {**purchaseRequisitionInstance, 'id': newPurchaseRequisitionId}
@@ -131,10 +131,10 @@ async def update_purchase_requisition(purchaseRequisitionInstance: dict):
                 date = purchaseRequisitionInstance["date"],
                 comment = purchaseRequisitionInstance["comment"], 
                 sum = purchaseRequisitionInstance["sum"], 
-                counterparty_id = purchaseRequisitionInstance["counterparty_id"], 
+                counterparty_iin = purchaseRequisitionInstance["counterparty_iin"], 
                 document_type_id = purchaseRequisitionInstance["document_type_id"], 
                 guid = purchaseRequisitionInstance["guid"], 
-                entity_id = purchaseRequisitionInstance["entity_id"]).where(
+                entity_iin = purchaseRequisitionInstance["entity_iin"]).where(
                     PurchaseRequisition.id == purchaseRequisitionInstance['id'])
 
     result = await database.execute(query)

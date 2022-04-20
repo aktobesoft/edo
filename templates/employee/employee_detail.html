@@ -91,10 +91,10 @@
       delimiters: ['[[', ']]'],
       el: '#vue',
       data: {
-        entity_id_options: [],
+        entity_iin_options: [],
         user_id_options: [],
-        selected_entity_id: 
-        {% if not is_new %} {{employee['entity_id']}} {% else %}0{% endif %},
+        selected_entity_iin: 
+        {% if not is_new %} {{employee['entity_iin']}} {% else %}0{% endif %},
         selected_user_id: 
         {% if not is_new %} {{employee['user_id']}} {% else %}0{% endif %},
       },
@@ -103,7 +103,7 @@
         try{
           let response = await axios.get("{{url_for('get_entity_list')}}?optional=true")
           console.log(response.data)
-          this.entity_id_options = response.data
+          this.entity_iin_options = response.data
         }catch(err){
           console.log(err)
         };

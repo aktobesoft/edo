@@ -1,8 +1,8 @@
 """1
 
-Revision ID: 615cb422f98e
+Revision ID: 2a0d1c4aa30d
 Revises: 
-Create Date: 2022-03-30 18:25:27.008281
+Create Date: 2022-04-20 19:53:07.598330
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '615cb422f98e'
+revision = '2a0d1c4aa30d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,13 +22,15 @@ def upgrade():
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(length=150), nullable=True),
     sa.Column('full_name', sa.String(length=360), nullable=True),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name')
     )
     op.create_table('document_type',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(length=150), nullable=False),
     sa.Column('description', sa.String(length=350), nullable=False),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name')
     )
     op.create_table('notes',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
@@ -37,14 +39,27 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('users',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('email', sa.String(), nullable=True),
+    sa.Column('name', sa.String(length=150), nullable=True),
     sa.Column('hashed_password', sa.String(), nullable=True),
+    sa.Column('is_company', sa.Boolean(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
-    op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
+    op.create_table('counterparty',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('name', sa.String(length=150), nullable=False),
+    sa.Column('iin', sa.String(length=12), nullable=False),
+    sa.Column('address', sa.String(length=350), nullable=True),
+    sa.Column('comment', sa.String(length=350), nullable=True),
+    sa.Column('contact', sa.String(length=150), nullable=True),
+    sa.Column('type_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['type_id'], ['business_type.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_counterparty_iin'), 'counterparty', ['iin'], unique=True)
     op.create_table('entity',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(length=150), nullable=False),
@@ -65,57 +80,47 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_entity_iin'), 'entity', ['iin'], unique=True)
-    op.create_table('counterparty',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('name', sa.String(length=150), nullable=False),
-    sa.Column('iin', sa.String(length=12), nullable=False),
-    sa.Column('address', sa.String(length=350), nullable=True),
-    sa.Column('comment', sa.String(length=350), nullable=True),
-    sa.Column('contact', sa.String(length=150), nullable=True),
-    sa.Column('type_id', sa.Integer(), nullable=True),
-    sa.Column('end_date', sa.Date(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['type_id'], ['business_type.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_counterparty_iin'), 'counterparty', ['iin'], unique=True)
     op.create_table('employee',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('date_of_birth', sa.Date(), nullable=True),
     sa.Column('name', sa.String(length=150), nullable=False),
     sa.Column('description', sa.String(length=350), nullable=True),
-    sa.Column('entity_id', sa.Integer(), nullable=False),
+    sa.Column('entity_iin', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['entity_id'], ['entity.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['entity_iin'], ['entity.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
-    op.create_table('employee_activity',
+    op.create_table('purchase_requisition',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('token', sa.String(), nullable=True),
-    sa.Column('last_activity', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('employee_id', sa.Integer(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['employee_id'], ['employee.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('token')
+    sa.Column('guid', sa.String(length=36), nullable=False),
+    sa.Column('number', sa.String(length=150), nullable=False),
+    sa.Column('date', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('comment', sa.String(length=350), nullable=True),
+    sa.Column('sum', sa.Float(), nullable=True),
+    sa.Column('counterparty_iin', sa.String(), nullable=False),
+    sa.Column('document_type_id', sa.Integer(), nullable=False),
+    sa.Column('entity_iin', sa.String(), nullable=False),
+    sa.ForeignKeyConstraint(['counterparty_iin'], ['counterparty.iin'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['document_type_id'], ['document_type.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['entity_iin'], ['entity.iin'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_purchase_requisition_guid'), 'purchase_requisition', ['guid'], unique=True)
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_table('employee_activity')
+    op.drop_index(op.f('ix_purchase_requisition_guid'), table_name='purchase_requisition')
+    op.drop_table('purchase_requisition')
     op.drop_table('employee')
-    op.drop_index(op.f('ix_counterparty_iin'), table_name='counterparty')
-    op.drop_table('counterparty')
     op.drop_index(op.f('ix_entity_iin'), table_name='entity')
     op.drop_table('entity')
-    op.drop_index(op.f('ix_users_id'), table_name='users')
+    op.drop_index(op.f('ix_counterparty_iin'), table_name='counterparty')
+    op.drop_table('counterparty')
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
     op.drop_table('notes')

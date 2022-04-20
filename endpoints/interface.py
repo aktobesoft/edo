@@ -45,15 +45,15 @@ async def post_new_entity(request: Request):
     response = RedirectResponse(status_code=HTTP_302_FOUND, url='/entity/')
     return response
 
-@interfaceRoute.get('/entity/{entity_id}/delete')
-async def delete_entity(request: Request, entity_id: int):
-    newEntity = await entityService.delete_entity_by_id(entity_id)
+@interfaceRoute.get('/entity/{entity_iin}/delete')
+async def delete_entity(request: Request, entity_iin: str):
+    newEntity = await entityService.delete_entity_by_iin(entity_iin)
     response = RedirectResponse(status_code=HTTP_302_FOUND, url='/entity/')
     return response
 
-@interfaceRoute.get("/entity/{entity_id}", response_class=HTMLResponse)
-async def entity_detail(request: Request, entity_id: int):
-    resultEntity = await entityService.get_entity_by_id(entity_id)
+@interfaceRoute.get("/entity/{entity_iin}", response_class=HTMLResponse)
+async def entity_detail(request: Request, entity_iin: str):
+    resultEntity = await entityService.get_entity_by_iin(entity_iin)
     if resultEntity != None:
         entity = dict(resultEntity)
         entityLabel = Entity().get_html_attr()
@@ -61,8 +61,8 @@ async def entity_detail(request: Request, entity_id: int):
     else:
         raise HTTPException(status_code=404, detail="Item not found")
 
-@interfaceRoute.post('/entity/{entity_id}')
-async def update_entity(request: Request, entity_id: int):
+@interfaceRoute.post('/entity/{entity_iin}')
+async def update_entity(request: Request, entity_iin: str):
     form_data = await request.form()
     entityInstance = dict(form_data)
     resultEntity = await entityService.update_entity(entityInstance)
@@ -131,7 +131,7 @@ async def counterparty_detail(request: Request, itemId: int):
         objectLabel = Counterparty().get_html_attr()
         return templates.TemplateResponse("counterparty/counterparty_detail.html", context={'request': request, 'counterparty': resultDict, 'counterpartyLabel': objectLabel, 'is_new': True})
     
-    result = await counterpartyService.get_counterparty_by_id(itemId)
+    result = await counterpartyService.get_counterparty_by_iin(itemId)
     if result != None:
         resultDict = dict(result)
         objectLabel = Counterparty().get_html_attr()

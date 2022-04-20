@@ -11,18 +11,18 @@ counterpartyRouter = APIRouter()
 async def get_counterparty_list(commons: dict = Depends(qp_select_list)):
     return await views.get_counterparty_list(**commons)
 
-@counterpartyRouter.get('/{counterparty_id}', response_model=CounterpartyOut)
-async def get_counterparty_by_id(counterparty_id: int, qp_select_one: dict = Depends(qp_select_one)):
-    return await views.get_counterparty_by_id(counterparty_id,**qp_select_one)
+@counterpartyRouter.get('/{counterparty_iin}', response_model=CounterpartyOut)
+async def get_counterparty_by_iin(counterparty_iin: str, qp_select_one: dict = Depends(qp_select_one)):
+    return await views.get_counterparty_by_iin(counterparty_iin,**qp_select_one)
 
 @counterpartyRouter.post('/', response_model = CounterpartyOut)
 async def post_counterparty(newCounterpartyIn : CounterpartyIn):
     result = await views.post_counterparty(newCounterpartyIn.dict())
     return result
 
-@counterpartyRouter.delete('/{counterparty_id}')
-async def delete_counterparty_by_id(counterparty_id : int):
-    result = await views.delete_counterparty_by_id(counterparty_id)
+@counterpartyRouter.delete('/{counterparty_iin}')
+async def delete_counterparty_by_iin(counterparty_iin: str):
+    result = await views.delete_counterparty_by_iin(counterparty_iin)
     return result
 
 @counterpartyRouter.put('/', response_model = CounterpartyOut)

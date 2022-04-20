@@ -21,9 +21,9 @@ class PurchaseRequisitionOut(BaseModel):
     date: datetime
     comment: str
     sum: float
-    counterparty_id: int
+    counterparty_iin: str
     document_type_id: int
-    entity_id: int
+    entity_iin: str
     
     class Config:
         orm_mode = True
@@ -36,9 +36,9 @@ class PurchaseRequisitionNestedOut(BaseModel):
     date: datetime
     comment: str
     sum: float
-    counterparty_id: int
+    counterparty_iin: str
     document_type_id: int
-    entity_id: int
+    entity_iin: str
     counterparty: CounterpartySmallOut
     document_type: DocumentTypeOut
     entity: EntitySmallOut
@@ -53,9 +53,9 @@ class PurchaseRequisitionIn(BaseModel):
     date: datetime
     comment: str
     sum: float
-    counterparty_id: int
+    counterparty_iin: str
     document_type_id: int
-    entity_id: int
+    entity_iin: str
     
     class Config:
         orm_mode = True

@@ -14,8 +14,13 @@ async def get_entity_by_id(entity_id: int):
     resultEntity = await database.fetch_one(queryEntity)
     return resultEntity
 
-async def delete_entity_by_id(entity_id: int):
-    queryEntity = delete(Entity).where(Entity.id == entity_id)
+async def get_entity_by_iin(entity_iin: str):
+    queryEntity = select(Entity).where(Entity.iin == entity_iin)
+    resultEntity = await database.fetch_one(queryEntity)
+    return resultEntity
+
+async def delete_entity_by_iin(entity_iin: str):
+    queryEntity = delete(Entity).where(Entity.iin == entity_iin)
     resultEntity = await database.execute(queryEntity)
     return resultEntity
 
@@ -39,8 +44,7 @@ async def get_entity_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entit
                 Entity.start_date, 
                 Entity.type_id, 
                 Entity.end_date, 
-                Entity.user_id).order_by(
-                    Entity.id).limit(limit).offset(skip)
+                Entity.user_id).limit(limit).offset(skip)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -73,7 +77,7 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs)->lis
                 User.is_company.label("user_is_company")).\
                     join(BusinessType, Entity.type_id == BusinessType.id, isouter=True).\
                     join(User, Entity.user_id == User.id, isouter=True).\
-                    order_by(Entity.id).limit(limit).offset(skip)
+                        limit(limit).offset(skip)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -103,10 +107,9 @@ async def post_entity(entityInstance : dict):
                 user_id = int(entityInstance["user_id"]), 
                 token = '')
     try:
-        newEntityId = await database.fetch_one(query)
+        newEntityId = await database.execute(query)
     except asyncpg.exceptions.ForeignKeyViolationError as e:
         raise ValueError('Не уникальный ИИН')
-
     return {**entityInstance, 'id': newEntityId}
 
 
@@ -130,13 +133,13 @@ async def update_entity(entityInstance: dict):
                 type_id = int(entityInstance["type_id"]), 
                 user_id = int(entityInstance["user_id"]),
                 token = entityInstance["token"]).where(
-                    Entity.id == int(entityInstance['id']))
+                    Entity.iin == int(entityInstance['id']))
 
     result = await database.execute(query)
     return entityInstance
 
 async def get_entity_options_list(limit: int = 100, skip: int = 0, **kwargs):
-    query = select(Entity.id.label('value'), Entity.name.label('text')).order_by(Entity.id).limit(limit).offset(skip)
+    query = select(Entity.iin.label('value'), Entity.name.label('text')).order_by(Entity.iin).limit(limit).offset(skip)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:

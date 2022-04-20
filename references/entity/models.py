@@ -134,7 +134,7 @@ class EntityIn(BaseModel):
 
 def entity_fillDataFromDict(queryResult : dict):
     return {
-        'id': queryResult['entity_id'],
+        'id': queryResult['entity_iin'],
         'iin': queryResult['entity_iin'],
         'name': queryResult['entity_name']
         } 
