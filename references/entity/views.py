@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy import select, insert, update, delete
 from core.db import database
 import asyncpg
@@ -16,8 +17,10 @@ async def get_entity_by_id(entity_id: int):
 
 async def get_entity_by_iin(entity_iin: str):
     queryEntity = select(Entity).where(Entity.iin == entity_iin)
-    resultEntity = await database.fetch_one(queryEntity)
-    return resultEntity
+    result = await database.fetch_one(queryEntity)
+    if result==None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return result
 
 async def delete_entity_by_iin(entity_iin: str):
     queryEntity = delete(Entity).where(Entity.iin == entity_iin)
@@ -133,13 +136,13 @@ async def update_entity(entityInstance: dict):
                 type_id = int(entityInstance["type_id"]), 
                 user_id = int(entityInstance["user_id"]),
                 token = entityInstance["token"]).where(
-                    Entity.iin == int(entityInstance['id']))
+                    Entity.iin == entityInstance['iin'])
 
     result = await database.execute(query)
     return entityInstance
 
 async def get_entity_options_list(limit: int = 100, skip: int = 0, **kwargs):
-    query = select(Entity.iin.label('value'), Entity.name.label('text')).order_by(Entity.iin).limit(limit).offset(skip)
+    query = select(Entity.iin.label('value'), Entity.name.label('text')).limit(limit).offset(skip)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:

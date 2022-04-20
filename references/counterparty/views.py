@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy import select, insert, update, delete
 from core.db import database
 import asyncpg
@@ -14,6 +15,8 @@ async def get_counterparty_by_iin(counterparty_iin: str, **kwargs):
         return await get_counterparty_nested_by_id(counterparty_iin, **kwargs)
     query = select(Counterparty).where(Counterparty.iin == counterparty_iin)
     result = await database.fetch_one(query)
+    if result==None:
+        raise HTTPException(status_code=404, detail="Item not found")
     return result
 
 async def get_counterparty_nested_by_id(counterparty_iin: str, **kwargs):
@@ -39,19 +42,18 @@ async def get_counterparty_list(limit: int = 100, skip: int = 0, **kwargs)->list
     if(kwargs['optional']):
         return await get_counterparty_options_list(limit, skip, **kwargs)
 
-    query = select(Counterparty.iin, 
+    query = select(Counterparty.id, 
                 Counterparty.iin, 
                 Counterparty.name,
                 Counterparty.address, 
                 Counterparty.comment, 
                 Counterparty.contact, 
                 Counterparty.type_id, 
-                BusinessType.name.label("name"), 
-                BusinessType.full_name.label("full_name")).\
+                BusinessType.name.label("business_type_name"), 
+                BusinessType.full_name.label("business_type_full_name")).\
                     join(
                 BusinessType, Counterparty.type_id == BusinessType.id, isouter=True).\
-                    order_by(
-                    Counterparty.iin).limit(limit).offset(skip)
+                    limit(limit).offset(skip)
    
     records = await database.fetch_all(query)
     listValue = []
@@ -62,39 +64,38 @@ async def get_counterparty_list(limit: int = 100, skip: int = 0, **kwargs)->list
     return listValue
 
 async def get_counterparty_nested_list(limit: int = 100, skip: int = 0, **kwargs):
-    query = select(Counterparty.iin, 
+    query = select(Counterparty.id, 
                 Counterparty.iin, 
                 Counterparty.name,
                 Counterparty.address, 
                 Counterparty.comment, 
                 Counterparty.contact, 
                 Counterparty.type_id, 
-                BusinessType.name.label("name"), 
-                BusinessType.full_name.label("full_name")).\
+                BusinessType.name.label("business_type_name"), 
+                BusinessType.full_name.label("business_type_full_name")).\
                     join(
                 BusinessType, Counterparty.type_id == BusinessType.id, isouter=True).\
-                    order_by(
-                    Counterparty.iin).limit(limit).offset(skip)
+                   limit(limit).offset(skip)
    
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['type'] = {'id': recordDict['type_id'],'name': recordDict['name'],'full_name': recordDict['full_name'],}
+        recordDict['type'] = {'id': recordDict['type_id'],'name': recordDict['business_type_name'],'full_name': recordDict['business_type_full_name'],}
         listValue.append(recordDict)
     return listValue
 
 async def get_counterparty_options_list(limit: int = 100, 
                         skip: int = 0,
                         **kwargs)->list[Counterparty]:
-    query = select(Counterparty.iin.label('value'), 
-                Counterparty.iin, 
+    query = select(Counterparty.iin.label('value'),
+                Counterparty.iin,
+                Counterparty.id, 
                 Counterparty.name,
                 BusinessType.name.label("type_name")).\
                     join(
                 BusinessType, Counterparty.type_id == BusinessType.id, isouter=True).\
-                order_by(
-                    Counterparty.iin).limit(limit).offset(skip)
+                limit(limit).offset(skip)
    
     records = await database.fetch_all(query)
     listValue = []
@@ -123,6 +124,6 @@ async def update_counterparty(counterpartyInstance : dict):
                 address = counterpartyInstance["address"], 
                 comment = counterpartyInstance['comment'],
                 contact = counterpartyInstance["contact"],
-                type_id = int(counterpartyInstance["type_id"])).where(Counterparty.iin == int(counterpartyInstance['id']))
+                type_id = int(counterpartyInstance["type_id"])).where(Counterparty.iin == counterpartyInstance['iin'])
     result = await database.execute(query)
     return {**counterpartyInstance}

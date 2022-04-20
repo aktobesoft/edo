@@ -27,7 +27,7 @@
               <tr>
                 <th scope="row">{{ counterparty.id }}</th>
                 <td>{{ counterparty.iin }}</td>
-                <td><a href="{{request.path}}{{counterparty.id}}" class="link-dark">{{ counterparty.name }} </a></td>
+                <td><a href="{{request.path}}{{counterparty.iin}}" class="link-dark">{{ counterparty.name }} </a></td>
                 <td>{{ counterparty.type.full_name }}</td>
                 <td>{{ counterparty.comment }}</td>
                 <td>{{ counterparty.contact }}</td>

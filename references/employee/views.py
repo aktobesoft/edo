@@ -56,7 +56,7 @@ async def get_employee_nested_list(limit: int = 100, skip: int = 0, **kwargs):
                 User.is_active.label("user_is_active"),
                 User.is_company.label("user_is_company"),
                 Entity.name.label("entity_name"),
-                Entity.iin.label("entity_iin")).\
+                Entity.id.label("entity_id")).\
                     join(Entity, Employee.entity_iin == Entity.iin, isouter=True).\
                     join(User, Employee.user_id == User.id, isouter=True).\
                     order_by(Employee.id).limit(limit).offset(skip)

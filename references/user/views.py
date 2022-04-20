@@ -9,7 +9,7 @@ async def post_user(newUser : dict):
     query = insert(User).values(name = newUser.name, email = newUser.email, is_active = newUser.is_active,
                  is_company = newUser.is_company)
     try:
-        record = await database.fetch_one(query)
+        record = await database.execute(query)
     except asyncpg.exceptions.UniqueViolationError as e:
         raise ValueError('passwords do not match')
     

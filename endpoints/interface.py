@@ -2,6 +2,7 @@ from typing import List
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi import APIRouter, HTTPException, Request, Form
 from sqlalchemy import select, insert, update
+from common_module.urls_module import qp_select_one
 from core.db import database, engine, SessionLocal
 from fastapi.templating import Jinja2Templates
 from references.counterparty.models import Counterparty
@@ -124,14 +125,15 @@ async def counterparty_list(request: Request):
     return templates.TemplateResponse("counterparty/counterparty_list.html", context={'request': request, 'counterpartyList': counterparty_list})
 
 @interfaceRoute.get("/counterparty/{itemId}", response_class=HTMLResponse)
-async def counterparty_detail(request: Request, itemId: int):
+async def counterparty_detail(request: Request, itemId: str):
     
     if itemId == 0:
         resultDict = {}
         objectLabel = Counterparty().get_html_attr()
         return templates.TemplateResponse("counterparty/counterparty_detail.html", context={'request': request, 'counterparty': resultDict, 'counterpartyLabel': objectLabel, 'is_new': True})
     
-    result = await counterpartyService.get_counterparty_by_iin(itemId)
+    _qp_select_one = await qp_select_one()
+    result = await counterpartyService.get_counterparty_by_iin(itemId, **_qp_select_one)
     if result != None:
         resultDict = dict(result)
         objectLabel = Counterparty().get_html_attr()
