@@ -1,13 +1,12 @@
 from pydantic import BaseModel
 from sqlalchemy import Column, String, Integer, Boolean 
 from core.db import Base
-
-
+   
 class BusinessType(Base):
     __tablename__ = "business_type"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(150), unique=True)
+    name = Column(String(150), index=True, unique=True)
     full_name = Column(String(360))
 
     def __repr__(self) -> str:
@@ -33,7 +32,7 @@ class BusinessTypeIn(BaseModel):
 
 def business_type_fillDataFromDict(queryResult : dict):
     return {
-        'id': queryResult['business_type_id'],
+        'id': queryResult['business_type_name'],
         'name': queryResult['business_type_name'],
         'full_name': queryResult['business_type_full_name'] 
         } 

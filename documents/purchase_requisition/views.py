@@ -84,7 +84,7 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
                 PurchaseRequisition.entity_iin.label('entity_iin'),
                 Entity.name.label("entity_name"),
                 Entity.id.label("entity_id"),
-                Counterparty.iin.label("counterparty_iin"), 
+                Counterparty.id.label("counterparty_id"), 
                 Counterparty.name.label("counterparty_name"),
                 DocumentType.name.label("document_type_name"),
                 DocumentType.description.label("document_type_description")).\
@@ -101,9 +101,9 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['entity'] = entity_fillDataFromDict(recordDict)
-        recordDict['document_type'] = document_type_fillDataFromDict(recordDict)
-        recordDict['counterparty'] = counterparty_fillDataFromDict(recordDict)
+        recordDict['entity'] = entity_fillDataFromDict(rec)
+        recordDict['document_type'] = document_type_fillDataFromDict(rec)
+        recordDict['counterparty'] = counterparty_fillDataFromDict(rec)
         listValue.append(recordDict)
     return listValue
 
@@ -134,7 +134,7 @@ async def update_purchase_requisition(purchaseRequisitionInstance: dict):
                 comment = purchaseRequisitionInstance["comment"], 
                 sum = purchaseRequisitionInstance["sum"], 
                 counterparty_iin = purchaseRequisitionInstance["counterparty_iin"], 
-                document_type_id = purchaseRequisitionInstance["document_type_id"], 
+                document_type_id = int(purchaseRequisitionInstance["document_type_id"]), 
                 guid = purchaseRequisitionInstance["guid"], 
                 entity_iin = purchaseRequisitionInstance["entity_iin"]).where(
                     PurchaseRequisition.id == purchaseRequisitionInstance['id'])

@@ -14,6 +14,7 @@ class Entity(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(150), nullable=False)
+    full_name = Column(String(360), nullable=True)
     iin = Column(String(12), nullable=False, index=True, unique=True)
     address = Column(String(350), nullable=True)
     comment = Column(String(350), nullable=True)
@@ -24,7 +25,7 @@ class Entity(Base):
     token = Column(String(64), nullable=True)
     start_date = Column(Date, nullable=True)
     end_date = Column(Date, nullable=True)
-    type_id = Column(Integer, ForeignKey('business_type.id', ondelete='CASCADE'), nullable=True)
+    type_name = Column(String(50), ForeignKey('business_type.name'), nullable=True)
     type = relationship('BusinessType')
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=True)
     user = relationship('User')
@@ -36,8 +37,9 @@ class Entity(Base):
         return {
         'id': self.id if self.id != None else 0, 
         'name': self.name if self.id != None else '',
+        'full_name': self.full_name if self.id != None else '',
         'iin': self.iin if self.id != None else '',
-        'type_id': self.type_id if self.id != None else 0,
+        'type_name': self.type_name if self.id != None else 0,
         'user_id': self.user_id if self.id != None else 0, 
         'address': self.address if self.id != None else '',
         'comment': self.comment if self.id != None else '',
@@ -54,8 +56,9 @@ class Entity(Base):
         return {
         'id' : {'label':'ИД', 'type': 'text', 'skip': False, 'readonly': True},
         'name' : {'label':'Наименование', 'type': 'text', 'skip': False},
+        'full_name' : {'label':'Полное наименование', 'type': 'textarea', 'skip': False},
         'iin' : {'label':'ИИН', 'type': 'number', 'skip': False, 'min': '1', 'max': '999999999999', 'maxlength': '12', 'pattern': '[0-9]'},
-        'type_id' : {'label':'Тип организации', 'type': 'select', 'skip': False, 'get_from_api': True},
+        'type_name' : {'label':'Тип организации', 'type': 'select', 'skip': False, 'get_from_api': True},
         'user_id' : {'label':'Пользователь', 'type': 'select', 'skip': False, 'get_from_api': True},
         'start_date' : {'label':'Дата начало', 'type': 'date', 'skip': False},
         'end_date' : {'label':'Дата конец', 'type': 'date', 'skip': False},
@@ -70,6 +73,7 @@ class Entity(Base):
 
 class EntityNestedOut(BaseModel):
     name: str
+    full_name: str
     iin: str
     address: str
     comment: str
@@ -89,6 +93,7 @@ class EntityNestedOut(BaseModel):
 class EntityOut(BaseModel):
     id: int
     name: str
+    full_name: str
     iin: str
     address: str
     comment: str
@@ -98,7 +103,7 @@ class EntityOut(BaseModel):
     administrator_phone: str
     start_date: date
     end_date: date
-    type_id: int
+    type_name: str
     user_id: int
     
     class Config:
@@ -111,6 +116,7 @@ class EntitySmallOut(BaseModel):
 
 class EntityIn(BaseModel):
     name: str
+    full_name: str
     iin: str
     address: str
     comment: str
@@ -120,7 +126,7 @@ class EntityIn(BaseModel):
     administrator_phone: str
     start_date: date
     end_date: date
-    type_id: int
+    type_name: str
     user_id: int
 
     class Config:

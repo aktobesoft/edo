@@ -91,10 +91,10 @@
       delimiters: ['[[', ']]'],
       el: '#vue',
       data: {
-        type_id_options: [],
+        type_name_options: [],
         user_id_options: [],
-        selected_type_id: 
-        {% if not is_new %} {{entity['type_id']}} {% else %}0{% endif %},
+        selected_type_name: 
+        {% if not is_new %} {{entity['type_name']}} {% else %}0{% endif %},
         selected_user_id: 
         {% if not is_new %} {{entity['user_id']}} {% else %}0{% endif %},
       },
@@ -103,7 +103,7 @@
         try{
           let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true")
           console.log(response.data)
-          this.type_id_options = response.data
+          this.type_name_options = response.data
         }catch(err){
           console.log(err)
         };

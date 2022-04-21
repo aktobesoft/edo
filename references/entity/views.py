@@ -36,6 +36,7 @@ async def get_entity_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entit
 
     query = select(Entity.id, 
                 Entity.name, 
+                Entity.full_name,
                 Entity.iin, 
                 Entity.address, 
                 Entity.comment, 
@@ -45,9 +46,10 @@ async def get_entity_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entit
                 Entity.administrator_phone, 
                 Entity.token, 
                 Entity.start_date, 
-                Entity.type_id, 
+                Entity.type_name, 
                 Entity.end_date, 
                 Entity.user_id).limit(limit).offset(skip)
+    print(query)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -59,6 +61,7 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs)->lis
    
     query = select(Entity.id, 
                 Entity.name, 
+                Entity.full_name,
                 Entity.iin, 
                 Entity.address, 
                 Entity.comment, 
@@ -68,7 +71,7 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs)->lis
                 Entity.administrator_phone, 
                 Entity.token, 
                 Entity.start_date, 
-                Entity.type_id, 
+                Entity.type_name, 
                 Entity.end_date, 
                 Entity.user_id,
                 BusinessType.id.label("business_type_id"), 
@@ -78,7 +81,7 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs)->lis
                 User.name.label("user_name"),
                 User.is_active.label("user_is_active"),
                 User.is_company.label("user_is_company")).\
-                    join(BusinessType, Entity.type_id == BusinessType.id, isouter=True).\
+                    join(BusinessType, Entity.type_name == BusinessType.name, isouter=True).\
                     join(User, Entity.user_id == User.id, isouter=True).\
                         limit(limit).offset(skip)
     records = await database.fetch_all(query)
@@ -97,6 +100,7 @@ async def post_entity(entityInstance : dict):
 
     query = insert(Entity).values(
                 name = entityInstance["name"], 
+                full_name = entityInstance["full_name"],
                 address = entityInstance["address"], 
                 comment = entityInstance["comment"],
                 director = entityInstance["director"], 
@@ -106,9 +110,11 @@ async def post_entity(entityInstance : dict):
                 administrator_phone = entityInstance["administrator_phone"], 
                 start_date = entityInstance["start_date"], 
                 end_date = entityInstance["end_date"], 
-                type_id = int(entityInstance["type_id"]), 
+                type_name = entityInstance["type_name"], 
                 user_id = int(entityInstance["user_id"]), 
                 token = '')
+
+    print(query)
     try:
         newEntityId = await database.execute(query)
     except asyncpg.exceptions.ForeignKeyViolationError as e:
@@ -123,7 +129,8 @@ async def update_entity(entityInstance: dict):
     entityInstance["end_date"] = correct_datetime(entityInstance["end_date"])
     
     query = update(Entity).values(
-                name = entityInstance["name"], 
+                name = entityInstance["name"],
+                full_name = entityInstance["full_name"], 
                 address = entityInstance["address"], 
                 comment = entityInstance["comment"],
                 director = entityInstance["director"], 
@@ -133,7 +140,7 @@ async def update_entity(entityInstance: dict):
                 administrator_phone = entityInstance["administrator_phone"], 
                 start_date = entityInstance["start_date"], 
                 end_date = entityInstance["end_date"] , 
-                type_id = int(entityInstance["type_id"]), 
+                type_name = entityInstance["type_name"], 
                 user_id = int(entityInstance["user_id"]),
                 token = entityInstance["token"]).where(
                     Entity.iin == entityInstance['iin'])

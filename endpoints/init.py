@@ -1,9 +1,11 @@
+import email
 from typing import List
 from unicodedata import name
 from fastapi import APIRouter
 from references.entity.models import *
 from references.business_type.models import BusinessType
 from references.document_type.models import DocumentType
+from references.user.models import User
 from core.db import database, SessionLocal
 from sqlalchemy import select, insert, tuple_, join
 
@@ -22,9 +24,18 @@ def create_BusinessType():
     session.commit()
     return {'status': 'done'}
 
+@initRouter.get('/createAdmin')
+def create_AdminUser():
+    typeList = []
+    typeList.append(User(name = 'Admin', email = 'admin@email.com', is_active = True, is_company = False))
+    session.add_all(typeList)
+    session.commit()
+    return {'status': 'done'}
+
 @initRouter.get('/createDT')
 def create_DocumentType():
     typeList = []
+    typeList.append(DocumentType(name = "ЗаявкаНаРасходованиеДенежныхСредств", description = "Заявка на расходование денежных средств"))
     typeList.append(DocumentType(name = "ЭлектронноеПисьмоИсходящее", description = "Электронное письмо исходящее"))
     typeList.append(DocumentType(name = "ЭСФ", description = "Электронный счет-фактура"))
     typeList.append(DocumentType(name = "АвизоПрочее", description = "Авизо по прочим операциям"))

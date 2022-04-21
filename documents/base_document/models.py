@@ -22,7 +22,7 @@ class BaseDocument:
 
     @declared_attr
     def counterparty_iin(cls):
-        return Column(String, ForeignKey('counterparty.iin', ondelete="CASCADE"), nullable=False)
+        return Column(String, ForeignKey('counterparty.iin', ondelete="CASCADE"), nullable=False, index=True)
     @declared_attr 
     def counterparty(cls):
         return relationship("Counterparty")
@@ -36,7 +36,7 @@ class BaseDocument:
 
     @declared_attr
     def entity_iin(cls):
-        return Column(String, ForeignKey('entity.iin', ondelete="CASCADE"), nullable=False)
+        return Column(String, ForeignKey('entity.iin', ondelete="CASCADE"), nullable=False, index=True)
     @declared_attr 
     def entity(cls):
         return relationship("Entity")

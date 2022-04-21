@@ -12,11 +12,12 @@ class Counterparty(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True) 
     name = Column(String(150), nullable=False)
+    full_name = Column(String(360), nullable=True)
     iin = Column(String(12), nullable=False, index=True, unique=True)
     address = Column(String(350))
     comment = Column(String(350))
     contact = Column(String(150))
-    type_id = Column(Integer, ForeignKey('business_type.id'))
+    type_name = Column(String(50), ForeignKey('business_type.name'))
     type = relationship("BusinessType")
 
     def __repr__(self) -> str:
@@ -26,8 +27,9 @@ class Counterparty(Base):
             return {
             'id' : {'label':'ИД', 'type': 'text', 'skip': False, 'readonly': True},
             'name' : {'label':'Наименование', 'type': 'text', 'skip': False},
+            'full_name' : {'label':'Полное наименование', 'type': 'textarea', 'skip': False},
             'iin' : {'label':'ИИН', 'type': 'number', 'skip': False, 'min': '1', 'max': '999999999999', 'maxlength': '12', 'pattern': '[0-9]'},
-            'type_id' : {'label':'Тип организации', 'type': 'select', 'skip': False, 'get_from_api': True},
+            'type_name' : {'label':'Тип организации', 'type': 'select', 'skip': False, 'get_from_api': True},
             'address' : {'label':'Адрес', 'type': 'text', 'skip': False},
             'comment' : {'label':'Комментарий', 'type': 'textarea', 'skip': False},
             'contact' : {'label':'Руководитель', 'type': 'text', 'skip': False},
@@ -36,11 +38,12 @@ class Counterparty(Base):
 class CounterpartyOut(BaseModel):
     id: int
     name: str
+    full_name: str 
     iin: str
     address: str
     comment: str
     contact: str
-    type_id: int
+    type_name: str
     #type: BusinessTypeOut
     
     class Config:
@@ -57,6 +60,7 @@ class CounterpartySmallOut(BaseModel):
 class CounterpartyNestedOut(BaseModel):
     id: int
     name: str
+    full_name: str 
     iin: str
     address: str
     comment: str
@@ -68,18 +72,19 @@ class CounterpartyNestedOut(BaseModel):
 
 class CounterpartyIn(BaseModel):
     name: str
+    full_name: str 
     iin: str
     address: str
     comment: str
     contact: str
-    type_id: int
+    type_name: str
     
     class Config:
         orm_mode = True
 
 def counterparty_fillDataFromDict(queryResult : dict):
     return {
-        'id': queryResult['counterparty_iin'],
+        'id': queryResult['counterparty_id'],
         'iin': queryResult['counterparty_iin'],
         'name': queryResult['counterparty_name']
         } 
