@@ -32,7 +32,7 @@ class BusinessTypeIn(BaseModel):
 
 def business_type_fillDataFromDict(queryResult : dict):
     return {
-        'id': queryResult['business_type_name'],
+        'id': queryResult['business_type_id'],
         'name': queryResult['business_type_name'],
         'full_name': queryResult['business_type_full_name'] 
         } 

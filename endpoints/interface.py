@@ -127,7 +127,7 @@ async def counterparty_list(request: Request):
 @interfaceRoute.get("/counterparty/{itemId}", response_class=HTMLResponse)
 async def counterparty_detail(request: Request, itemId: str):
     
-    if itemId == 0:
+    if itemId == 'new':
         resultDict = {}
         objectLabel = Counterparty().get_html_attr()
         return templates.TemplateResponse("counterparty/counterparty_detail.html", context={'request': request, 'counterparty': resultDict, 'counterpartyLabel': objectLabel, 'is_new': True})
@@ -140,3 +140,19 @@ async def counterparty_detail(request: Request, itemId: str):
         return templates.TemplateResponse("counterparty/counterparty_detail.html", context={'request': request, 'counterparty': resultDict, 'counterpartyLabel': objectLabel, 'is_new': False})
     else:
         raise HTTPException(status_code=404, detail="Item not found")
+
+@interfaceRoute.post('/counterparty/{itemId}')
+async def update_counterparty(request: Request, itemId: str):
+    form_data = await request.form()
+    counterpartyInstance = dict(form_data)
+    if itemId == 'new':
+        result = await counterpartyService.post_counterparty(counterpartyInstance)
+    else:
+        result = await counterpartyService.update_counterparty(counterpartyInstance)
+    return RedirectResponse(status_code=HTTP_302_FOUND, url='/counterparty/')
+
+@interfaceRoute.get('/counterparty/{itemId}/delete')
+async def delete_employee(request: Request, itemId: str):
+    result = await counterpartyService.delete_counterparty_by_iin(itemId)
+    response = RedirectResponse(status_code=HTTP_302_FOUND, url='/counterparty/')
+    return response

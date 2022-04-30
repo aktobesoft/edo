@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from references.counterparty.models import CounterpartySmallOut
 from references.document_type.models import DocumentTypeOut
 from references.entity.models import EntitySmallOut
+from documents.purchase_requisition_items.models import PurchaseRequisitionItemsPUT, PurchaseRequisitionItemsOutWithLine, PurchaseRequisitionItemsPOST
 
 class PurchaseRequisition(BaseDocument, Base):
     __tablename__ = "purchase_requisition"
@@ -28,6 +29,22 @@ class PurchaseRequisitionOut(BaseModel):
     class Config:
         orm_mode = True
 
+class PurchaseRequisitionItemsOut(BaseModel):
+    
+    id: int
+    guid: str
+    number: str
+    date: datetime
+    comment: str
+    sum: float
+    counterparty_iin: str
+    document_type_id: int
+    entity_iin: str
+    items: list[PurchaseRequisitionItemsOutWithLine]
+    
+    class Config:
+        orm_mode = True
+
 class PurchaseRequisitionNestedOut(BaseModel):
     
     id: int
@@ -42,11 +59,28 @@ class PurchaseRequisitionNestedOut(BaseModel):
     counterparty: CounterpartySmallOut
     document_type: DocumentTypeOut
     entity: EntitySmallOut
+    items: list[PurchaseRequisitionItemsOutWithLine]
     
     class Config:
         orm_mode = True
 
-class PurchaseRequisitionIn(BaseModel):
+class PurchaseRequisitionPUT(BaseModel):
+    
+    id: int
+    guid: str
+    number: str
+    date: datetime
+    comment: str
+    sum: float
+    counterparty_iin: str
+    document_type_id: int
+    entity_iin: str
+    items: list[PurchaseRequisitionItemsPUT]
+    
+    class Config:
+        orm_mode = True
+
+class PurchaseRequisitionPOST(BaseModel):
     
     guid: str
     number: str
@@ -56,6 +90,7 @@ class PurchaseRequisitionIn(BaseModel):
     counterparty_iin: str
     document_type_id: int
     entity_iin: str
+    items: list[PurchaseRequisitionItemsPOST]
     
     class Config:
         orm_mode = True

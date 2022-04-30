@@ -2,7 +2,8 @@ import email
 from typing import List
 from unicodedata import name
 from fastapi import APIRouter
-from references.entity.models import *
+from references.counterparty.models import Counterparty, CounterpartyNestedOut, CounterpartyOut
+from references.entity.models import Entity, EntityNestedOut, EntityOut
 from references.business_type.models import BusinessType
 from references.document_type.models import DocumentType
 from references.user.models import User
@@ -23,6 +24,34 @@ def create_BusinessType():
     session.add_all(typeList)
     session.commit()
     return {'status': 'done'}
+
+@initRouter.get('/get_entityList',response_model=List[EntityNestedOut])
+def get_entityList():
+    query = select(Entity)
+    session = SessionLocal()
+    result = session.execute(query)
+    resultAll = result.scalars().all()
+    return resultAll
+
+@initRouter.get('/getCounterpartyList',response_model=List[CounterpartyOut])
+def getCounterpartyList():
+    query = select(Counterparty)
+    session = SessionLocal()
+    result = session.execute(query)
+    resultAll = result.scalars().all()
+    return resultAll
+
+# @initRouter.get('/createCounterpartyList')
+# def get_entityList():
+#     f = open("demofile.txt", "r")
+#     for x in f:
+#         print(x)
+#     query = select(Entity)
+#     session = SessionLocal()
+#     result = session.execute(query)
+#     resultAll = result.scalars().all()
+#     return resultAll
+
 
 @initRouter.get('/createAdmin')
 def create_AdminUser():

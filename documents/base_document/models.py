@@ -49,3 +49,12 @@ class OptionsStructure(BaseModel):
     class Config:
         orm_mode = True
 
+class OptionsStructureStr(BaseModel):
+    
+    value: str
+    text: str
+    
+    class Config:
+        orm_mode = True
+
+

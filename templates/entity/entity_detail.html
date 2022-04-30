@@ -94,9 +94,9 @@
         type_name_options: [],
         user_id_options: [],
         selected_type_name: 
-        {% if not is_new %} {{entity['type_name']}} {% else %}0{% endif %},
+        {% if not is_new %} "{{entity['type_name']}}" {% else %}0{% endif %},
         selected_user_id: 
-        {% if not is_new %} {{entity['user_id']}} {% else %}0{% endif %},
+        {% if not is_new %} "{{entity['user_id']}}" {% else %}0{% endif %},
       },
       async mounted() {
         console.log(Vue.version);

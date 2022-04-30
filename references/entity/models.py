@@ -72,6 +72,7 @@ class Entity(Base):
         }
 
 class EntityNestedOut(BaseModel):
+    id: int
     name: str
     full_name: str
     iin: str
@@ -101,6 +102,7 @@ class EntityOut(BaseModel):
     director_phone: str
     administrator: str
     administrator_phone: str
+    token: str
     start_date: date
     end_date: date
     type_name: str

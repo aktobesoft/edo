@@ -5,6 +5,7 @@
 <form method="POST" action='{{ request.path }}' novalidate >
     
   <div class="card" id="vue">
+    <template>
       <div class="card-header">
         {{ counterparty.name }} ({{counterparty.iin}})
       </div>
@@ -22,18 +23,22 @@
                   {% if counterpartyLabel[field]['min'] %} min="{{counterpartyLabel[field]['min']}}" {% endif %}
                   {% if counterpartyLabel[field]['max'] %} max="{{counterpartyLabel[field]['max']}}" {% endif %}
                   {% if counterpartyLabel[field]['readonly'] %} readonly {% endif %}
-                  {% if counterpartyLabel[field]['pattern'] %} pattern="{{counterpartyLabel[field]['pattern']}}" {% endif %}>
+                  {% if counterpartyLabel[field]['pattern'] %} pattern="{{counterpartyLabel[field]['pattern']}}" {% endif %}
+                  >
               {% elif counterpartyLabel[field]['type'] == 'textarea' %}
                 <textarea name="{{field}}" cols="40" rows="3" class="form-control" id="{{field}}" {% if counterpartyLabel[field]['readonly'] %} readonly {% endif %}>{{counterparty[field]}}</textarea>
               {% elif counterpartyLabel[field]['type'] == 'select' and counterpartyLabel[field]['get_from_api'] %}
-                <select name="{{field}}" class="form-select" aria-label="Default select example" id="{{field}}" 
+                <select v-model="selected_{{field}}" name="{{field}}" class="form-select" aria-label="Default select example" id="{{field}}" 
                 {% if counterpartyLabel[field]['maxlength'] %} maxlength="{{counterpartyLabel[field]['maxlength']}}" {% endif %} 
                 {% if counterpartyLabel[field]['min'] %} min="{{counterpartyLabel[field]['min']}}" {% endif %}
                 {% if counterpartyLabel[field]['max'] %} max="{{counterpartyLabel[field]['max']}}" {% endif %}
                 {% if counterpartyLabel[field]['readonly'] %} readonly {% endif %}
-                {% if counterpartyLabel[field]['pattern'] %} pattern="{{counterpartyLabel[field]['pattern']}}" {% endif %}>
-                  <option>---------</option>
-                  <option value="{{counterparty[field]['id']}}">{{counterparty[field]['name']}}</option>
+                {% if counterpartyLabel[field]['pattern'] %} pattern="{{counterpartyLabel[field]['pattern']}}" {% endif %}
+                  >
+                  <option value="0">---------</option>
+                  <option v-for="option in {{field}}_options" v-bind:value="option.value">
+                  [[ option.text ]]
+                </option>
               </select>
               {% else %}
                 <input type="{{counterpartyLabel[field]['type']}}" name="{{field}}" class="form-control" 
@@ -42,7 +47,8 @@
                   {% if counterpartyLabel[field]['min'] %} min="{{counterpartyLabel[field]['min']}}" {% endif %}
                   {% if counterpartyLabel[field]['max'] %} max="{{counterpartyLabel[field]['max']}}" {% endif %} 
                   {% if counterpartyLabel[field]['readonly'] %} readonly {% endif %}
-                  {% if counterpartyLabel[field]['pattern'] %} pattern="{{counterpartyLabel[field]['pattern']}}" {% endif %}>
+                  {% if counterpartyLabel[field]['pattern'] %} pattern="{{counterpartyLabel[field]['pattern']}}" {% endif %}
+                  >
               {% endif %}
             </div>
           </div>
@@ -76,9 +82,31 @@
         </div>
 
       </div>
+    </template>
   </div>
 </form>
 
-
+<script>
+  new Vue({
+      delimiters: ['[[', ']]'],
+      el: '#vue',
+      data: {
+        type_name_options: [],
+        user_id_options: [],
+        selected_type_name: 
+        {% if not is_new %} "{{counterparty['type_name']}}" {% else %}0{% endif %},
+      },
+      async mounted() {
+        console.log(Vue.version);
+        try{
+          let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true")
+          console.log(response.data)
+          this.type_name_options = response.data
+        }catch(err){
+          console.log(err)
+        };
+      },
+    })
+</script>
 
 {% endblock %}

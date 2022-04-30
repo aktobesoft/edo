@@ -49,7 +49,6 @@ async def get_entity_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entit
                 Entity.type_name, 
                 Entity.end_date, 
                 Entity.user_id).limit(limit).offset(skip)
-    print(query)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -57,7 +56,7 @@ async def get_entity_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entit
         listValue.append(recordDict)
     return listValue
 
-async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entity]:
+async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs):
    
     query = select(Entity.id, 
                 Entity.name, 
@@ -73,7 +72,7 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs)->lis
                 Entity.start_date, 
                 Entity.type_name, 
                 Entity.end_date, 
-                Entity.user_id,
+                Entity.user_id.label("user_id"),
                 BusinessType.id.label("business_type_id"), 
                 BusinessType.name.label("business_type_name"),
                 BusinessType.full_name.label("business_type_full_name"),
@@ -88,8 +87,8 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs)->lis
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['user'] = user_fillDataFromDict(recordDict)
-        recordDict['type'] = business_type_fillDataFromDict(recordDict)
+        recordDict['user'] = user_fillDataFromDict(rec)
+        recordDict['type'] = business_type_fillDataFromDict(rec)
         listValue.append(recordDict)
     return listValue
 
@@ -114,7 +113,6 @@ async def post_entity(entityInstance : dict):
                 user_id = int(entityInstance["user_id"]), 
                 token = '')
 
-    print(query)
     try:
         newEntityId = await database.execute(query)
     except asyncpg.exceptions.ForeignKeyViolationError as e:

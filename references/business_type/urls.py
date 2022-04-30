@@ -4,12 +4,12 @@ from typing import List, Union
 
 from references.business_type.models import BusinessTypeOut, BusinessTypeIn
 from references.business_type import views
-from documents.base_document.models import OptionsStructure
+from documents.base_document.models import OptionsStructure, OptionsStructureStr
 
 
 business_typeRouter = APIRouter()
 
-@business_typeRouter.get('/', response_model = Union[List[BusinessTypeOut], List[OptionsStructure]])
+@business_typeRouter.get('/', response_model = Union[List[BusinessTypeOut], List[OptionsStructureStr]])
 async def get_business_type_list(commons: dict = Depends(qp_select_list)):
     records = await views.get_business_type_list(**commons)
     return records
