@@ -20,6 +20,7 @@ class PurchaseRequisitionItems(Base):
     description_code = Column(String(36), nullable=False)
     quantity = Column(Float)
     sum = Column(Float)
+    hash = Column(String, index=True)
     purchase_requisition_id = Column(Integer, ForeignKey('purchase_requisition.id'), index=True)
     purchase_requisition = relationship("PurchaseRequisition")
 
@@ -34,6 +35,7 @@ class PurchaseRequisitionItemsPUT(BaseModel):
     description_code: str
     quantity: float
     sum: float
+    hash: str
     
     class Config:
         orm_mode = True

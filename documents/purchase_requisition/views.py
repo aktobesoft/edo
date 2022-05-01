@@ -6,7 +6,7 @@ from common_module.urls_module import correct_datetime, correct_datetime
 
 from documents.purchase_requisition.models import PurchaseRequisition, PurchaseRequisitionOut
 from documents.purchase_requisition_items.models import PurchaseRequisitionItems
-from documents.purchase_requisition_items.views import get_pr_items_list_by_purchase_requisition_id, post_pr_items_by_purchase_requisition
+from documents.purchase_requisition_items.views import delete_all_pr_items_by_purchase_requisition, delete_pr_items_by_purchase_requisition, get_pr_items_list_by_purchase_requisition_id, post_pr_items_by_purchase_requisition, update_pr_items_by_purchase_requisition
 from references.business_type.models import BusinessType
 from references.counterparty.models import Counterparty, counterparty_fillDataFromDict
 from references.document_type.models import DocumentType, document_type_fillDataFromDict
@@ -48,6 +48,8 @@ async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **
 async def delete_purchase_requisition_by_id(purchase_requisition_id: int):
     queryPurchaseRequisition = delete(PurchaseRequisition).where(PurchaseRequisition.id == purchase_requisition_id)
     resultPurchaseRequisition = await database.execute(queryPurchaseRequisition)
+    await delete_all_pr_items_by_purchase_requisition(purchase_requisition_id)
+
     return resultPurchaseRequisition
 
 async def get_purchase_requisition_list(limit: int = 100, skip: int = 0, **kwargs)->list[PurchaseRequisitionOut]:
@@ -125,7 +127,7 @@ async def post_purchase_requisition(purchaseRequisitionInstance : dict):
                 entity_iin = purchaseRequisitionInstance["entity_iin"])
     newPurchaseRequisitionId = await database.execute(query)
     await post_pr_items_by_purchase_requisition(purchaseRequisitionInstance["items"])
-    return {**purchaseRequisitionInstance, 'id': newPurchaseRequisitionId, 'items': purchaseRequisitionInstance["items"]}
+    return {**purchaseRequisitionInstance, 'id': newPurchaseRequisitionId}
 
 async def update_purchase_requisition(purchaseRequisitionInstance: dict):
 
@@ -143,6 +145,6 @@ async def update_purchase_requisition(purchaseRequisitionInstance: dict):
                     PurchaseRequisition.id == purchaseRequisitionInstance['id'])
 
     result = await database.execute(query)
-    await post_pr_items_by_purchase_requisition(purchaseRequisitionInstance["items"])
+    await update_pr_items_by_purchase_requisition(purchaseRequisitionInstance["items"], purchaseRequisitionInstance['id'])
     return purchaseRequisitionInstance
 

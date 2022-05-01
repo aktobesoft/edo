@@ -27,3 +27,8 @@ Then in your HTML you can mix your Jinja and Vue.js template tags:
       {{normaltemplatetag}}
       [[ message ]] 
     </div>
+
+        copyRecord.pop('hash')
+        text = dumps(copyRecord, ensure_ascii=False, separators=(',', ':'))
+        resultHash = binascii.crc32(text.encode('utf8'))
+        # print('{0} - 1c, {1} - python'.format(pr_item.hash, resultHash))
