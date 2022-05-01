@@ -1,4 +1,5 @@
-from sqlalchemy import bindparam, column, desc, func, select, insert, text as sqlalchemy_text, tuple_, update, delete, String
+import random
+from sqlalchemy import bindparam, column, desc, false, func, select, insert, text as sqlalchemy_text, tuple_, update, delete, String, desc
 from core.db import database, SessionLocal
 from common_module.urls_module import correct_datetime, correct_datetime
 from documents.purchase_requisition_items.models import PurchaseRequisitionItems
@@ -16,7 +17,8 @@ async def get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id: 
                                     PurchaseRequisitionItems.description_code,
                                     PurchaseRequisitionItems.quantity,
                                     PurchaseRequisitionItems.sum).\
-                                        where(PurchaseRequisitionItems.purchase_requisition_id == purchase_requisition_id)
+                                        where(PurchaseRequisitionItems.purchase_requisition_id == purchase_requisition_id).\
+                                        order_by(PurchaseRequisitionItems.id)
     records = await database.fetch_all(query_CTPurchaseRequisition) 
     listValue = []
     if records == None:
@@ -29,7 +31,6 @@ async def update_pr_items_by_purchase_requisition(pr_items : list, purchase_requ
     
     listID = []
     listHashID = []
-    column_tag = column('')
         
     for item in pr_items:
         dict_item = dict(item)
@@ -49,31 +50,32 @@ async def update_pr_items_by_purchase_requisition(pr_items : list, purchase_requ
     idListNoUpdate = []
     idListDelete = []
 
-    listNoUpdate = []
     listUpdate = []
     listInsert = []
-    listDelete = []
     for item in result:
         if item['operation'] == 'delete':
             idListDelete.append(item['id'])    
         elif item['operation'] == 'no_update':
             idListNoUpdate.append(item['id'])
 
-
-        # copyRecord = dict(item)
-        
-        # action_update = False
-        # action_insert = False
-        # action_delete = False
-       
-        
-        # copyRecord.pop('hash')
-        # text = dumps(copyRecord, ensure_ascii=False, separators=(',', ':'))
-        # resultHash = binascii.crc32(text.encode('utf8'))
-
+    rrIndex = random.randint(0, len(idListNoUpdate))
+    index = 0
+    
     for _pr_item in pr_items:
         pr_item = dict(_pr_item)
         if (pr_item['id'] in idListNoUpdate):
+            if (index == rrIndex):
+                # рандомная проверка хэш записи
+                # защита если кто то пытается специально посылать много записей с неправильной функции
+                # чтобы загрузить сервис
+                # надо придумать что делать в такой ситуации
+                copyRecord = dict(_pr_item)
+                copyRecord.pop('hash')
+                text = dumps(copyRecord, ensure_ascii=False, separators=(',', ':'))
+                resultHash = binascii.crc32(text.encode('utf8'))
+                if str(resultHash) != str(pr_item['hash']):
+                    print('Внимание хэши не равны {0} и {1}'.format(str(pr_item['hash']), resultHash))
+            index = index + 1
             continue
         elif (pr_item['id'] == 0):
             # в первую запись всегда хэш будет другой потому как id пустой
@@ -104,13 +106,15 @@ async def update_pr_items_by_purchase_requisition(pr_items : list, purchase_requ
 
 async def post_pr_items_by_purchase_requisition(pr_items : list, purchase_requisition_id: int):
     
+    for pr_item in pr_items:
+        pr_item['purchase_requisition_id'] = purchase_requisition_id
+
     query = insert(PurchaseRequisitionItems).\
             values(service = bindparam('service'), description = bindparam('description'), 
                     description_code = bindparam('description_code'),
                     quantity = bindparam('quantity'), sum = bindparam('sum'),
                     purchase_requisition_id = bindparam('purchase_requisition_id'),
                     hash = bindparam('hash'))
-
     result = await database.execute_many(str(query), pr_items) 
 
 async def delete_pr_items_by_purchase_requisition(listID : list, purchase_requisition_id: int):

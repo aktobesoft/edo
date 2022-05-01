@@ -47,6 +47,7 @@ class PurchaseRequisitionItemsPOST(BaseModel):
     description_code: str
     quantity: float
     sum: float
+    hash: str
     
     class Config:
         orm_mode = True

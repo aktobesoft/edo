@@ -126,7 +126,7 @@ async def post_purchase_requisition(purchaseRequisitionInstance : dict):
                 document_type_id = int(purchaseRequisitionInstance["document_type_id"]), 
                 entity_iin = purchaseRequisitionInstance["entity_iin"])
     newPurchaseRequisitionId = await database.execute(query)
-    await post_pr_items_by_purchase_requisition(purchaseRequisitionInstance["items"])
+    await post_pr_items_by_purchase_requisition(purchaseRequisitionInstance["items"], newPurchaseRequisitionId)
     return {**purchaseRequisitionInstance, 'id': newPurchaseRequisitionId}
 
 async def update_purchase_requisition(purchaseRequisitionInstance: dict):
