@@ -45,7 +45,6 @@ async def update_pr_items_by_purchase_requisition(pr_items : list, purchase_requ
                 (tuple_(PurchaseRequisitionItems.id, PurchaseRequisitionItems.hash).in_(listHashID)))
     
     query = select1.union_all(select2).alias('pr_list')
-    print(query)
     result = await database.fetch_all(query)
     idListNoUpdate = []
     idListDelete = []
