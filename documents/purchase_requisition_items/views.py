@@ -11,7 +11,7 @@ async def get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id: 
     query_CTPurchaseRequisition = select(PurchaseRequisitionItems.id,
                                     func.row_number().over(
                                         partition_by=PurchaseRequisitionItems.purchase_requisition_id,
-                                        order_by=desc(PurchaseRequisitionItems.purchase_requisition_id)).label('line_number'),
+                                        order_by=PurchaseRequisitionItems.id).label('line_number'),
                                     PurchaseRequisitionItems.service,
                                     PurchaseRequisitionItems.description,
                                     PurchaseRequisitionItems.description_code,

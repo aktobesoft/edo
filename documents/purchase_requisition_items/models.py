@@ -27,7 +27,7 @@ class PurchaseRequisitionItems(Base):
     def __repr__(self) -> str:
         return '<{0} ({1})>'.format(self.id, self.description)
 
-class PurchaseRequisitionItemsPUT(BaseModel):
+class _PurchaseRequisitionItemsPUT(BaseModel):
     
     id: int
     service: bool
@@ -40,7 +40,7 @@ class PurchaseRequisitionItemsPUT(BaseModel):
     class Config:
         orm_mode = True
 
-class PurchaseRequisitionItemsPOST(BaseModel):
+class _PurchaseRequisitionItemsPOST(BaseModel):
     
     service: bool
     description: str
@@ -52,7 +52,7 @@ class PurchaseRequisitionItemsPOST(BaseModel):
     class Config:
         orm_mode = True
 
-class PurchaseRequisitionItemsOutWithLine(BaseModel):
+class _PurchaseRequisitionItemsOutWithLine(BaseModel):
     
     id: int
     line_number: int
@@ -66,7 +66,7 @@ class PurchaseRequisitionItemsOutWithLine(BaseModel):
         orm_mode = True
         
 
-class PurchaseRequisitionItemsSingleOut(BaseModel):
+class _PurchaseRequisitionItemsSingleOut(BaseModel):
     
     id: int
     line_number: int

@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from references.counterparty.models import CounterpartySmallOut
 from references.document_type.models import DocumentTypeOut
 from references.entity.models import EntitySmallOut
-from documents.purchase_requisition_items.models import PurchaseRequisitionItemsPUT, PurchaseRequisitionItemsOutWithLine, PurchaseRequisitionItemsPOST
+from documents.purchase_requisition_items.models import _PurchaseRequisitionItemsPOST, _PurchaseRequisitionItemsPUT, _PurchaseRequisitionItemsOutWithLine
 
 class PurchaseRequisition(BaseDocument, Base):
     __tablename__ = "purchase_requisition"
@@ -40,7 +40,7 @@ class PurchaseRequisitionItemsOut(BaseModel):
     counterparty_iin: str
     document_type_id: int
     entity_iin: str
-    items: list[PurchaseRequisitionItemsOutWithLine]
+    items: list[_PurchaseRequisitionItemsOutWithLine]
     
     class Config:
         orm_mode = True
@@ -59,7 +59,25 @@ class PurchaseRequisitionNestedOut(BaseModel):
     counterparty: CounterpartySmallOut
     document_type: DocumentTypeOut
     entity: EntitySmallOut
-    items: list[PurchaseRequisitionItemsOutWithLine]
+    
+    class Config:
+        orm_mode = True
+
+class PurchaseRequisitionNestedItemsOut(BaseModel):
+    
+    id: int
+    guid: str
+    number: str
+    date: datetime
+    comment: str
+    sum: float
+    counterparty_iin: str
+    document_type_id: int
+    entity_iin: str
+    counterparty: CounterpartySmallOut
+    document_type: DocumentTypeOut
+    entity: EntitySmallOut
+    items: list[_PurchaseRequisitionItemsOutWithLine]
     
     class Config:
         orm_mode = True
@@ -75,7 +93,7 @@ class PurchaseRequisitionPUT(BaseModel):
     counterparty_iin: str
     document_type_id: int
     entity_iin: str
-    items: list[PurchaseRequisitionItemsPUT]
+    items: list[_PurchaseRequisitionItemsPUT]
     
     class Config:
         orm_mode = True
@@ -90,7 +108,7 @@ class PurchaseRequisitionPOST(BaseModel):
     counterparty_iin: str
     document_type_id: int
     entity_iin: str
-    items: list[PurchaseRequisitionItemsPOST]
+    items: list[_PurchaseRequisitionItemsPOST]
     
     class Config:
         orm_mode = True

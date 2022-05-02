@@ -18,7 +18,9 @@ async def get_purchase_requisition_by_id(purchase_requisition_id: int, **kwargs)
     if(kwargs['nested']):
         return await get_purchase_requisition_nested_by_id(purchase_requisition_id, **kwargs)
     queryPurchaseRequisition = select(PurchaseRequisition).where(PurchaseRequisition.id == purchase_requisition_id)
-    resultPurchaseRequisition = await database.fetch_one(queryPurchaseRequisition)
+    result = await database.fetch_one(queryPurchaseRequisition)
+    resultPurchaseRequisition = dict(result)
+    resultPurchaseRequisition['items'] = await get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id, **kwargs)
     return resultPurchaseRequisition
 
 async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **kwargs):
@@ -140,9 +142,10 @@ async def update_purchase_requisition(purchaseRequisitionInstance: dict):
                 sum = purchaseRequisitionInstance["sum"], 
                 counterparty_iin = purchaseRequisitionInstance["counterparty_iin"], 
                 document_type_id = int(purchaseRequisitionInstance["document_type_id"]), 
-                guid = purchaseRequisitionInstance["guid"], 
-                entity_iin = purchaseRequisitionInstance["entity_iin"]).where(
-                    PurchaseRequisition.id == purchaseRequisitionInstance['id'])
+                guid = purchaseRequisitionInstance["guid"]).where(
+                    (PurchaseRequisition.id == purchaseRequisitionInstance['id']) & 
+                    (PurchaseRequisition.entity_iin == purchaseRequisitionInstance["entity_iin"])
+                    )
 
     result = await database.execute(query)
     await update_pr_items_by_purchase_requisition(purchaseRequisitionInstance["items"], purchaseRequisitionInstance['id'])
