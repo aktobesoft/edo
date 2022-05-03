@@ -14,14 +14,14 @@ from references.entity.models import EntitySmallOut
 class PurchaseRequisitionItems(Base):
     __tablename__ = "purchase_requisition_items"
 
-    id = Column(Integer, primary_key=True, autoincrement=True) 
+    id = Column(Integer, primary_key = True, autoincrement = True) 
     service = Column(Boolean, nullable=True)
-    description = Column(String(360), nullable=False)
-    description_code = Column(String(36), nullable=False)
+    description = Column(String(360), nullable = False)
+    description_code = Column(String(36), nullable = False)
     quantity = Column(Float)
     sum = Column(Float)
-    hash = Column(String, index=True)
-    purchase_requisition_id = Column(Integer, ForeignKey('purchase_requisition.id'), index=True)
+    hash = Column(String, index = True)
+    purchase_requisition_id = Column(Integer, ForeignKey('purchase_requisition.id'), index = True)
     purchase_requisition = relationship("PurchaseRequisition")
 
     def __repr__(self) -> str:

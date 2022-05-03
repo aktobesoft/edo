@@ -5,9 +5,9 @@ from core.db import Base
 class DocumentType(Base):
     __tablename__ = "document_type"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(150), nullable=False, unique=True)
-    description = Column(String(350), nullable=False)
+    id = Column(Integer, primary_key = True, autoincrement = True)
+    name = Column(String(150), nullable = False, unique=True)
+    description = Column(String(350), nullable = False)
 
     def __repr__(self) -> str:
         return self.description

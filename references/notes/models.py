@@ -5,7 +5,7 @@ from core.db import Base, metadata
 
 class Notes(Base):
     __tablename__ = "notes"
-    id  = Column(Integer, primary_key=True, autoincrement=True)
+    id  = Column(Integer, primary_key = True, autoincrement = True)
     text = Column(String)
     completed = Column(Boolean)
 

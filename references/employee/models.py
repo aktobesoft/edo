@@ -10,14 +10,14 @@ from references.user.models import UserOut
 class Employee(Base):
     __tablename__ = "employee"
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    email = Column(String(255), nullable=False, unique=True)
+    id = Column(Integer, primary_key = True, autoincrement = True)
+    email = Column(String(255), nullable = False, unique=True, index = True)
     date_of_birth = Column(Date, nullable=True)
-    name = Column(String(150), nullable=False)
+    name = Column(String(150), nullable = False)
     description = Column(String(350), nullable=True)
-    entity_iin = Column(String, ForeignKey('entity.iin', ondelete="CASCADE"), nullable=False)
+    entity_iin = Column(String, ForeignKey('entity.iin', ondelete = "CASCADE"), nullable = False)
     entity = relationship("Entity")
-    user_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey('users.id', ondelete = "CASCADE"))
     user = relationship("User")
 
     def __repr__(self) -> str:

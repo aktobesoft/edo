@@ -6,12 +6,12 @@ from core.db import Base
 class EmployeeActivity(Base):
     __tablename__ = "employee_activity"
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key = True, autoincrement = True)
     token = Column(String, unique=True)
     last_activity = Column(DateTime(timezone=True))
-    employee_id = Column(Integer, ForeignKey('employee.id', ondelete="CASCADE"))
+    employee_id = Column(Integer, ForeignKey('employee.id', ondelete = "CASCADE"))
     employee = relationship("Employee")
-    user_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey('users.id', ondelete = "CASCADE"))
     user = relationship("User")
 
     def __repr__(self) -> str:

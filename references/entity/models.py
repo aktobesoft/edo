@@ -12,10 +12,10 @@ from references.user.models import UserOut, User
 class Entity(Base):
     __tablename__ = 'entity'
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(150), nullable=False)
+    id = Column(Integer, primary_key = True, autoincrement = True)
+    name = Column(String(150), nullable = False)
     full_name = Column(String(360), nullable=True)
-    iin = Column(String(12), nullable=False, index=True, unique=True)
+    iin = Column(String(12), nullable = False, index = True, unique=True)
     address = Column(String(350), nullable=True)
     comment = Column(String(350), nullable=True)
     director = Column(String(150), nullable=True)

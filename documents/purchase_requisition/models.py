@@ -18,6 +18,7 @@ class PurchaseRequisitionOut(BaseModel):
     
     id: int
     guid: str
+    marked: bool
     number: str
     date: datetime
     comment: str

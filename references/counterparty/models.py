@@ -10,10 +10,10 @@ from datetime import date, datetime
 class Counterparty(Base):
     __tablename__ = "counterparty"
 
-    id = Column(Integer, primary_key=True, autoincrement=True) 
-    name = Column(String(150), nullable=False)
+    id = Column(Integer, primary_key = True, autoincrement = True) 
+    name = Column(String(150), nullable = False)
     full_name = Column(String(360), nullable=True)
-    iin = Column(String(12), nullable=False, index=True, unique=True)
+    iin = Column(String(12), nullable = False, index = True, unique=True)
     address = Column(String(350))
     comment = Column(String(350))
     contact = Column(String(150))

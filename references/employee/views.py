@@ -94,7 +94,7 @@ async def post_employee(employeeInstance : dict):
                 email = employeeInstance["email"], 
                 date_of_birth = employeeInstance["date_of_birth"],
                 description = employeeInstance["description"], 
-                entity_iin = int(employeeInstance["entity_iin"]),
+                entity_iin = employeeInstance["entity_iin"],
                 user_id = int(employeeInstance["user_id"])
                 )
     try:

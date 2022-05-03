@@ -5,8 +5,8 @@ from core.db import Base, metadata
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    email = Column(String, unique=True, index=True)
+    id = Column(Integer, primary_key = True, autoincrement = True)
+    email = Column(String, unique=True, index = True)
     name =Column(String(150), nullable=True)
     hashed_password = Column(String)
     is_company = Column(Boolean, default=True)
