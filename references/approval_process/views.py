@@ -23,7 +23,6 @@ async def get_approval_process_list(limit: int = 100,skip: int = 0,**kwargs):
     for rec in records:
         recordDict = dict(rec)
         listValue.append(recordDict)
-    print(listValue)
     return listValue
 
 async def post_approval_process(apInstance : dict):

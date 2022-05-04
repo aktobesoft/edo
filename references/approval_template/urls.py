@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends
 from common_module.urls_module import qp_select_list
 from typing import List, Union
 
-from references.approval_template.models import ApprovalTemplate, ApprovalTemplateIn, ApprovalTemplateOut
+from references.approval_template.models import ApprovalTemplate, ApprovalTemplateIn, ApprovalTemplateNestedOut, ApprovalTemplateOut
 from references.approval_template import views
 
 
 approval_templateRouter = APIRouter()
 
-@approval_templateRouter.get('/', response_model = list[ApprovalTemplateOut])
+@approval_templateRouter.get('/', response_model = Union[List[ApprovalTemplateNestedOut], List[ApprovalTemplateOut]])
 async def get_approval_template_list(commons: dict = Depends(qp_select_list)):
     records = await views.get_approval_template_list(**commons)
     return records

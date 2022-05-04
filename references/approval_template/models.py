@@ -2,6 +2,9 @@ from pydantic import BaseModel
 from sqlalchemy import Column, ForeignKey, String, Integer, Boolean 
 from core.db import Base
 from sqlalchemy.orm import relationship
+
+from references.document_type.models import DocumentTypeOut
+from references.entity.models import EntitySmallOut
    
 class ApprovalTemplate(Base):
     __tablename__ = "approval_template"
@@ -23,6 +26,18 @@ class ApprovalTemplateOut(BaseModel):
     document_type_id: int
     name: str
     entity_iin: str
+    
+    class Config:
+        orm_mode = True
+
+class ApprovalTemplateNestedOut(BaseModel):
+    
+    id: int
+    document_type_id: int
+    document_type: DocumentTypeOut
+    name: str
+    entity_iin: str
+    entity: EntitySmallOut
     
     class Config:
         orm_mode = True

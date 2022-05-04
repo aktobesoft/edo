@@ -15,9 +15,12 @@ async def delete_approval_template_step_by_id(approval_template_step_id: int):
     result = await database.execute(query)
     return result
 
-async def get_approval_template_step_list(limit: int = 100,skip: int = 0,**kwargs):
-
-    query = select(ApprovalTemplateStep).limit(limit).offset(skip)
+async def get_approval_template_step_list(**kwargs):
+    if kwargs['approval_template_id']:
+        query = select(ApprovalTemplateStep).\
+            where(ApprovalTemplateStep.approval_template_id == int(kwargs['approval_template_id'])) 
+    else:
+        query = select(ApprovalTemplateStep)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:

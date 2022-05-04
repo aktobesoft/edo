@@ -1,19 +1,14 @@
-from typing import List
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi import APIRouter, HTTPException, Request, Form
-from sqlalchemy import select, insert, update
 from common_module.urls_module import qp_select_one
-from core.db import database, engine, SessionLocal
 from fastapi.templating import Jinja2Templates
 from references.counterparty.models import Counterparty
 from references.employee.models import Employee
-from references.user.models import UserOut, User
 from references.employee import views as employeeService
 from references.entity import views as entityService
-from references.user import views as userService
 from references.counterparty import views as counterpartyService
-from references.business_type.models import BusinessType
-from references.entity.models import EntityOut, EntityNestedOut, Entity
+from references.approval_template.views import get_approval_template_list
+from references.entity.models import Entity
 from datetime import datetime
 from starlette.status import HTTP_302_FOUND
 
@@ -118,6 +113,8 @@ async def update_employee(request: Request, employee_id: int):
 # +++ ---------------- employee ------------------
 # ----------------------------------------------
 
+# ----------------------------------------------
+# +++ ---------------- counterparty ------------------
 @interfaceRoute.get("/counterparty/", response_class=HTMLResponse)
 async def counterparty_list(request: Request):
     parametrs = {'limit': 100, 'skip': 0, 'nested': True}
@@ -156,3 +153,11 @@ async def delete_employee(request: Request, itemId: str):
     result = await counterpartyService.delete_counterparty_by_iin(itemId)
     response = RedirectResponse(status_code=HTTP_302_FOUND, url='/counterparty/')
     return response
+# +++ ---------------- counterparty ------------------
+# ----------------------------------------------
+
+@interfaceRoute.get("/approval_template/", response_class=HTMLResponse)
+async def approval_template_list(request: Request):
+    listOfValue = await get_approval_template_list(nested = True) 
+    print(listOfValue)
+    return templates.TemplateResponse("approval_template/approval_template_list.html", context={'request': request, 'listOfValue': listOfValue})
