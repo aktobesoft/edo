@@ -7,7 +7,7 @@ from references.employee.models import Employee
 from references.employee import views as employeeService
 from references.entity import views as entityService
 from references.counterparty import views as counterpartyService
-from references.approval_template.views import get_approval_template_list
+from references.approval_template.views import get_approval_template_by_id, get_approval_template_list
 from references.entity.models import Entity
 from datetime import datetime
 from starlette.status import HTTP_302_FOUND
@@ -159,5 +159,10 @@ async def delete_employee(request: Request, itemId: str):
 @interfaceRoute.get("/approval_template/", response_class=HTMLResponse)
 async def approval_template_list(request: Request):
     listOfValue = await get_approval_template_list(nested = True) 
-    print(listOfValue)
     return templates.TemplateResponse("approval_template/approval_template_list.html", context={'request': request, 'listOfValue': listOfValue})
+
+@interfaceRoute.get("/approval_template/{itemId}", response_class=HTMLResponse)
+async def approval_template_detail(request: Request, itemId: int):
+    parametrs = {'nested': True}
+    _approval_template = await get_approval_template_by_id(itemId, **parametrs) 
+    return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, '_approval_template': _approval_template, 'itemId': itemId})

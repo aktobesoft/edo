@@ -51,6 +51,7 @@
 </form>
 
 <script>
+  
   new Vue({
       el: '#vue',
       delimiters: ['[[', ']]'],
@@ -73,8 +74,10 @@
       },
       methods: {
         clickList: function (item) {
-          console.log("clickList fired with " + item.id);
-        }},
+          console.log(item.entity.iin);
+          window.location.href = "http://127.0.0.1:8000/approval_template/"+item.id
+        }
+      }
     })
 </script>
 

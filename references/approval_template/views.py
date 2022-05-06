@@ -1,20 +1,42 @@
+import json
 from sqlalchemy import select, insert, update, delete
 import asyncpg
 from core.db import database
 from common_module.urls_module import correct_datetime
 
 from references.approval_template.models import ApprovalTemplate, ApprovalTemplateIn
-from references.approval_template_step.views import get_approval_template_step_list
+from references.approval_template_step.views import get_approval_template_step_list, get_approval_template_step_nested_list
 from references.counterparty.models import Counterparty
 from references.document_type.models import DocumentType, document_type_fillDataFromDict
 from references.entity.models import Entity, entity_fillDataFromDict
 
-async def get_approval_template_by_id(approval_template_id: int):
+
+async def get_approval_template_by_id(approval_template_id: int, **kwargs):
+    if(kwargs['nested']):
+        return await get_approval_template_nested_by_id(approval_template_id, **kwargs)
     query = select(ApprovalTemplate).where(ApprovalTemplate.id == approval_template_id)
     result = await database.fetch_one(query)
-    params = {}
-    params['approval_template_id'] = approval_template_id
-    return {**result, 'items': await get_approval_template_step_list(**params)}
+    return {**result, 'items': await get_approval_template_step_list(approval_template_id,  **kwargs)}
+
+async def get_approval_template_nested_by_id(approval_template_id: int, **kwargs):
+    if approval_template_id == 0:
+        result = ApprovalTemplateIn().json()
+        print(result)
+        return result
+    query = select(ApprovalTemplate,
+                    Entity.id.label('entity_id'), 
+                    Entity.name.label('entity_name'), 
+                    DocumentType.id.label('document_type_id'),
+                    DocumentType.name.label('document_type_name'),
+                    DocumentType.description.label('document_type_description')).\
+            where(ApprovalTemplate.id == approval_template_id).\
+        join(Entity, ApprovalTemplate.entity_iin == Entity.iin, isouter=True).\
+        join(DocumentType, ApprovalTemplate.document_type_id == DocumentType.id, isouter=True)
+    result = await database.fetch_one(query)
+    recordDict = dict(result)
+    recordDict['entity'] = entity_fillDataFromDict(recordDict)
+    recordDict['document_type'] = document_type_fillDataFromDict(recordDict)
+    return {**recordDict, 'steps': await get_approval_template_step_nested_list(approval_template_id, **kwargs)}
 
 async def delete_approval_template_by_id(approval_template_id: int):
     query = delete(ApprovalTemplate).where(ApprovalTemplate.id == approval_template_id)
@@ -46,6 +68,7 @@ async def get_approval_template_nested_list(limit: int = 100,skip: int = 0,**kwa
                 join(Entity, ApprovalTemplate.entity_iin == Entity.iin, isouter=True).\
                 join(DocumentType, ApprovalTemplate.document_type_id == DocumentType.id, isouter=True).\
                 limit(limit).offset(skip)
+
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:

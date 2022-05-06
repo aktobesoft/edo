@@ -10,6 +10,11 @@ async def get_approval_route_by_id(approval_route_id: int):
     result = await database.fetch_one(query)
     return result
 
+async def get_approval_route_nested_by_id(approval_route_id: int):
+    query = select(ApprovalRoute).where(ApprovalRoute.id == approval_route_id)
+    result = await database.fetch_one(query)
+    return result
+
 async def delete_approval_route_by_id(approval_route_id: int):
     query = delete(ApprovalRoute).where(ApprovalRoute.id == approval_route_id)
     result = await database.execute(query)

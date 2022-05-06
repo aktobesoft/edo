@@ -15,9 +15,9 @@ class DocumentType(Base):
 
 class DocumentTypeOut(BaseModel): 
     
-    id: int
-    name: str
-    description: str
+    id: int = 0
+    name: str = ''
+    description: str = ''
     
     class Config:
         orm_mode = True

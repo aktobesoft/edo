@@ -3,7 +3,8 @@ from sqlalchemy import Column, ForeignKey, Index, String, Integer, Boolean, Enum
 from core.db import Base
 from sqlalchemy.orm import relationship
 import enum
-from references.approval_template.models import ApprovalTemplate
+from references.employee.models import EmployeeSmallOut
+from references.entity.models import EntitySmallOut
 from references.enum_types.models import step_type
 
    
@@ -26,7 +27,7 @@ class ApprovalTemplateStep(Base):
 Index('idx_entity_at', ApprovalTemplateStep.entity_iin, ApprovalTemplateStep.approval_template_id)
         
 
-class ApprovalTemplateStepOut(BaseModel):
+class _ApprovalTemplateStepOut(BaseModel):
     
     id: int = 0
     level: int = 0
@@ -38,7 +39,20 @@ class ApprovalTemplateStepOut(BaseModel):
     class Config:
         orm_mode = True
 
-class ApprovalTemplateStepIn(BaseModel):
+class _ApprovalTemplateStepNestedOut(BaseModel):
+    
+    id: int = 0
+    level: int = 0
+    type: step_type = step_type.line
+    entity_iin: str
+    entity: EntitySmallOut
+    employee_id: int = 0
+    employee: EmployeeSmallOut
+    
+    class Config:
+        orm_mode = True
+
+class _ApprovalTemplateStepIn(BaseModel):
     
     level: int = 0
     type: step_type = step_type.line

@@ -57,6 +57,11 @@ class EmployeeOut(BaseModel):
     class Config:
         orm_mode = True
 
+class EmployeeSmallOut(BaseModel):
+    id: int
+    name: str
+    email: str
+
 class EmployeeNestedOut(BaseModel):
     id: int
     name: str
@@ -82,3 +87,10 @@ class EmployeeIn(BaseModel):
     
     class Config:
         orm_mode = True
+
+def employee_fillDataFromDict(queryResult : dict):
+    return {
+        'id': queryResult['employee_id'],
+        'name': queryResult['employee_name'],
+        'email': queryResult['employee_email']
+        } 

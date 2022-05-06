@@ -7,52 +7,63 @@
   <div class="card" id="vue">
     <template>
       <div class="card-header">
-        {{ entity.name }} ({{entity.iin}})
+        
       </div>
       <div class="card-body">
         <div class="form-group row">
 
-        {% for field in entityLabel if not entityLabel[field]['skip'] %}
           <div class="pt-2 row">
-            <label for="{{field}}" class="col-sm-2 col-form-label">{{entityLabel[field]['label']}}</label>
+            <label for="id" class="col-sm-2 col-form-label">ИД</label>
             <div class="col-sm-10">
-              {% if entityLabel[field]['type'] == 'text' %}
-                <input type="text" name="{{field}}" class="form-control" 
-                  id="{{field}}" placeholder="{{entityLabel[field]['label']}}" value="{{entity[field]}}" 
-                  {% if entityLabel[field]['maxlength'] %} maxlength="{{entityLabel[field]['maxlength']}}" {% endif %} 
-                  {% if entityLabel[field]['min'] %} min="{{entityLabel[field]['min']}}" {% endif %}
-                  {% if entityLabel[field]['max'] %} max="{{entityLabel[field]['max']}}" {% endif %}
-                  {% if entityLabel[field]['readonly'] %} readonly {% endif %}
-                  {% if entityLabel[field]['pattern'] %} pattern="{{entityLabel[field]['pattern']}}" {% endif %}
-                  >
-              {% elif entityLabel[field]['type'] == 'textarea' %}
-                <textarea name="{{field}}" cols="40" rows="3" class="form-control" id="{{field}}" {% if entityLabel[field]['readonly'] %} readonly {% endif %}>{{entity[field]}}</textarea>
-              {% elif entityLabel[field]['type'] == 'select' and entityLabel[field]['get_from_api'] %}
-                <select v-model="selected_{{field}}" name="{{field}}" class="form-select" aria-label="Default select example" id="{{field}}" 
-                {% if entityLabel[field]['maxlength'] %} maxlength="{{entityLabel[field]['maxlength']}}" {% endif %} 
-                {% if entityLabel[field]['min'] %} min="{{entityLabel[field]['min']}}" {% endif %}
-                {% if entityLabel[field]['max'] %} max="{{entityLabel[field]['max']}}" {% endif %}
-                {% if entityLabel[field]['readonly'] %} readonly {% endif %}
-                {% if entityLabel[field]['pattern'] %} pattern="{{entityLabel[field]['pattern']}}" {% endif %}
-                  >
-                  <option value="0">---------</option>
-                  <option v-for="option in {{field}}_options" v-bind:value="option.value">
-                  [[ option.text ]]
-                </option>
-              </select>
-              {% else %}
-                <input type="{{entityLabel[field]['type']}}" name="{{field}}" class="form-control" 
-                  id="{{field}}" placeholder="{{entityLabel[field]['label']}}" value="{{entity[field]}}" 
-                  {% if entityLabel[field]['maxlength'] %} maxlength="{{entityLabel[field]['maxlength']}}" {% endif %}
-                  {% if entityLabel[field]['min'] %} min="{{entityLabel[field]['min']}}" {% endif %}
-                  {% if entityLabel[field]['max'] %} max="{{entityLabel[field]['max']}}" {% endif %} 
-                  {% if entityLabel[field]['readonly'] %} readonly {% endif %}
-                  {% if entityLabel[field]['pattern'] %} pattern="{{entityLabel[field]['pattern']}}" {% endif %}
-                  >
-              {% endif %}
+                <input type="text" name="id" class="form-control" id="id" placeholder="ИД" :value="approval_template.id" readonly >
             </div>
+            <label for="id" class="col-sm-2 col-form-label mt-2">Наименование</label>
+            <div class="col-sm-10 mt-2">
+                <input type="text" name="name" class="form-control" id="name" placeholder="ИД" :value="approval_template.name">
+            </div>
+
+            <label for="id" class="col-sm-2 col-form-label mt-2">Организация</label>
+            <div class="col-sm-10 mt-2">
+                <input type="text" name="name" class="form-control" id="name" placeholder="ИД" :value="approval_template.entity.name">
+            </div>
+
+            <label for="id" class="col-sm-2 col-form-label mt-2">ИИН</label>
+            <div class="col-sm-10 mt-2">
+                <input type="text" name="name" class="form-control" id="name" placeholder="ИД" :value="approval_template.entity.iin">
+            </div>
+
+            <label for="id" class="col-sm-2 col-form-label mt-2">Шаблон документа</label>
+            <div class="col-sm-10 mt-2">
+                <input type="text" name="name" class="form-control" id="name" placeholder="ИД" :value="approval_template.document_type.description">
+            </div>
+
           </div>
-        {% endfor %}
+          <div>
+            <button  type="button" class="btn btn-secondary" v-on:click="AddNewRow"> Добавить </button>
+          </div>
+          <table class="table">
+            <thead class="thead-dark">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Уровень</th>
+                <th scope="col">Тип</th>
+                <th scope="col">Организация</th>
+                <th scope="col">Сотрудник</th>
+                <th scope="col">Шаблона отчета</th>
+              </tr>
+            </thead>
+            <tbody  v-for="step in approval_template.steps" :key="step.id">
+              <tr>
+                <td>[[ step.id ]]</td>
+                <td>[[ step.level ]]</td>
+                <td>[[ step.type]]</td> 
+                <td>[[ step.entity_iin ]]</td>
+                <td>[[ step.employee.name ]] ([[ step.employee.email ]])</td>
+                <td>[[ approval_template.document_type.description ]]</td>
+              </tr>
+            </tbody>
+          </table>
+          
         <div class="pt-3 row">
           <div class="col">  
             <button class="btn btn-primary btn-block">Сохранить</button> 
@@ -84,6 +95,8 @@
       </div>
     </template>
   </div>
+
+
 </form>
 
 <script>
@@ -91,30 +104,40 @@
       delimiters: ['[[', ']]'],
       el: '#vue',
       data: {
-        type_name_options: [],
-        user_id_options: [],
-        selected_type_name: 
-        {% if not is_new %} "{{entity['type_name']}}" {% else %}0{% endif %},
-        selected_user_id: 
-        {% if not is_new %} "{{entity['user_id']}}" {% else %}0{% endif %},
+        approval_template: {},
+        approval_template_id: "{{itemId}}",
       },
       async mounted() {
         console.log(Vue.version);
         try{
-          let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true")
+          let response = await axios.get("http://127.0.0.1:8000/v1/api/approval_template/{{itemId}}?nested=true")
           console.log(response.data)
-          this.type_name_options = response.data
-        }catch(err){
-          console.log(err)
-        };
-        try{
-          let response = await axios.get("{{url_for('get_user_list')}}?optional=true")
-          console.log(response.data)
-          this.user_id_options = response.data
+          this.approval_template = response.data
         }catch(err){
           console.log(err)
         }
       },
+      methods: {
+        AddNewRow: function(){
+          this.approval_template.steps.push({
+            "id": 0,
+            "level": 0,
+            "type": "Линейное",
+            "entity_iin": "",
+            "entity": {
+              "id": 0,
+              "name": "",
+              "iin": ""
+            },
+            "employee_id": 0,
+            "employee": {
+              "id": 0,
+              "name": "",
+              "email": ""
+              }
+            })  
+          },
+      }
     })
 </script>
 
