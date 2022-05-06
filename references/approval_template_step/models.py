@@ -14,27 +14,24 @@ class ApprovalTemplateStep(Base):
     id = Column(Integer, primary_key = True, autoincrement = True)
     level = Column(Integer, nullable = False)
     type = Column(Enum(step_type))
-    entity_iin = Column(String, ForeignKey('entity.iin', ondelete = "CASCADE"), nullable = False, index = True)
-    entity = relationship("Entity")
     employee_id = Column(Integer, ForeignKey('employee.id', ondelete = "CASCADE"), nullable = False, index = True)
     employee = relationship("Employee")
     approval_template_id = Column(Integer, ForeignKey('approval_template.id', ondelete = "CASCADE"), nullable = False, index = True)
     approval_template = relationship("ApprovalTemplate")
+    hash = Column(String, index = True)
 
     def __repr__(self) -> str:
         return self.name
 
-Index('idx_entity_at', ApprovalTemplateStep.entity_iin, ApprovalTemplateStep.approval_template_id)
-        
 
 class _ApprovalTemplateStepOut(BaseModel):
     
     id: int = 0
     level: int = 0
     type: step_type = step_type.line
-    entity_iin: str = '000000000000'
     employee_id: int = 0
     approval_template_id: int = 0
+    hash: str = ''
     
     class Config:
         orm_mode = True
@@ -44,21 +41,30 @@ class _ApprovalTemplateStepNestedOut(BaseModel):
     id: int = 0
     level: int = 0
     type: step_type = step_type.line
-    entity_iin: str
-    entity: EntitySmallOut
     employee_id: int = 0
     employee: EmployeeSmallOut
+    hash: str = ''
     
     class Config:
         orm_mode = True
 
-class _ApprovalTemplateStepIn(BaseModel):
+class _ApprovalTemplateStepPUT(BaseModel):
+    
+    id: int = 0
+    level: int = 0
+    type: step_type = step_type.line
+    employee_id: int = 0
+    hash: str = ''
+
+    class Config:
+        orm_mode = True
+
+class _ApprovalTemplateStepPOST(BaseModel):
     
     level: int = 0
     type: step_type = step_type.line
-    entity_iin: str = '000000000000'
     employee_id: int = 0
-    approval_template_id: int = 0
+    hash: str = ''
 
     class Config:
         orm_mode = True

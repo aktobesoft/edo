@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from common_module.urls_module import qp_select_list, qp_select_one
 from typing import List, Union
 
-from references.approval_template_step.models import ApprovalTemplateStep, _ApprovalTemplateStepIn, _ApprovalTemplateStepOut
+from references.approval_template_step.models import ApprovalTemplateStep, _ApprovalTemplateStepPUT, _ApprovalTemplateStepOut
 from references.approval_template_step import views
 
 
@@ -19,7 +19,7 @@ async def get_approval_template_step_by_id(approval_template_step_id : int):
     return result
 
 @approval_template_stepRouter.post('/', response_model = _ApprovalTemplateStepOut)
-async def post_approval_template_step(approval_template_stepInstance : _ApprovalTemplateStepIn):
+async def post_approval_template_step(approval_template_stepInstance : _ApprovalTemplateStepPUT):
     businessTypeDict = approval_template_stepInstance.dict()
     result = await views.post_approval_template_step(businessTypeDict)
     return result

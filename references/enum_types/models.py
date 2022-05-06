@@ -1,10 +1,10 @@
 import enum
 
-class step_type(str, enum.Enum):
+class step_type(enum.Enum):
     line = 'Линейное'
     paralel = 'Паралельное'
 
-class status_type (str, enum.Enum):
+class status_type(enum.Enum):
     signed = 'Подписан'
     rejected = 'Отклонен'
     canceled = 'Отменен'

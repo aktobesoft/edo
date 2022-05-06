@@ -5,7 +5,8 @@ from core.db import database
 from common_module.urls_module import correct_datetime
 
 from references.approval_template.models import ApprovalTemplate, ApprovalTemplateIn
-from references.approval_template_step.views import get_approval_template_step_list, get_approval_template_step_nested_list
+from references.approval_template_step.views import get_approval_template_step_list, get_approval_template_step_nested_list,\
+                post_approval_template_steps_by_approval_template_id, update_approval_template_steps_by_approval_template_id
 from references.counterparty.models import Counterparty
 from references.document_type.models import DocumentType, document_type_fillDataFromDict
 from references.entity.models import Entity, entity_fillDataFromDict
@@ -16,7 +17,7 @@ async def get_approval_template_by_id(approval_template_id: int, **kwargs):
         return await get_approval_template_nested_by_id(approval_template_id, **kwargs)
     query = select(ApprovalTemplate).where(ApprovalTemplate.id == approval_template_id)
     result = await database.fetch_one(query)
-    return {**result, 'items': await get_approval_template_step_list(approval_template_id,  **kwargs)}
+    return {**result, 'steps': await get_approval_template_step_list(approval_template_id,  **kwargs)}
 
 async def get_approval_template_nested_by_id(approval_template_id: int, **kwargs):
     if approval_template_id == 0:
@@ -85,6 +86,8 @@ async def post_approval_template(atInstance : dict):
                 name = atInstance["name"],
                 entity_iin = atInstance["entity_iin"])
     result = await database.execute(query)
+    if (len(atInstance["steps"]) >= 1):
+        resultsteps = await post_approval_template_steps_by_approval_template_id(atInstance["steps"], result)
     return {**atInstance, 'id': result}
 
 async def update_approval_template(atInstance: dict):
@@ -96,4 +99,6 @@ async def update_approval_template(atInstance: dict):
                     where(ApprovalTemplate.id == int(atInstance['id']))
 
     result = await database.execute(query)
+    if (len(atInstance["steps"]) >= 1):
+        resultsteps = await update_approval_template_steps_by_approval_template_id(atInstance["steps"], atInstance["id"])
     return atInstance

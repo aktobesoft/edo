@@ -19,66 +19,121 @@
             </div>
             <label for="id" class="col-sm-2 col-form-label mt-2">Наименование</label>
             <div class="col-sm-10 mt-2">
-                <input type="text" name="name" class="form-control" id="name" placeholder="ИД" :value="approval_template.name">
+                <input type="text" name="name" class="form-control" id="name" placeholder="Наименование" :value="approval_template.name">
             </div>
 
             <label for="id" class="col-sm-2 col-form-label mt-2">Организация</label>
             <div class="col-sm-10 mt-2">
-                <input type="text" name="name" class="form-control" id="name" placeholder="ИД" :value="approval_template.entity.name">
+                <input type="text" name="entity" class="form-control" id="entity" placeholder="Организация" :value="approval_template.entity.name">
             </div>
 
             <label for="id" class="col-sm-2 col-form-label mt-2">ИИН</label>
             <div class="col-sm-10 mt-2">
-                <input type="text" name="name" class="form-control" id="name" placeholder="ИД" :value="approval_template.entity.iin">
+                <input type="text" name="entity_iin" class="form-control" id="entity_iin" placeholder="ИИН" :value="approval_template.entity_iin">
             </div>
 
             <label for="id" class="col-sm-2 col-form-label mt-2">Шаблон документа</label>
             <div class="col-sm-10 mt-2">
-                <input type="text" name="name" class="form-control" id="name" placeholder="ИД" :value="approval_template.document_type.description">
+                <input type="text" name="_approval_temlate_name" class="form-control" id="_approval_temlate_name" placeholder="Шаблон документа" :value="approval_template.document_type.description">
             </div>
 
           </div>
-          <div>
-            <button  type="button" class="btn btn-secondary" v-on:click="AddNewRow"> Добавить </button>
+          <div class="mt-2 mb-2">
+            <button v-on:click="clearActiveStep()" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newElementModal">
+              Добавить
+            </button>
           </div>
-          <table class="table">
+        <div class="container">
+          <table class="table table-striped">
             <thead class="thead-dark">
               <tr>
                 <th scope="col">#</th>
+                <th scope="col">ID</th>
                 <th scope="col">Уровень</th>
                 <th scope="col">Тип</th>
-                <th scope="col">Организация</th>
                 <th scope="col">Сотрудник</th>
-                <th scope="col">Шаблона отчета</th>
+                <th scope="col" colspan="2">Операции</th>
               </tr>
             </thead>
-            <tbody  v-for="step in approval_template.steps" :key="step.id">
+            <tbody  v-for="(step, index) in approval_template.steps" :key="index">
               <tr>
+                <td>[[ index+1 ]]</td>
                 <td>[[ step.id ]]</td>
                 <td>[[ step.level ]]</td>
                 <td>[[ step.type]]</td> 
-                <td>[[ step.entity_iin ]]</td>
                 <td>[[ step.employee.name ]] ([[ step.employee.email ]])</td>
-                <td>[[ approval_template.document_type.description ]]</td>
+                <td v-on:click="loadStep(step, index)" data-bs-toggle="modal" data-bs-target="#newElementModal">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                  <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                  </svg>
+                </td>
+                <td v-on:click="deleteStep(step, index)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+                  </svg>
+                </td>
               </tr>
             </tbody>
           </table>
-          
+        </div>  
         <div class="pt-3 row">
           <div class="col">  
-            <button class="btn btn-primary btn-block">Сохранить</button> 
+            <button type="button" class="btn btn-primary btn-block" v-on:click="postApprovalTemplate()">Сохранить</button> 
             <button type="button" class="btn btn-primary btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal">
               Удалить
             </button>
           </div> 
         </div>
 
-        <!-- Modal -->
-        <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel" aria-hidden="true">
+        <!-- Новый элемент -->
+        <div class="modal fade" id="newElementModal" tabindex="-1" aria-labelledby="newElementModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="deleteEmployeeModalLabel">Подтвердите действие</h5>
+                <h5 class="modal-title" id="newElementModalLabel">Строка записи</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+
+                <div class="mb-2">
+                  <label for="step_level" class="form-label">Уровень</label>
+                  <input type="text" class="form-control" id="step_level" placeholder="Уровень" v-model="step_level">
+                </div>
+
+                <div class="mb-2">
+                  <label for="step_level" class="form-label">Тип согласования</label>
+                  <select class="form-select" aria-label="Тип согласования" id="step_type" v-model="step_type">
+                    <option selected>-------------------</option>
+                    <option value="Линейное">Линейное</option>
+                    <option value="Паралельное">Паралельное</option>
+                  </select>
+                </div>
+
+                <div class="mb-2">
+                  <label for="step_employee_id" class="form-label">Сотрудник</label>
+                  <select v-on:click="getEmployeeList()" v-model="step_emloyee" class="form-select" aria-label="Сотрудник" id="step_emloyee">
+                    <option value="0">---------</option>
+                    <option v-for="item in emloyeeList" v-bind:value="{ id: item.id, name: item.name, email: item.email }">
+                    [[ item.name ]]
+                    </option>
+                  </select>
+                </div>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary btn-danger" role="button" v-on:click="updateStep()" data-bs-dismiss="modal">Сохранить</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Сохранение записи -->
+        <div class="modal fade" id="deleteElementModal" tabindex="-1" aria-labelledby="deleteElementModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
@@ -104,8 +159,13 @@
       delimiters: ['[[', ']]'],
       el: '#vue',
       data: {
-        approval_template: {},
+        approval_template: {{approval_template|safe}},
         approval_template_id: "{{itemId}}",
+        emloyeeList: [],
+        step_emloyee : '',
+        step_type : '',
+        step_level: 0,
+        step_index: -1,
       },
       async mounted() {
         console.log(Vue.version);
@@ -116,27 +176,99 @@
         }catch(err){
           console.log(err)
         }
+        try{
+          let response = await axios.get("http://127.0.0.1:8000/v1/api/employee/")
+          console.log(response.data)
+          this.emloyeeList = response.data
+        }catch(err){
+          console.log(err)
+        }
+        
       },
       methods: {
-        AddNewRow: function(){
+        clearActiveStep: function(){
+          this.step_emloyee = '',
+          this.step_type = '',
+          this.step_level = 0,
+          this.step_index = -1
+        },
+        addNewStep: function(){
           this.approval_template.steps.push({
             "id": 0,
-            "level": 0,
-            "type": "Линейное",
-            "entity_iin": "",
-            "entity": {
-              "id": 0,
-              "name": "",
-              "iin": ""
-            },
-            "employee_id": 0,
+            "level": this.step_level,
+            "type": this.step_type,
+            "employee_id": this.step_emloyee.id,
             "employee": {
-              "id": 0,
-              "name": "",
-              "email": ""
+              "id": this.step_emloyee.id,
+              "name": this.step_emloyee.name,
+              "email": this.step_emloyee.email
               }
             })  
           },
+        loadStep: function(step, index){
+            this.step_level = step.level;
+            this.step_type = step.type;
+            this.step_emloyee.name = step.employee.name;
+            this.step_emloyee.id = step.employee.id;
+            this.step_emloyee.email = step.employee.email;
+            this.step_emloyee = step.employee
+            this.step_index = index;
+          },
+        updateStep: function(){
+            if(this.step_index == -1){
+              this.addNewStep();  
+              return
+            }
+            step = this.approval_template.steps[this.step_index]
+            step.level = this.step_level; 
+            step.type =  this.step_type; 
+            step.employee.name = this.step_emloyee.name;
+            step.employee.id = this.step_emloyee.id;
+            step.employee.email = this.step_emloyee.email;
+          },
+        deleteStep: function(step, index){
+            this.approval_template.steps.pop(index);
+          },
+        getEmployeeList: async function(){
+            if(this.emloyeeList.length > 0){
+              return
+            }
+            try{
+              let response = await axios.get("http://127.0.0.1:8000/v1/api/employee/")
+              console.log(response.data)
+              this.emloyeeList = response.data
+            }catch(err){
+              console.log(err)
+            }  
+          },
+        postApprovalTemplate: async function(){
+          approval_template_steps = []
+          approval_template_dict = {}
+          this.approval_template.steps.forEach((element) => {
+            stepDict = {
+              'id': parseInt(element.id),
+              'level': element.level,
+              'type': element.type,
+              'employee_id': element.employee_id,
+              'hash': ''
+            }
+            approval_template_steps.push(stepDict)
+          })
+        approval_template_dict = {
+            "id": this.approval_template_id,
+            "document_type_id": this.approval_template.id,
+            "name": this.approval_template.name,
+            "entity_iin": this.approval_template.entity.iin,
+            "steps": approval_template_steps
+          }
+          console.log(approval_template_dict);
+          try{
+            let response = await axios.post("http://127.0.0.1:8000/v1/api/approval_template/{{itemId}}", approval_template_dict);
+            console.log(response.status)
+          }catch(err){
+            console.log(err)
+          }   
+        }
       }
     })
 </script>

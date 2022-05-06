@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy import Column, ForeignKey, String, Integer, Boolean 
 from core.db import Base
 from sqlalchemy.orm import relationship
-from references.approval_template_step.models import _ApprovalTemplateStepIn, _ApprovalTemplateStepNestedOut
+from references.approval_template_step.models import _ApprovalTemplateStepPOST, _ApprovalTemplateStepPUT, _ApprovalTemplateStepNestedOut, _ApprovalTemplateStepOut
 
 from references.document_type.models import DocumentTypeOut
 from references.entity.models import EntitySmallOut
@@ -31,6 +31,18 @@ class ApprovalTemplateOut(BaseModel):
     
     class Config:
         orm_mode = True
+
+class ApprovalTemplateStepOut(BaseModel):
+    
+    id: int
+    document_type_id: int
+    name: str
+    entity_iin: str
+    steps: list[_ApprovalTemplateStepOut]
+    
+    class Config:
+        orm_mode = True
+
 
 class ApprovalTemplateNestedOut(BaseModel):
     
@@ -71,17 +83,18 @@ class ApprovalTemplatePOST(BaseModel):
     document_type_id: int = '0'
     name: str = 'Шаблон документа'
     entity_iin: str = '000123456789'
-    steps: list[_ApprovalTemplateStepIn]
+    steps: list[_ApprovalTemplateStepPOST]
     
     class Config:
         orm_mode = True
 
 class ApprovalTemplatePUT(BaseModel):
     
+    id: int = 0
     document_type_id: int = '0'
     name: str = 'Шаблон документа'
     entity_iin: str = '000123456789'
-    steps: list[_ApprovalTemplateStepIn]
+    steps: list[_ApprovalTemplateStepPUT]
     
     class Config:
         orm_mode = True

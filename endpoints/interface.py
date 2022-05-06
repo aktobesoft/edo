@@ -12,6 +12,8 @@ from references.entity.models import Entity
 from datetime import datetime
 from starlette.status import HTTP_302_FOUND
 
+from references.enum_types.models import step_type
+
 templates = Jinja2Templates(directory="templates")
 interfaceRoute = APIRouter() 
 
@@ -164,5 +166,9 @@ async def approval_template_list(request: Request):
 @interfaceRoute.get("/approval_template/{itemId}", response_class=HTMLResponse)
 async def approval_template_detail(request: Request, itemId: int):
     parametrs = {'nested': True}
-    _approval_template = await get_approval_template_by_id(itemId, **parametrs) 
-    return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, '_approval_template': _approval_template, 'itemId': itemId})
+    approval_template = await get_approval_template_by_id(itemId, **parametrs)
+    # _approval_template = dict(approval_template)
+    for item in approval_template['steps']:
+        item['type'] = 'Линейное' if item['type'] == step_type.line  else 'Паралельное'
+    # _approval_template['type'] = 'Линейное' if _approval_template['type'] == step_type.line else 'Паралельное'
+    return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, 'approval_template': approval_template, 'itemId': itemId})
