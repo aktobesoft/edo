@@ -2,6 +2,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi import APIRouter, HTTPException, Request, Form
 from common_module.urls_module import qp_select_one
 from fastapi.templating import Jinja2Templates
+from references.approval_template.models import ApprovalTemplate
 from references.counterparty.models import Counterparty
 from references.employee.models import Employee
 from references.employee import views as employeeService
@@ -164,11 +165,14 @@ async def approval_template_list(request: Request):
     return templates.TemplateResponse("approval_template/approval_template_list.html", context={'request': request, 'listOfValue': listOfValue})
 
 @interfaceRoute.get("/approval_template/{itemId}", response_class=HTMLResponse)
-async def approval_template_detail(request: Request, itemId: int):
+async def approval_template_detail(request: Request, itemId: str):
+    if(itemId=='new'):
+        approval_template = ApprovalTemplate().asdict()
+        return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, 'approval_template': approval_template, 'itemId': itemId})    
     parametrs = {'nested': True}
-    approval_template = await get_approval_template_by_id(itemId, **parametrs)
+    approval_template = await get_approval_template_by_id(int(itemId), **parametrs)
     # _approval_template = dict(approval_template)
     for item in approval_template['steps']:
         item['type'] = 'Линейное' if item['type'] == step_type.line  else 'Паралельное'
     # _approval_template['type'] = 'Линейное' if _approval_template['type'] == step_type.line else 'Паралельное'
-    return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, 'approval_template': approval_template, 'itemId': itemId})
+    return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, 'approval_template': approval_template, 'itemId': int(itemId)})

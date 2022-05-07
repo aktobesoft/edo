@@ -20,6 +20,15 @@ class ApprovalTemplate(Base):
 
     def __repr__(self) -> str:
         return self.name
+
+    def asdict(self):
+        return {
+        'id': self.id if self.id != None else 0, 
+        'document_type_id': self.document_type_id if self.document_type_id != None else '',
+        'name': self.name if self.name != None else '',
+        'entity_iin': self.entity_iin if self.id != None else 0,
+        'steps': []
+        }
         
 
 class ApprovalTemplateOut(BaseModel):

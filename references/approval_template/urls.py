@@ -25,10 +25,10 @@ async def post_approval_template(item : ApprovalTemplatePOST):
     result = await views.post_approval_template(itemDict)
     return result
 
-@approval_templateRouter.put('/', response_model = ApprovalTemplateOut)
-async def update_approval_template(item : ApprovalTemplatePUT):
+@approval_templateRouter.put('/{approval_template_id}', response_model = ApprovalTemplateOut)
+async def update_approval_template(approval_template_id : int, item : ApprovalTemplatePUT):
     itemDict = dict(item)
-    result = await views.update_approval_template(itemDict)
+    result = await views.update_approval_template(itemDict, approval_template_id)
     return result
 
 @approval_templateRouter.delete('/{approval_template_id}')

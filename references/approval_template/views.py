@@ -90,15 +90,15 @@ async def post_approval_template(atInstance : dict):
         resultsteps = await post_approval_template_steps_by_approval_template_id(atInstance["steps"], result)
     return {**atInstance, 'id': result}
 
-async def update_approval_template(atInstance: dict):
+async def update_approval_template(atInstance: dict, approval_template_id: int):
 
     query = update(ApprovalTemplate).values(
                 document_type_id = int(atInstance["document_type_id"]), 
                 name = atInstance["name"],
                 entity_iin = atInstance["entity_iin"]).\
-                    where(ApprovalTemplate.id == int(atInstance['id']))
+                    where(ApprovalTemplate.id == int(approval_template_id))
 
     result = await database.execute(query)
-    if (len(atInstance["steps"]) >= 1):
-        resultsteps = await update_approval_template_steps_by_approval_template_id(atInstance["steps"], atInstance["id"])
+    if (len(atInstance["steps"]) > 0):
+        resultsteps = await update_approval_template_steps_by_approval_template_id(atInstance["steps"], approval_template_id)
     return atInstance

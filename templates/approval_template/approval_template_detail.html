@@ -15,26 +15,27 @@
           <div class="pt-2 row">
             <label for="id" class="col-sm-2 col-form-label">ИД</label>
             <div class="col-sm-10">
-                <input type="text" name="id" class="form-control" id="id" placeholder="ИД" :value="approval_template.id" readonly >
+                <input type="text" name="id" class="form-control" id="id" placeholder="ИД" v-model="approval_template.id" readonly >
             </div>
             <label for="id" class="col-sm-2 col-form-label mt-2">Наименование</label>
             <div class="col-sm-10 mt-2">
-                <input type="text" name="name" class="form-control" id="name" placeholder="Наименование" :value="approval_template.name">
+                <input type="text" name="name" class="form-control" id="name" placeholder="Наименование" v-model="approval_template.name">
             </div>
 
             <label for="id" class="col-sm-2 col-form-label mt-2">Организация</label>
             <div class="col-sm-10 mt-2">
-                <input type="text" name="entity" class="form-control" id="entity" placeholder="Организация" :value="approval_template.entity.name">
-            </div>
-
-            <label for="id" class="col-sm-2 col-form-label mt-2">ИИН</label>
-            <div class="col-sm-10 mt-2">
-                <input type="text" name="entity_iin" class="form-control" id="entity_iin" placeholder="ИИН" :value="approval_template.entity_iin">
+                <select v-on:click="getEntityList()" v-model="approval_template.entity" class="form-select" aria-label="Сотрудник" id="step_employee">
+                  <option value="0">---------</option>
+                  <option v-for="item in entityList" v-bind:value="{ id: item.id, iin: item.iin, name: item.name}">
+                  [[ item.name ]] ([[ item.iin ]])
+                  </option>
+                </select>
             </div>
 
             <label for="id" class="col-sm-2 col-form-label mt-2">Шаблон документа</label>
             <div class="col-sm-10 mt-2">
-                <input type="text" name="_approval_temlate_name" class="form-control" id="_approval_temlate_name" placeholder="Шаблон документа" :value="approval_template.document_type.description">
+                <input type="text" name="_approval_temlate_name" class="form-control" id="_approval_temlate_name" placeholder="Шаблон документа" 
+                v-model="approval_template.document_type.description">
             </div>
 
           </div>
@@ -78,7 +79,7 @@
         </div>  
         <div class="pt-3 row">
           <div class="col">  
-            <button type="button" class="btn btn-primary btn-block" v-on:click="postApprovalTemplate()">Сохранить</button> 
+            <button type="button" class="btn btn-primary btn-block" v-on:click="sendData()">Сохранить</button> 
             <button type="button" class="btn btn-primary btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal">
               Удалить
             </button>
@@ -111,7 +112,7 @@
 
                 <div class="mb-2">
                   <label for="step_employee_id" class="form-label">Сотрудник</label>
-                  <select v-on:click="getEmployeeList()" v-model="step_emloyee" class="form-select" aria-label="Сотрудник" id="step_emloyee">
+                  <select v-on:click="getEmployeeList()" v-model="step_employee" class="form-select" aria-label="Сотрудник" id="step_employee">
                     <option value="0">---------</option>
                     <option v-for="item in emloyeeList" v-bind:value="{ id: item.id, name: item.name, email: item.email }">
                     [[ item.name ]]
@@ -159,89 +160,56 @@
       delimiters: ['[[', ']]'],
       el: '#vue',
       data: {
-        approval_template: {{approval_template|safe}},
+        approval_template: {
+          "id": 0,
+          "document_type_id": 0,
+          "name": "",
+          "entity_iin": "",
+          "entity_id": 0,
+          "entity_name": "",
+          "document_type_name": "",
+          "document_type_description": "",
+          "entity": {
+            "id": 0,
+            "iin": "",
+            "name": ""
+          },
+          "document_type": {
+            "id": 0,
+            "name": "",
+            "description": ""
+          },
+          "steps": []
+        },
         approval_template_id: "{{itemId}}",
         emloyeeList: [],
-        step_emloyee : '',
+        entityList: [],
+        step_employee : '',
         step_type : '',
         step_level: 0,
         step_index: -1,
       },
       async mounted() {
-        console.log(Vue.version);
-        try{
-          let response = await axios.get("http://127.0.0.1:8000/v1/api/approval_template/{{itemId}}?nested=true")
-          console.log(response.data)
-          this.approval_template = response.data
-        }catch(err){
-          console.log(err)
+        if(this.approval_template_id!='new'){
+          await this.getAproovalTemplate(this.approval_template_id)
+          await this.getEmployeeList()
+          await this.getEntityList()
         }
-        try{
-          let response = await axios.get("http://127.0.0.1:8000/v1/api/employee/")
-          console.log(response.data)
-          this.emloyeeList = response.data
-        }catch(err){
-          console.log(err)
-        }
-        
       },
       methods: {
-        clearActiveStep: function(){
-          this.step_emloyee = '',
-          this.step_type = '',
-          this.step_level = 0,
-          this.step_index = -1
+        getAproovalTemplate: async function(itemId){
+          console.log(Vue.version);
+          try{
+            let response = await axios.get("{{url_for('get_approval_template_list')}}"+itemId+"?nested=true");
+            console.log(response.data)
+            this.approval_template = response.data
+            return response
+          }catch(err){
+            console.log(err)
+            return null
+          }
         },
-        addNewStep: function(){
-          this.approval_template.steps.push({
-            "id": 0,
-            "level": this.step_level,
-            "type": this.step_type,
-            "employee_id": this.step_emloyee.id,
-            "employee": {
-              "id": this.step_emloyee.id,
-              "name": this.step_emloyee.name,
-              "email": this.step_emloyee.email
-              }
-            })  
-          },
-        loadStep: function(step, index){
-            this.step_level = step.level;
-            this.step_type = step.type;
-            this.step_emloyee.name = step.employee.name;
-            this.step_emloyee.id = step.employee.id;
-            this.step_emloyee.email = step.employee.email;
-            this.step_emloyee = step.employee
-            this.step_index = index;
-          },
-        updateStep: function(){
-            if(this.step_index == -1){
-              this.addNewStep();  
-              return
-            }
-            step = this.approval_template.steps[this.step_index]
-            step.level = this.step_level; 
-            step.type =  this.step_type; 
-            step.employee.name = this.step_emloyee.name;
-            step.employee.id = this.step_emloyee.id;
-            step.employee.email = this.step_emloyee.email;
-          },
-        deleteStep: function(step, index){
-            this.approval_template.steps.pop(index);
-          },
-        getEmployeeList: async function(){
-            if(this.emloyeeList.length > 0){
-              return
-            }
-            try{
-              let response = await axios.get("http://127.0.0.1:8000/v1/api/employee/")
-              console.log(response.data)
-              this.emloyeeList = response.data
-            }catch(err){
-              console.log(err)
-            }  
-          },
-        postApprovalTemplate: async function(){
+        collectData: function(){
           approval_template_steps = []
           approval_template_dict = {}
           this.approval_template.steps.forEach((element) => {
@@ -254,20 +222,124 @@
             }
             approval_template_steps.push(stepDict)
           })
-        approval_template_dict = {
-            "id": this.approval_template_id,
-            "document_type_id": this.approval_template.id,
-            "name": this.approval_template.name,
-            "entity_iin": this.approval_template.entity.iin,
-            "steps": approval_template_steps
-          }
-          console.log(approval_template_dict);
+          approval_template_dict = {
+              "id": this.approval_template_id,
+              "document_type_id": this.document_type_id,
+              "name": this.approval_template.name,
+              "entity_iin": this.approval_template.entity.iin,
+              "steps": approval_template_steps
+            }
+          return approval_template_dict
+          },
+        postAproovalTemplate: async function(approval_template_dict){
+          approval_template_dict = this.collectData()
+          console.log(Vue.version);
           try{
-            let response = await axios.post("http://127.0.0.1:8000/v1/api/approval_template/{{itemId}}", approval_template_dict);
-            console.log(response.status)
+            let response = await axios.post("{{url_for('get_approval_template_list')}}", approval_template_dict);
+            console.log(response.data)
+            this.approval_template = response.data
+            this.approval_template_id = this.approval_template['id']
+            return response
           }catch(err){
             console.log(err)
-          }   
+            return null
+            }
+          },
+        
+        putAproovalTemplate: async function(approval_template_dict){
+          approval_template_dict = this.collectData()
+          try{
+            let response = await axios.put("{{url_for('get_approval_template_list')}}"+this.approval_template_id, approval_template_dict);
+            console.log(response.data)
+            return response
+          }catch(err){
+            console.log(err)
+          }
+        },
+        clearActiveStep: function(){
+          this.step_employee = '',
+          this.step_type = '',
+          this.step_level = 0,
+          this.step_index = -1
+        },
+        addNewStep: function(){
+          this.approval_template.steps.push({
+            "id": 0,
+            "level": this.step_level,
+            "type": this.step_type,
+            "employee_id": this.step_employee.id,
+            "employee": {
+              "id": this.step_employee.id,
+              "name": this.step_employee.name,
+              "email": this.step_employee.email
+              }
+            })  
+          },
+        loadStep: function(step, index){
+            this.step_level = step.level;
+            this.step_type = step.type;
+            this.step_employee.name = step.employee.name;
+            this.step_employee.id = step.employee_id;
+            this.step_employee.email = step.employee.email;
+            this.step_employee = step.employee
+            this.step_index = index;
+          },
+        updateStep: function(){
+            if(this.step_index == -1){
+              this.addNewStep();  
+              return
+            }
+            step = this.approval_template.steps[this.step_index]
+            step.level = this.step_level; 
+            step.type =  this.step_type; 
+            step.employee_id = this.step_employee.id;
+            step.employee.name = this.step_employee.name;
+            step.employee.id = this.step_employee.id;
+            step.employee.email = this.step_employee.email;
+          },
+        deleteStep: function(step, index){
+            this.approval_template.steps.pop(index);
+          },
+        getEmployeeList: async function(){
+            if(this.emloyeeList.length > 0){
+              return
+            }
+            try{
+              let response = await axios.get("{{url_for('get_employee_list')}}")
+              console.log(response.data)
+              this.emloyeeList = response.data
+            }catch(err){
+              console.log(err)
+            }  
+          },
+        getEntityList: async function(){
+            if(this.entityList.length > 0){
+              return
+            }
+            try{
+              let response = await axios.get("{{url_for('get_entity_list')}}?skip=0&limit=100&nested=false&optional=false")
+              console.log(response.data)
+              this.entityList = response.data
+            }catch(err){
+              console.log(err)
+            }  
+          },
+        sendData: async function(){
+          console.log("before send")
+          console.log(this.approval_template)
+          if(this.approval_template_id=='new'){
+              let response = await this.postAproovalTemplate()
+              if(response!=null && (response.status==200 || response.status==201)){
+                await this.getAproovalTemplate(this.approval_template_id)  
+              }
+            }
+            else {
+              let response = await this.putAproovalTemplate()
+              if(response!=null && (response.status==200 || response.status==201)){
+                await this.getAproovalTemplate(this.approval_template_id)  
+              }
+            }
+          
         }
       }
     })

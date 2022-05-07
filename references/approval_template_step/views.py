@@ -149,6 +149,7 @@ async def update_approval_template_steps_by_approval_template_id(at_steps : list
             at_step['approval_template_id'] = approval_template_id
             listInsert.append(at_step)
         elif (at_step['id'] not in idListDelete and at_step['id'] not in idListNoUpdate):
+            at_step['approval_template_id'] = approval_template_id
             listUpdate.append(at_step)
 
     if(len(listUpdate)>0):
@@ -159,7 +160,7 @@ async def update_approval_template_steps_by_approval_template_id(at_steps : list
                 employee_id = bindparam('employee_id'),
                 approval_template_id = bindparam('approval_template_id')).\
             where(ApprovalTemplateStep.id == bindparam('id'))
-    result = await database.execute_many(str(update_query), newList)
+        result = await database.execute_many(str(update_query), newList)
     
     if(len(listInsert)>0):
         result = await post_approval_template_steps_by_approval_template_id(listInsert, approval_template_id)
