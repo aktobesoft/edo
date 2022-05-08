@@ -8,8 +8,9 @@ async def qp_select_one_by_iin(iin: str = ''):
     return {"iin": iin}
 
 #Other
-async def qp_select_list(q: Optional[str] = None, skip: int = 0, limit: int = 100, nested: bool = False, optional: bool = False):
-    return {"q": q, "skip": skip, "limit": limit, 'nested': nested, 'optional': optional}
+async def qp_select_list(q: Optional[str] = None, skip: int = 0, limit: int = 100, 
+                        nested: bool = False, optional: bool = False, entity_iin: str = ''):
+    return {"q": q, "skip": skip, "limit": limit, 'nested': nested, 'optional': optional, 'entity_iin': entity_iin}
 
 async def qp_select_one(q: Optional[str] = None, nested: bool = False):
     return {"q": q, 'nested': nested}

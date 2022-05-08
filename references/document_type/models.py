@@ -22,6 +22,14 @@ class DocumentTypeOut(BaseModel):
     class Config:
         orm_mode = True
 
+class DocumentTypeIn(BaseModel): 
+    
+    name: str = ''
+    description: str = ''
+    
+    class Config:
+        orm_mode = True
+
 class DocumentTypeOptionsOut(BaseModel):
     
     value: int

@@ -12,6 +12,7 @@ from documents.purchase_requisition.urls import purchase_requisitionRouter
 from references.approval_template.urls import approval_templateRouter
 from references.approval_template_step.urls import approval_template_stepRouter
 from references.approval_process.urls import approval_processRouter
+from references.document_type.urls import document_typeRouter
 
 
 apiRouter = APIRouter()
@@ -26,6 +27,7 @@ apiRouter.include_router(prefix='/purchase_requisition', router=purchase_requisi
 apiRouter.include_router(prefix='/approval_process', router=approval_processRouter,  tags=["approval_process"])
 apiRouter.include_router(prefix='/approval_template', router=approval_templateRouter,  tags=["approval_template"])
 apiRouter.include_router(prefix='/approval_template_step', router=approval_template_stepRouter,  tags=["approval_template_step"])
+apiRouter.include_router(prefix='/document_type', router=document_typeRouter,  tags=["document_type"])
 
 
 

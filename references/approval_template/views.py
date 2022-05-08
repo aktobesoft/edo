@@ -49,7 +49,10 @@ async def get_approval_template_list(limit: int = 100,skip: int = 0,**kwargs):
     if(kwargs['nested']):
         return await get_approval_template_nested_list(limit, skip, **kwargs)
 
-    query = select(ApprovalTemplate).limit(limit).offset(skip)
+    query = select(ApprovalTemplate).limit(limit).offset(skip).order_by(ApprovalTemplate.id)
+    print(kwargs)
+    if(kwargs['entity_iin']!=''):
+        query = query.where(ApprovalTemplate.entity_iin == kwargs['entity_iin'])  
     records = await database.fetch_all(query)
 
     listValue = []
@@ -68,7 +71,9 @@ async def get_approval_template_nested_list(limit: int = 100,skip: int = 0,**kwa
                     DocumentType.description.label('document_type_description')).\
                 join(Entity, ApprovalTemplate.entity_iin == Entity.iin, isouter=True).\
                 join(DocumentType, ApprovalTemplate.document_type_id == DocumentType.id, isouter=True).\
-                limit(limit).offset(skip)
+                limit(limit).offset(skip).order_by(ApprovalTemplate.id)
+    if(kwargs['entity_iin']):
+        query = query.where(ApprovalTemplate.entity_iin == kwargs['entity_iin'])    
 
     records = await database.fetch_all(query)
     listValue = []
@@ -91,14 +96,12 @@ async def post_approval_template(atInstance : dict):
     return {**atInstance, 'id': result}
 
 async def update_approval_template(atInstance: dict, approval_template_id: int):
-
     query = update(ApprovalTemplate).values(
                 document_type_id = int(atInstance["document_type_id"]), 
                 name = atInstance["name"],
                 entity_iin = atInstance["entity_iin"]).\
-                    where(ApprovalTemplate.id == int(approval_template_id))
+                where(ApprovalTemplate.id == int(approval_template_id))
 
     result = await database.execute(query)
-    if (len(atInstance["steps"]) > 0):
-        resultsteps = await update_approval_template_steps_by_approval_template_id(atInstance["steps"], approval_template_id)
+    resultsteps = await update_approval_template_steps_by_approval_template_id(atInstance["steps"], approval_template_id)
     return atInstance

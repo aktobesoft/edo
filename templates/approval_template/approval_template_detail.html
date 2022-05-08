@@ -34,8 +34,12 @@
 
             <label for="id" class="col-sm-2 col-form-label mt-2">Шаблон документа</label>
             <div class="col-sm-10 mt-2">
-                <input type="text" name="_approval_temlate_name" class="form-control" id="_approval_temlate_name" placeholder="Шаблон документа" 
-                v-model="approval_template.document_type.description">
+                <select v-on:click="getDocumentTypeList()" v-model="approval_template.document_type" class="form-select" aria-label="Шаблон документа" id="document_type">
+                  <option value="0">---------</option>
+                  <option v-for="item in documentType" v-bind:value="{ id: item.id, name: item.name, description: item.description}">
+                  [[ item.description ]]
+                  </option>
+                </select>
             </div>
 
           </div>
@@ -184,6 +188,7 @@
         approval_template_id: "{{itemId}}",
         emloyeeList: [],
         entityList: [],
+        documentType: [],
         step_employee : '',
         step_type : '',
         step_level: 0,
@@ -192,9 +197,11 @@
       async mounted() {
         if(this.approval_template_id!='new'){
           await this.getAproovalTemplate(this.approval_template_id)
-          await this.getEmployeeList()
-          await this.getEntityList()
+         
         }
+        await this.getEmployeeList()
+        await this.getEntityList()
+        await this.getDocumentTypeList()
       },
       methods: {
         getAproovalTemplate: async function(itemId){
@@ -224,14 +231,15 @@
           })
           approval_template_dict = {
               "id": this.approval_template_id,
-              "document_type_id": this.document_type_id,
+              "document_type_id": this.approval_template.document_type.id,
               "name": this.approval_template.name,
               "entity_iin": this.approval_template.entity.iin,
               "steps": approval_template_steps
             }
+            console.log(this.document_type_id);
           return approval_template_dict
           },
-        postAproovalTemplate: async function(approval_template_dict){
+        postAproovalTemplate: async function(){
           approval_template_dict = this.collectData()
           console.log(Vue.version);
           try{
@@ -246,8 +254,10 @@
             }
           },
         
-        putAproovalTemplate: async function(approval_template_dict){
+        putAproovalTemplate: async function(){
           approval_template_dict = this.collectData()
+          console.log("before send")
+          console.log(approval_template_dict);
           try{
             let response = await axios.put("{{url_for('get_approval_template_list')}}"+this.approval_template_id, approval_template_dict);
             console.log(response.data)
@@ -300,18 +310,30 @@
         deleteStep: function(step, index){
             this.approval_template.steps.pop(index);
           },
-        getEmployeeList: async function(){
-            if(this.emloyeeList.length > 0){
+        getDocumentTypeList: async function(){
+            if(this.documentType.length > 0){
               return
             }
             try{
-              let response = await axios.get("{{url_for('get_employee_list')}}")
+              let response = await axios.get("{{url_for('get_document_type_list')}}")
               console.log(response.data)
-              this.emloyeeList = response.data
+              this.documentType = response.data
             }catch(err){
               console.log(err)
             }  
           },
+        getEmployeeList: async function(){
+          if(this.emloyeeList.length > 0){
+            return
+          }
+          try{
+            let response = await axios.get("{{url_for('get_employee_list')}}")
+            console.log(response.data)
+            this.emloyeeList = response.data
+          }catch(err){
+            console.log(err)
+          }  
+        },
         getEntityList: async function(){
             if(this.entityList.length > 0){
               return
@@ -325,8 +347,6 @@
             }  
           },
         sendData: async function(){
-          console.log("before send")
-          console.log(this.approval_template)
           if(this.approval_template_id=='new'){
               let response = await this.postAproovalTemplate()
               if(response!=null && (response.status==200 || response.status==201)){
