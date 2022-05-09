@@ -20,7 +20,7 @@ async def get_purchase_requisition_by_id(purchase_requisition_id : int, qp_selec
     result = await views.get_purchase_requisition_by_id(purchase_requisition_id, **qp_select_one)
     return result
 
-@purchase_requisitionRouter.post('/', response_model = Union[PurchaseRequisitionNestedItemsOut, PurchaseRequisitionItemsOut])
+@purchase_requisitionRouter.post('/', response_model = Union[PurchaseRequisitionNestedItemsOut, PurchaseRequisitionPOST])
 async def post_purchase_requisition(purchase_requisitionInstance : PurchaseRequisitionPOST, qp_insert: dict = Depends(qp_insert)):
     purchase_requisitionDict = purchase_requisitionInstance.dict()
     result = await views.post_purchase_requisition(purchase_requisitionDict)
@@ -29,13 +29,13 @@ async def post_purchase_requisition(purchase_requisitionInstance : PurchaseRequi
         return await views.get_purchase_requisition_by_id(result['id'], **query_parametrs_select_one)
     return result
 
-@purchase_requisitionRouter.put('/', response_model = Union[PurchaseRequisitionNestedItemsOut, PurchaseRequisitionItemsOut])
-async def update_purchase_requisition(PurchaseRequisitionPUT : PurchaseRequisitionPUT, qp_update: dict = Depends(qp_update)):
+@purchase_requisitionRouter.put('/{purchase_requisition_id}', response_model = Union[PurchaseRequisitionNestedItemsOut, PurchaseRequisitionItemsOut])
+async def update_purchase_requisition(purchase_requisition_id: int, PurchaseRequisitionPUT : PurchaseRequisitionPUT, qp_update: dict = Depends(qp_update)):
     purchaseRequisitionInsctance = dict(PurchaseRequisitionPUT)
-    result = await views.update_purchase_requisition(purchaseRequisitionInsctance)
+    result = await views.update_purchase_requisition(purchaseRequisitionInsctance, purchase_requisition_id)
     if qp_update['nested']:
         query_parametrs_select_one = await qp_select_one(nested=True)
-        return await views.get_purchase_requisition_by_id(purchaseRequisitionInsctance['id'], **query_parametrs_select_one)
+        return await views.get_purchase_requisition_by_id(purchase_requisition_id, **query_parametrs_select_one)
     return purchaseRequisitionInsctance
 
 @purchase_requisitionRouter.delete('/{purchase_requisition_id}')

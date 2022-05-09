@@ -16,6 +16,8 @@
     <script src="{{ url_for('static', path='js/bootstrap5/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', path='js/vue.js') }}"></script>
     <script src="{{ url_for('static', path='js/axios.min.js') }}"></script>
+    <script src="https://your-site-or-cdn.com/fontawesome/v6.1.1/js/all.js" data-auto-replace-svg="nest"></script>
+
 
     <style>
         .bd-placeholder-img {
@@ -66,6 +68,9 @@
                         <a class="nav-link" href="{{ url_for('counterparty_list') }}">Контрагенты</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('purchase_requisition_list') }}">Заявки на расходование средств</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('approval_template_list') }}">Шаблон согласования</a>
                     </li>
                     <li class="nav-item">
@@ -80,7 +85,7 @@
         </div>
     </nav>
 
-    <main class="container">
+    <main class="container-fluid">
         <div class="shadow-lg p-3 mb-5 bg-body rounded">
             <div>
             {% block form_content %} 

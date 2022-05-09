@@ -48,9 +48,9 @@ async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **
     return recordDict
 
 async def delete_purchase_requisition_by_id(purchase_requisition_id: int):
+    await delete_all_pr_items_by_purchase_requisition(purchase_requisition_id)
     queryPurchaseRequisition = delete(PurchaseRequisition).where(PurchaseRequisition.id == purchase_requisition_id)
     resultPurchaseRequisition = await database.execute(queryPurchaseRequisition)
-    await delete_all_pr_items_by_purchase_requisition(purchase_requisition_id)
 
     return resultPurchaseRequisition
 
@@ -131,7 +131,7 @@ async def post_purchase_requisition(purchaseRequisitionInstance : dict):
     await post_pr_items_by_purchase_requisition(purchaseRequisitionInstance["items"], newPurchaseRequisitionId)
     return {**purchaseRequisitionInstance, 'id': newPurchaseRequisitionId}
 
-async def update_purchase_requisition(purchaseRequisitionInstance: dict):
+async def update_purchase_requisition(purchaseRequisitionInstance: dict, purchaseRequisitionId: int):
 
     purchaseRequisitionInstance["date"] = correct_datetime(purchaseRequisitionInstance["date"])
 
@@ -143,11 +143,11 @@ async def update_purchase_requisition(purchaseRequisitionInstance: dict):
                 counterparty_iin = purchaseRequisitionInstance["counterparty_iin"], 
                 document_type_id = int(purchaseRequisitionInstance["document_type_id"]), 
                 guid = purchaseRequisitionInstance["guid"]).where(
-                    (PurchaseRequisition.id == purchaseRequisitionInstance['id']) & 
+                    (PurchaseRequisition.id == purchaseRequisitionId) & 
                     (PurchaseRequisition.entity_iin == purchaseRequisitionInstance["entity_iin"])
                     )
 
     result = await database.execute(query)
-    await update_pr_items_by_purchase_requisition(purchaseRequisitionInstance["items"], purchaseRequisitionInstance['id'])
+    await update_pr_items_by_purchase_requisition(purchaseRequisitionInstance["items"], purchaseRequisitionId)
     return purchaseRequisitionInstance
 

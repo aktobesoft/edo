@@ -64,7 +64,18 @@ class _PurchaseRequisitionItemsOutWithLine(BaseModel):
     
     class Config:
         orm_mode = True
-        
+
+class _PurchaseRequisitionItemsOut(BaseModel):
+    
+    id: int
+    service: bool
+    description: str
+    description_code: str
+    quantity: float
+    sum: float
+    
+    class Config:
+        orm_mode = True        
 
 class _PurchaseRequisitionItemsSingleOut(BaseModel):
     

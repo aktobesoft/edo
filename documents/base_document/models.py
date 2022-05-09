@@ -14,7 +14,7 @@ from sqlalchemy.orm import declared_attr
 class BaseDocument:
 
     id = Column(Integer, primary_key = True, autoincrement = True)
-    guid = Column(String(36), nullable = False, index = True, unique=True)
+    guid = Column(String(36), nullable = False, index = True)
     number = Column(String(150), nullable = False)
     date = Column(DateTime(timezone=True), nullable = False)
     comment = Column(String(350), nullable=True)

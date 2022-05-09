@@ -2,6 +2,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi import APIRouter, HTTPException, Request, Form
 from common_module.urls_module import qp_select_one
 from fastapi.templating import Jinja2Templates
+from documents.purchase_requisition.views import get_purchase_requisition_by_id, get_purchase_requisition_list
 from references.approval_template.models import ApprovalTemplate
 from references.counterparty.models import Counterparty
 from references.employee.models import Employee
@@ -159,9 +160,10 @@ async def delete_employee(request: Request, itemId: str):
 # +++ ---------------- counterparty ------------------
 # ----------------------------------------------
 
+# approval_template
 @interfaceRoute.get("/approval_template/", response_class=HTMLResponse)
 async def approval_template_list(request: Request):
-    listOfValue = await get_approval_template_list(nested = True) 
+    listOfValue = await get_approval_template_list(nested = True, entity_iin = '') 
     return templates.TemplateResponse("approval_template/approval_template_list.html", context={'request': request, 'listOfValue': listOfValue})
 
 @interfaceRoute.get("/approval_template/{itemId}", response_class=HTMLResponse)
@@ -176,3 +178,18 @@ async def approval_template_detail(request: Request, itemId: str):
         item['type'] = 'Линейное' if item['type'] == step_type.line  else 'Паралельное'
     # _approval_template['type'] = 'Линейное' if _approval_template['type'] == step_type.line else 'Паралельное'
     return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, 'approval_template': approval_template, 'itemId': int(itemId)})
+
+# purchase_requisition
+@interfaceRoute.get("/purchase_requisition/", response_class=HTMLResponse)
+async def purchase_requisition_list(request: Request):
+    listOfValue = await get_purchase_requisition_list(nested = True, entity_iin = '') 
+    return templates.TemplateResponse("purchase_requisition/purchase_requisition_list.html", context={'request': request, 'listOfValue': listOfValue})
+
+@interfaceRoute.get("/purchase_requisition/{itemId}", response_class=HTMLResponse)
+async def purchase_requisition_detail(request: Request, itemId: str):
+    if(itemId=='new'):
+        purchase_requisition = ApprovalTemplate().asdict()
+        return templates.TemplateResponse("purchase_requisition/purchase_requisition_detail.html", context={'request': request, 'purchase_requisition': purchase_requisition, 'itemId': itemId})    
+    parametrs = {'nested': True}
+    purchase_requisition = await get_purchase_requisition_by_id(int(itemId), **parametrs)
+    return templates.TemplateResponse("purchase_requisition/purchase_requisition_detail.html", context={'request': request, 'purchase_requisition': purchase_requisition, 'itemId': int(itemId)})

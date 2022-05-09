@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from references.counterparty.models import CounterpartySmallOut
 from references.document_type.models import DocumentTypeOut
 from references.entity.models import EntitySmallOut
-from documents.purchase_requisition_items.models import _PurchaseRequisitionItemsPOST, _PurchaseRequisitionItemsPUT, _PurchaseRequisitionItemsOutWithLine
+from documents.purchase_requisition_items.models import _PurchaseRequisitionItemsOut, _PurchaseRequisitionItemsPOST, _PurchaseRequisitionItemsPUT, _PurchaseRequisitionItemsOutWithLine
 
 class PurchaseRequisition(BaseDocument, Base):
     __tablename__ = "purchase_requisition"
@@ -18,7 +18,6 @@ class PurchaseRequisitionOut(BaseModel):
     
     id: int
     guid: str
-    marked: bool
     number: str
     date: datetime
     comment: str
@@ -41,7 +40,7 @@ class PurchaseRequisitionItemsOut(BaseModel):
     counterparty_iin: str
     document_type_id: int
     entity_iin: str
-    items: list[_PurchaseRequisitionItemsOutWithLine]
+    items: list[_PurchaseRequisitionItemsOut]
     
     class Config:
         orm_mode = True
