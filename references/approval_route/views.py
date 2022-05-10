@@ -1,4 +1,4 @@
-from sqlalchemy import select, insert, update, delete
+from sqlalchemy import bindparam, select, insert, update, delete
 import asyncpg
 from core.db import database
 from common_module.urls_module import correct_datetime
@@ -9,6 +9,12 @@ async def get_approval_route_by_id(approval_route_id: int):
     query = select(ApprovalRoute).where(ApprovalRoute.id == approval_route_id)
     result = await database.fetch_one(query)
     return result
+
+async def get_approval_route_by_aproval_process_id(aproval_process_id: int):
+    query = select(ApprovalRoute).where(ApprovalRoute.approval_process_id == aproval_process_id)
+    result = await database.fetch_all(query)
+    return result
+
 
 async def get_approval_route_nested_by_id(approval_route_id: int):
     query = select(ApprovalRoute).where(ApprovalRoute.id == approval_route_id)
@@ -43,6 +49,20 @@ async def post_approval_route(arInstance : dict):
                 approval_process_id = int(arInstance["approval_process_id"]))
     result = await database.execute(query)
     return {**arInstance, 'id': result}
+
+async def post_many_approval_route(arInstance : list):
+    
+    query = insert(ApprovalRoute).values(
+                is_active = bindparam("is_active"), 
+                level = bindparam("level"),
+                type = bindparam("type"),
+                document_id = bindparam("document_id"),
+                entity_iin = bindparam("entity_iin"),
+                employee_id = bindparam("employee_id"),
+                approval_template_id = bindparam("approval_template_id"),
+                approval_process_id = bindparam("approval_process_id"))
+    result = await database.execute_many(query, arInstance)
+    return {result}
 
 async def update_approval_route(arInstance: dict):
 

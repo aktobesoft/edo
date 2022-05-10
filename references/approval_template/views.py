@@ -1,4 +1,5 @@
 import json
+from fastapi import HTTPException
 from sqlalchemy import select, insert, update, delete
 import asyncpg
 from core.db import database
@@ -17,6 +18,8 @@ async def get_approval_template_by_id(approval_template_id: int, **kwargs):
         return await get_approval_template_nested_by_id(approval_template_id, **kwargs)
     query = select(ApprovalTemplate).where(ApprovalTemplate.id == approval_template_id)
     result = await database.fetch_one(query)
+    if result == None:
+        raise HTTPException(status_code=404, detail="Item not found")     
     return {**result, 'steps': await get_approval_template_step_list(approval_template_id,  **kwargs)}
 
 async def get_approval_template_nested_by_id(approval_template_id: int, **kwargs):

@@ -1,6 +1,6 @@
 from typing import List
 from pydantic import BaseModel
-from sqlalchemy import Column, ForeignKey, String, Integer, Boolean 
+from sqlalchemy import Column, ForeignKey, Index, String, Integer, Boolean 
 from core.db import Base
 from sqlalchemy.orm import relationship
 from references.approval_template_step.models import _ApprovalTemplateStepPOST, _ApprovalTemplateStepPUT, _ApprovalTemplateStepNestedOut, _ApprovalTemplateStepOut
@@ -30,6 +30,7 @@ class ApprovalTemplate(Base):
         'steps': []
         }
         
+Index('index_at_entity_document_type', ApprovalTemplate.entity_iin, ApprovalTemplate.document_type_id)
 
 class ApprovalTemplateOut(BaseModel):
     

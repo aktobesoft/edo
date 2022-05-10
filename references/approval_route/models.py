@@ -22,7 +22,7 @@ class ApprovalRoute(Base):
     approval_template_id = Column(Integer, ForeignKey('approval_template.id', ondelete = "CASCADE"), nullable = False, index = True)
     approval_template = relationship("ApprovalTemplate")
     approval_process_id = Column(Integer, ForeignKey('approval_process.id', ondelete = "CASCADE"), nullable = False, index = True)
-    approval_process = relationship("ApprovalTemplate")
+    approval_process = relationship("ApprovalProcess")
 
     def __repr__(self) -> str:
         return self.name

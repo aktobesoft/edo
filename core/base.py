@@ -10,6 +10,7 @@ from references.notes.models import Notes
 from references.approval_template_step.models import ApprovalTemplateStep
 from references.approval_template.models import ApprovalTemplate
 from references.approval_process.models import ApprovalProcess
+from references.approval_route.models import ApprovalRoute
 
 from documents.base_document.models import BaseDocument
 from documents.purchase_requisition.models import PurchaseRequisition
