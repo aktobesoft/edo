@@ -1,3 +1,4 @@
+from django.http import Http404
 from fastapi import HTTPException
 from sqlalchemy import select, insert, update, delete
 from core.db import database
@@ -15,7 +16,14 @@ async def get_entity_by_id(entity_id: int):
     resultEntity = await database.fetch_one(queryEntity)
     return resultEntity
 
-async def get_entity_by_iin(entity_iin: str):
+async def get_entity_by_iin(entity_iin: str, **kwargs):
+    if kwargs['nested']:
+        kwargs['iin'] = entity_iin
+        result = await get_entity_nested_list(limit=1, skip=1, **kwargs)
+        if result!= []:
+            return result[0]
+        else:
+            raise HTTPException(status_code=404, detail="Item not found")
     queryEntity = select(Entity).where(Entity.iin == entity_iin)
     result = await database.fetch_one(queryEntity)
     if result==None:
@@ -81,8 +89,12 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs):
                 User.is_active.label("user_is_active"),
                 User.is_company.label("user_is_company")).\
                     join(BusinessType, Entity.type_name == BusinessType.name, isouter=True).\
-                    join(User, Entity.user_id == User.id, isouter=True).\
-                        limit(limit).offset(skip)
+                    join(User, Entity.user_id == User.id, isouter=True)
+    if('iin' in kwargs and kwargs['iin']):
+        query = query.where(Entity.iin == kwargs['iin'])
+    else:
+        query = query.limit(limit).offset(skip)
+
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -121,7 +133,7 @@ async def post_entity(entityInstance : dict):
 
 
 
-async def update_entity(entityInstance: dict):
+async def update_entity(entityInstance: dict, entity_iin: str):
 
     entityInstance["start_date"] = correct_datetime(entityInstance["start_date"])
     entityInstance["end_date"] = correct_datetime(entityInstance["end_date"])
@@ -141,7 +153,7 @@ async def update_entity(entityInstance: dict):
                 type_name = entityInstance["type_name"], 
                 user_id = int(entityInstance["user_id"]),
                 token = entityInstance["token"]).where(
-                    Entity.iin == entityInstance['iin'])
+                    Entity.iin == entity_iin)
 
     result = await database.execute(query)
     return entityInstance

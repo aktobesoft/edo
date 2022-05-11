@@ -12,9 +12,9 @@ entityRouter = APIRouter()
 async def get_entity_list(commons: dict = Depends(qp_select_list)):
     return await views.get_entity_list(**commons)
 
-@entityRouter.get('/{entity_iin}', response_model=EntityOut)
+@entityRouter.get('/{entity_iin}', response_model=Union[EntityNestedOut,EntityOut])
 async def get_entity_by_iin(entity_iin: str, qp_select_one: dict = Depends(qp_select_one)):
-    return await views.get_entity_by_iin(entity_iin)
+    return await views.get_entity_by_iin(entity_iin, **qp_select_one)
 
 @entityRouter.post('/', response_model = EntityOut)
 async def post_entity(entityInstance : EntityIn):#, qp_insert: dict = Depends(qp_insert)):
@@ -27,8 +27,8 @@ async def post_entity(entity_iin: str):
     result = await views.delete_entity_by_iin(entity_iin)
     return result
 
-@entityRouter.put('/', response_model = EntityOut)
-async def update_entity(newEntityIn : EntityOut):#, qp_update: dict = Depends(qp_update)):
+@entityRouter.put('/{entity_iin}', response_model = EntityOut)
+async def update_entity(entity_iin: str, newEntityIn : EntityOut):#, qp_update: dict = Depends(qp_update)):
     newEntityIn = dict(newEntityIn)
-    result = await views.update_entity(newEntityIn)
+    result = await views.update_entity(newEntityIn, entity_iin)
     return newEntityIn

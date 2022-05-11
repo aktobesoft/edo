@@ -1,130 +1,134 @@
 {% extends 'index.html' %} 
 {% block form_content %}
 <form method="POST" action='{{ request.path }}' novalidate>
-    <div class="card" id="vue">
+    <div id="vue">
         <template>
-            <div class="card-header">
-                [[ entity.name ]] ([[entity.iin]])
-            </div>
-            <div class="card-body table-responsive p-0">
-                <div class="col-12 ">
-                  <div class="mt-2 ml-1 row">
-                        
-                        <label for="item_position" class="col-sm-2 col-form-label">ID</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="number" class="form-control" placeholder="ID" v-model.number="entity.id">
-                        </div> 
-                        
-                        <label for="item_position" class="col-sm-2 col-form-label">Наименование</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="text" class="form-control" placeholder="Наименование" v-model="entity.name">
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Полное наименование</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="text" class="form-control" placeholder="Полное наименование" v-model="entity.full_name">
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">ИИН</label>
-                        <div class="col-sm-10 mt-2">
-                            
-                            <input type="text" class="form-control" placeholder="ИИН" v-model="entity.iin">
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Адрес</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="text" class="form-control" placeholder="Адрес" v-model="entity.address">
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Комментарий</label>
-                        <div class="col-sm-10 mt-2">
-                            <textarea class="form-control" rows="3" placeholder="Комментарий" v-model="entity.comment"></textarea>
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Директор</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="text" class="form-control" placeholder="Директор"v-model="entity.director">
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Директор телефон</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="text" class="form-control" placeholder="Директор телефон"v-model="entity.director_phone">
-                        </div>
-                        
-                        <label for="item_position" class="col-sm-2 col-form-label">Администратор</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="text" class="form-control" placeholder="Администратор"v-model="entity.administrator">
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Администратор телефон</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="text" class="form-control" placeholder="Администратор телефон"v-model="entity.administrator_phone">
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">token</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="text" class="form-control" placeholder="token"v-model="entity.token" readonly>
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Начало периода</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="date" class="form-control" placeholder="Начало периода"v-model="entity.start_date">
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Конец периода</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="date" class="form-control" placeholder="Конец периода"v-model="entity.end_date">
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Директор</label>
-                        <div class="col-sm-10 mt-2">
-                            <select v-on:click="getBusinessTypeList()" v-model="entity.type_name" class="form-control" aria-label="Сотрудник" id="step_employee">
-                                <option value="0">---------</option>
-                                <option v-for="item in businessTypeList" v-bind:value="item.value">
-                                [[ item.text ]]
-                                </option>
-                            </select>
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Директор</label>
-                        <div class="col-sm-10 mt-2">
-                            <select v-on:click="getUserList()" v-model="entity.user_id" class="form-control" aria-label="Сотрудник" id="step_employee">
-                                <option value="0">---------</option>
-                                <option v-for="item in userList" v-bind:value="item.value">
-                                [[ item.text ]]
-                                </option>
-                            </select>
-                        </div>
+            <div class="row">
+                <div class="card mt-2">
+                    <div class="card-header">
+                        [[ entity.name ]] ([[entity.iin]])
                     </div>
-                <div class="pt-3 row">
-                    <div class="col">  
-                        <button class="btn btn-primary">Сохранить</button> 
-                        <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#deleteEmployeeModal">
-                            Удалить
-                        </button>
-                    </div>
-                </div>
-               
-            <!-- Modal -->
-                <div class="modal fade" id="deleteEmployeeModal">
-                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                        <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteEmployeeModalLabel">Подтвердите действие</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                    <div class="card-body table-responsive p-0 ">
+                        <div class="col-12 ">
+                        <div class="mt-2 ml-1 row">
+                                
+                                <label for="item_position" class="col-sm-2 col-form-label">ID</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="number" class="form-control" placeholder="ID" v-model.number="entity.id">
+                                </div> 
+                                
+                                <label for="item_position" class="col-sm-2 col-form-label">Наименование</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="text" class="form-control" placeholder="Наименование" v-model="entity.name">
                                 </div>
-                                <div class="modal-body">
-                                    Вы действительно хотите удалить запись?
+
+                                <label for="item_position" class="col-sm-2 col-form-label">Полное наименование</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="text" class="form-control" placeholder="Полное наименование" v-model="entity.full_name">
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-dismiss="modal">Отмена</button>
-                                    <a href="{{ request.path }}/delete" class="btn btn-primary btn-danger" role="button" data-dismiss="modal">Удалить</a>
+
+                                <label for="item_position" class="col-sm-2 col-form-label">ИИН</label>
+                                <div class="col-sm-10 mt-2">
+                                    
+                                    <input type="text" class="form-control" placeholder="ИИН" v-model="entity.iin">
+                                </div>
+
+                                <label for="item_position" class="col-sm-2 col-form-label">Адрес</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="text" class="form-control" placeholder="Адрес" v-model="entity.address">
+                                </div>
+
+                                <label for="item_position" class="col-sm-2 col-form-label">Комментарий</label>
+                                <div class="col-sm-10 mt-2">
+                                    <textarea class="form-control" rows="3" placeholder="Комментарий" v-model="entity.comment"></textarea>
+                                </div>
+
+                                <label for="item_position" class="col-sm-2 col-form-label">Директор</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="text" class="form-control" placeholder="Директор"v-model="entity.director">
+                                </div>
+
+                                <label for="item_position" class="col-sm-2 col-form-label">Директор телефон</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="text" class="form-control" placeholder="Директор телефон"v-model="entity.director_phone">
+                                </div>
+                                
+                                <label for="item_position" class="col-sm-2 col-form-label">Администратор</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="text" class="form-control" placeholder="Администратор"v-model="entity.administrator">
+                                </div>
+
+                                <label for="item_position" class="col-sm-2 col-form-label">Администратор телефон</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="text" class="form-control" placeholder="Администратор телефон"v-model="entity.administrator_phone">
+                                </div>
+
+                                <label for="item_position" class="col-sm-2 col-form-label">token</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="text" class="form-control" placeholder="token"v-model="entity.token" readonly>
+                                </div>
+
+                                <label for="item_position" class="col-sm-2 col-form-label">Начало периода</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="date" class="form-control" placeholder="Начало периода"v-model="entity.start_date">
+                                </div>
+
+                                <label for="item_position" class="col-sm-2 col-form-label">Конец периода</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="date" class="form-control" placeholder="Конец периода"v-model="entity.end_date">
+                                </div>
+
+                                <label for="item_position" class="col-sm-2 col-form-label">Директор</label>
+                                <div class="col-sm-10 mt-2">
+                                    <select v-on:click="getBusinessTypeList()" v-model="entity.type_name" class="form-control" aria-label="Сотрудник" id="step_employee">
+                                        <option value="0">---------</option>
+                                        <option v-for="item in businessTypeList" v-bind:value="item.value">
+                                        [[ item.text ]]
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <label for="item_position" class="col-sm-2 col-form-label">Пользователь</label>
+                                <div class="col-sm-10 mt-2">
+                                    <select v-on:click="getUserList()" v-model="entity.user_id" class="form-control" aria-label="Сотрудник" id="step_employee">
+                                        <option value="0">---------</option>
+                                        <option v-for="item in userList" v-bind:value="item.value">
+                                        [[ item.text ]]
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        <div class="pt-3 row">
+                            <div class="col mb-3 ml-2">  
+                                <button type="button" v-on:click="sendData()" class="btn btn-primary">Сохранить</button> 
+                                <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#deleteEmployeeModal">
+                                    Удалить
+                                </button>
+                            </div>
+                        </div>
+                    
+                    <!-- Modal -->
+                        <div class="modal fade" id="deleteEmployeeModal">
+                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteEmployeeModalLabel">Подтвердите действие</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Вы действительно хотите удалить запись?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal" data-dismiss="modal">Отмена</button>
+                                            <button v-on:click="deleteEntity()" type="button" class="btn btn-primary btn-danger" data-dismiss="modal" data-dismiss="modal">Удалить</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </div>   
+            </div> 
         </template>
     </div>
 </form>
@@ -151,11 +155,15 @@
             "end_date": "2022-01-01",
             "type_name": "ТОО",
             "user_id": 1
-          }
+            },
+            entity_iin: "{{ entity_iin }}",
        },
        async mounted() {
-           await getBusinessTypeList();
-           await getUserList();
+           if (this.entity_iin != 'new'){
+            await this.getEntity()
+           }
+           await this.getBusinessTypeList();
+           await this.getUserList();
        },
        methods: {
         getBusinessTypeList: async function(){
@@ -173,8 +181,99 @@
             let response = await axios.get("{{url_for('get_user_list')}}?optional=true")
                 console.log(response.data)
                 this.userList = response.data
+        },
+        getEntity: async function(){
+            console.log(this.entity_iin)
+            let response = await axios.get("{{url_for('get_entity_list')}}" + this.entity_iin.toString())
+                console.log(response.data)
+                this.entity = response.data
+        },
+        deleteEntity: async function(){
+            let response = await axios.delete("{{url_for('get_entity_list')}}" + this.entity_iin.toString())
+            if (response != null && (response.status == 200 || response.status == 201)) {
+                this.goToEntityList()
+            }
+        },
+        goToEntityList: function() {
+            window.location.href = "{{url_for('entity_list')}}"
+        },
+        putEntity: async function(){
+            entity_data = this.collectData()
+            console.log("before send post")
+            console.log(JSON.stringify(entity_data))
+            try {
+                let response = await axios.put("{{url_for('get_entity_list')}}"+this.entity_iin.toString()+"?nested=true", entity_data);
+                console.log(response.data)
+                this.entity = response.data
+                return response
+            } catch (err) {
+                console.log(err)
+                return null
+            }
+        },
+        postEntity: async function(){
+            entity_data = this.collectData()
+            console.log("before send post")
+            console.log(JSON.stringify(entity_data))
+            try {
+                let response = await axios.post("{{url_for('get_entity_list')}}?nested=true", entity_data);
+                console.log(response.data)
+                this.entity = response.data
+                this.entity_iin = this.entity['iin']
+                return response
+            } catch (err) {
+                console.log(err)
+                return null
+            }
+        },
+        collectData: function(){
+            entity_data = {
+                    "id": this.entity.id,
+                    "name": this.entity.name,
+                    "full_name": this.entity.full_name,
+                    "iin": this.entity.iin,
+                    "address": this.entity.address,
+                    "comment": this.entity.comment,
+                    "token": this.entity.token,
+                    "director": this.entity.director,
+                    "director_phone": this.entity.director_phone,
+                    "administrator": this.entity.administrator,
+                    "administrator_phone": this.entity.administrator_phone,
+                    "start_date": this.entity.start_date,
+                    "end_date": this.entity.end_date,
+                    "type_name": this.entity.type_name,
+                    "user_id": this.entity.user_id
+                  }
+            return entity_data
+        },
+        sendData: async function() {
+            console.log(this.entity_iin)
+            entity_data = this.collectData()
+            console.log("before send post")
+            console.log(JSON.stringify(entity_data))
+            if (this.entity_iin == 'new'){
+                let response = await this.postEntity()
+                if (response != null && (response.status == 200 || response.status == 201)) {
+                    await this.getEntity()
+                }
+            } else {
+                let response = await this.putEntity()
+                if (response != null && (response.status == 200 || response.status == 201)) {
+                    await this.getEntity()
+                }
+            }
+        },
+        dateToStr: function(valueDate) {
+            var date = new Date(valueDate);
+            return date.toISOString().substring(0, 10);
+        },
+        strToDate: function(valueDate) {
+            //var date = new Date(valueDate);
+            //date.setUTCHours(0,0,0,0);
+            //return date.toISOString();
+            return valueDate + "T18:00:00+00:00"
         }
-      }
-   })
+        }
+    })
 </script>
 {% endblock %}

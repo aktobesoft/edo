@@ -25,7 +25,6 @@ async def get_approval_template_by_id(approval_template_id: int, **kwargs):
 async def get_approval_template_nested_by_id(approval_template_id: int, **kwargs):
     if approval_template_id == 0:
         result = ApprovalTemplateIn().json()
-        print(result)
         return result
     query = select(ApprovalTemplate,
                     Entity.id.label('entity_id'), 
@@ -53,7 +52,6 @@ async def get_approval_template_list(limit: int = 100,skip: int = 0,**kwargs):
         return await get_approval_template_nested_list(limit, skip, **kwargs)
 
     query = select(ApprovalTemplate).limit(limit).offset(skip).order_by(ApprovalTemplate.id)
-    print(kwargs)
     if(kwargs['entity_iin']!=''):
         query = query.where(ApprovalTemplate.entity_iin == kwargs['entity_iin'])  
     records = await database.fetch_all(query)

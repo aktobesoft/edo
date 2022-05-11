@@ -31,11 +31,11 @@ async def entity_list(request: Request):
     entity_list = await entityService.get_entity_list(**commons)
     return templates.TemplateResponse("entity/entity_list.html", context={'request': request, 'entityList': entity_list})
 
-@interfaceRoute.get('/entity/new', response_class=HTMLResponse)
-async def create_new_entity(request: Request):
-    entity = Entity().asdict()
-    entityLabel = Entity().get_html_attr()
-    return templates.TemplateResponse("entity/entity_detail.html", context={'request': request, 'entity': entity, 'entityLabel': entityLabel, 'is_new': True})
+@interfaceRoute.get('/entity/{itemId}', response_class=HTMLResponse)
+async def create_new_entity(request: Request, itemId: str):
+    if(itemId=='new'):
+        return templates.TemplateResponse("entity/entity_detail.html", context={'request': request, 'entity_iin': itemId})    
+    return templates.TemplateResponse("entity/entity_detail.html", context={'request': request, 'entity_iin': itemId})
 
 @interfaceRoute.post('/entity/new')
 async def post_new_entity(request: Request):
