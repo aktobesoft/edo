@@ -1,489 +1,663 @@
-{% extends 'index.html' %}
+{% extends 'index.html' %} {% block form_content %}
 
-{% block form_content %}
+<form method="POST" action='{{ request.path }}' novalidate>
 
-<form method="POST" action='{{ request.path }}' novalidate >
-    
-  <div class="card" id="vue">
-    <template>
-      
-      <div class="card-header">
-        [[purchase_requisition.name]]  
-      </div>
-      <div class="card-body">
-        <button v-on:click="goToPurchaseRequisitionLit()" class="btn btn-primary btn-block" type="button" data-toggle="tooltip" data-placement="top" >
-          <!--<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
-          </svg>--> 
-        Перейти к списку заявок на расходование средств
-        </button>
-        <div class="form-group row">
-
-          <div class="pt-2 row">
-            <label for="id" class="col-sm-2 col-form-label">ID</label>
-            <div class="col-sm-10">
-                <input type="number" name="id" class="form-control" id="id" placeholder="ID" v-model="purchase_requisition.id" readonly >
-            </div>
-
-            <label for="id" class="col-sm-2 col-form-label mt-2">Номер</label>
-            <div class="col-sm-10 mt-2">
-                <input type="text" name="number" class="form-control" id="name" placeholder="Номер" v-model="purchase_requisition.number">
-            </div>
-            
-            <label for="id" class="col-sm-2 col-form-label mt-2">Дата</label>
-            <div class="col-sm-10 mt-2">
-              <input type="date" name="date" id="date" placeholder="Дата начало" v-model="purchase_requisition.date" class="form-control">
-            </div>
-            
-            <label for="id" class="col-sm-2 col-form-label mt-2">Организация</label>
-            <div class="col-sm-10 mt-2">
-                <select v-on:click="getEntityList()" v-model="purchase_requisition.entity_iin" class="form-select" aria-label="Организация" id="item_entity">
-                  <option value="0">---------</option>
-                  <option v-for="item in entityList" v-bind:value="item.iin">
-                  [[ item.name ]] ([[ item.iin ]])
-                  </option>
-                </select>
-            </div>
-
-            <label for="id" class="col-sm-2 col-form-label mt-2">Контрагент</label>
-            <div class="col-sm-10 mt-2">
-                <select v-on:click="getCounterpartyList()" v-model="purchase_requisition.counterparty_iin" class="form-select" aria-label="Контрагент" id="item_counterparty">
-                  <option value="0">---------</option>
-                  <option v-for="item in counterpartyList" v-bind:value="item.iin">
-                  [[ item.name ]] ([[ item.iin ]])
-                  </option>
-                </select>
-            </div>
-
-            <label for="id" class="col-sm-2 col-form-label mt-2">Тип документа</label>
-            <div class="col-sm-10 mt-2">
-                <select v-on:click="getDocumentTypeList()" v-model="purchase_requisition.document_type_id" class="form-select" aria-label="Шаблон документа" id="document_type">
-                  <option value="0">---------</option>
-                  <option v-for="item in documentTypeList" v-bind:value="item.id">
-                  [[ item.description ]]
-                  </option>
-                </select>
-            </div>
-
-            <label for="id" class="col-sm-2 col-form-label mt-2">Сумма</label>
-            <div class="col-sm-10 mt-2">
-                <input type="number" name="sum" class="form-control" id="sum" placeholder="Сумма" v-model="purchase_requisition.sum">
-            </div>
-
-            <label for="id" class="col-sm-2 col-form-label mt-2">Комментарий</label>
-            <div class="col-sm-10 mt-2">
-                <input type="text" name="comment" class="form-control" id="comment" placeholder="Комментарий" v-model="purchase_requisition.comment">
-            </div>
-
-          </div>
-          <div class="mt-2 mb-2">
-            <button v-on:click="clearActiveStep()" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newElementModal">
-              <!--<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square-fill" viewBox="0 0 16 16">
-                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 1 0z"/>
-              </svg>-->
-              Добавить
-            </button>
-          </div>
-        <div class="container">
-          <table class="table table-striped">
-            <thead class="thead-dark">
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">ID</th>
-                <th scope="col">Это услуга</th>
-                <th scope="col">Наименование</th>
-                <th scope="col">Код</th>
-                <th scope="col">Количество</th>
-                <th scope="col">Сумма</th>
-                <th scope="col">Операции</th>
-              </tr>
-            </thead>
-            <tbody  v-for="(item, index) in purchase_requisition.items" :key="index">
-              <tr>
-                <td>[[ index+1 ]]</td>
-                <td>[[ item.id ]]</td>
-                <td>
-                  <div v-if="item.service === true">
-                    да
-                  </div>
-                  <div v-else>
-                    нет
-                  </div>
-                </td>
-                <td>[[ item.description]]</td> 
-                <td>[[ item.description_code ]]</td>
-                <td>[[ item.quantity ]]</td>
-                <td>[[ item.sum ]]</td>
-                <td>
-                  <button v-on:click="loadItem(item, index)" data-bs-toggle="modal" data-bs-target="#newElementModal" class="btn btn-success btn-sm rounded-3" type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                    <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
-                    </svg>
-                  </button>
-                  <button v-on:click="deleteStep(item, index)" class="btn btn-danger btn-sm rounded-3" type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                      <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>  
-        <div class="pt-3 row">
-          <div class="col">  
-            <button type="button" class="btn btn-primary btn-block" v-on:click="sendData()">
-              <!--<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 448 512">
-                <path d="M433.941 129.941l-83.882-83.882A48 48 0 0 0 316.118 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V163.882a48 48 0 0 0-14.059-33.941zM224 416c-35.346 0-64-28.654-64-64 0-35.346 28.654-64 64-64s64 28.654 64 64c0 35.346-28.654 64-64 64zm96-304.52V212c0 6.627-5.373 12-12 12H76c-6.627 0-12-5.373-12-12V108c0-6.627 5.373-12 12-12h228.52c3.183 0 6.235 1.264 8.485 3.515l3.48 3.48A11.996 11.996 0 0 1 320 111.48z"/>
-              </svg>-->
-              Сохранить</button> 
-            <button type="button" class="btn btn-primary btn-danger" data-bs-toggle="modal" data-bs-target="#deleteElementModal">
-              <!--<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-              </svg>-->
-              Удалить
-            </button>
-          </div> 
-        </div>
-
-        <!-- Новый элемент -->
-        <div class="modal fade" id="newElementModal" tabindex="-1" aria-labelledby="newElementModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="newElementModalLabel">Строка записи</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div id="vue">
+        <template>
+        <div class="row">
+          <div class="col-12">
+            <div class="card mt-3">
+              <div class="card-header">
+                Заявка на расходование средств
               </div>
-              <div class="modal-body">
-                <div class="pt-2 row">    
+              <div class="card-body table-responsive p-0">
+                <div class="col-12 ">
+                  <div class="mt-2 ml-1 row">
+                    <label for="id" class="col-sm-2 col-form-label">ID</label>
+                    <div class="col-sm-10">
+                      <input type="number" name="id" class="form-control" id="id" placeholder="ID"
+                        v-model="purchase_requisition.id" readonly>
+                    </div>
+
+                    <label for="id" class="col-sm-2 col-form-label mt-2">Номер</label>
+                    <div class="col-sm-10 mt-2">
+                      <input type="text" name="number" class="form-control" id="name" placeholder="Номер"
+                        v-model="purchase_requisition.number">
+                    </div>
+
+                    <label for="id" class="col-sm-2 col-form-label mt-2">Дата</label>
+                    <div class="col-sm-10 mt-2">
+                      <input type="date" name="date" id="date" placeholder="Дата начало"
+                        v-model="purchase_requisition.date" class="form-control">
+                    </div>
+
+                    <label for="id" class="col-sm-2 col-form-label mt-2">Организация</label>
+                    <div class="col-sm-10 mt-2">
+                      <select v-on:click="getEntityList()" v-model="purchase_requisition.entity_iin" class="form-control"
+                        aria-label="Организация" id="item_entity">
+                        <option value="0">---------</option>
+                        <option v-for="item in entityList" v-bind:value="item.iin">
+                          [[ item.name ]] ([[ item.iin ]])
+                        </option>
+                      </select>
+                    </div>
+
+                    <label for="id" class="col-sm-2 col-form-label mt-2">Контрагент</label>
+                    <div class="col-sm-10 mt-2">
+                      <select v-on:click="getCounterpartyList()" v-model="purchase_requisition.counterparty_iin"
+                        class="form-control" aria-label="Контрагент" id="item_counterparty">
+                        <option value="0">---------</option>
+                        <option v-for="item in counterpartyList" v-bind:value="item.iin">
+                          [[ item.name ]] ([[ item.iin ]])
+                        </option>
+                      </select>
+                    </div>
+
+                    <label for="id" class="col-sm-2 col-form-label mt-2">Тип документа</label>
+                    <div class="col-sm-10 mt-2">
+                      <select v-on:click="getDocumentTypeList()" v-model="purchase_requisition.document_type_id"
+                        class="form-control" aria-label="Шаблон документа" id="document_type">
+                        <option value="0">---------</option>
+                        <option v-for="item in documentTypeList" v-bind:value="item.id">
+                          [[ item.description ]]
+                        </option>
+                      </select>
+                    </div>
+
+                    <label for="id" class="col-sm-2 col-form-label mt-2">Сумма</label>
+                    <div class="col-sm-10 mt-2">
+                      <input type="number" name="sum" class="form-control" id="sum" placeholder="Сумма"
+                        v-model="purchase_requisition.sum">
+                    </div>
+
+                    <label for="id" class="col-sm-2 col-form-label mt-2">Комментарий</label>
+                    <div class="col-sm-10 mt-2">
+                      <input type="text" name="comment" class="form-control" id="comment" placeholder="Комментарий"
+                        v-model="purchase_requisition.comment">
+                    </div>
+
+                  </div>
+                  <div class="mt-2 mb-2 ml-2">
+                    <button v-on:click="clearActiveStep()" type="button" class="btn btn-success" data-toggle="modal" data-target="#newElementModal">
+                      Добавить
+                    </button>
+                  </div>
+                  <div class="col-12">
+                    <table class="table table-bordered table-hover p-0">
+                      <thead class="table-dark">
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">ID</th>
+                          <th scope="col">Это услуга</th>
+                          <th scope="col">Наименование</th>
+                          <th scope="col">Код</th>
+                          <th scope="col">Количество</th>
+                          <th scope="col">Сумма</th>
+                          <th scope="col">Операции</th>
+                        </tr>
+                      </thead>
+                      <tbody v-for="(item, index) in purchase_requisition.items" :key="index">
+                        <tr>
+                          <td>[[ index+1 ]]</td>
+                          <td>[[ item.id ]]</td>
+                          <td>
+                            <div v-if="item.service === true">
+                              да
+                            </div>
+                            <div v-else>
+                              нет
+                            </div>
+                          </td>
+                          <td>[[ item.description]]</td>
+                          <td>[[ item.description_code ]]</td>
+                          <td>[[ item.quantity ]]</td>
+                          <td>[[ item.sum ]]</td>
+                          <td>
+                            <button v-on:click="loadItem(item, index)" data-toggle="modal"
+                              data-target="#newElementModal" class="btn btn-success btn-sm rounded-3" type="button"
+                              data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                <path
+                                  d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z" />
+                              </svg>
+                            </button>
+                            <button v-on:click="deleteStep(item, index)" class="btn btn-danger btn-sm rounded-3"
+                              type="button" data-toggle="tooltip" data-placement="top" title=""
+                              data-original-title="Delete">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                <path
+                                  d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                              </svg>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="mt-2 mb-2 ml-2">
+                    <button type="button" class="btn btn-primary" v-on:click="sendData()">
+                      Сохранить
+                    </button>
+                    <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#deleteElementModal">
+                      Удалить
+                    </button>
+                  </div>
+
+                  <!-- Modal -->
+                  <div class="modal fade" id="newElementModal" tabindex="-1" role="dialog" aria-labelledby="newElementModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="newElementModalLabel">Строка записи</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Отмена">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="pt-2 row">
+
+                            <label for="item_position" class="col-sm-2 col-form-label">Номер строки</label>
+                            <div class="col-sm-10 mt-2">
+                              <input type="number" class="form-control" id="item_position" placeholder="Номер строки<"
+                                v-model.number="item_position">
+                            </div>
+
+                            <label for="item_level" class="col-sm-2 col-form-label">Это услуга</label>
+                            <div class="col-sm-10 mt-2">
+                              <input class="form-check-input" type="checkbox" value="" id="item_service"
+                                v-model.number="item_service">
+                            </div>
+
+                            <label for="item_level" class="col-sm-2 col-form-label">Наименование</label>
+                            <div class="col-sm-10 mt-2">
+                              <input type="text" class="form-control" id="item_description" placeholder="Наименование"
+                                v-model.number="item_description">
+                            </div>
+
+                            <label for="item_level" class="col-sm-2 col-form-label">Код</label>
+                            <div class="col-sm-10 mt-2">
+                              <input type="text" class="form-control" id="item_description_code" placeholder="Код"
+                                v-model.number="item_description_code">
+                            </div>
+
+                            <label for="item_level" class="col-sm-2 col-form-label">Количество</label>
+                            <div class="col-sm-10 mt-2">
+                              <input type="number" class="form-control" id="item_quantity" placeholder="Количество"
+                                v-model.number="item_quantity">
+                            </div>
+
+                            <label for="item_level" class="col-sm-2 col-form-label">Сумма</label>
+                            <div class="col-sm-10 mt-2">
+                              <input type="number" class="form-control" id="item_sum" placeholder="Сумма"
+                                v-model.number="item_sum">
+                            </div>
+
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                          <button type="button" class="btn btn-primary toastrDefaultSuccess" role="button" v-on:click="updateItem()"
+                            data-dismiss="modal">
+                            Сохранить
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   
-                  <label for="item_position" class="col-sm-2 col-form-label">Номер строки</label>
-                  <div class="col-sm-10 mt-2">
-                    <input type="number" class="form-control" id="item_position" placeholder="Номер строки<" v-model.number="item_position">
-                  </div>
-                  
-                  <label for="item_level" class="col-sm-2 col-form-label">Это услуга</label>
-                  <div class="col-sm-10 mt-2">
-                    <input class="form-check-input" type="checkbox" value="" id="item_service" v-model.number="item_service">
-                  </div>
 
-                  <label for="item_level" class="col-sm-2 col-form-label">Наименование</label>
-                  <div class="col-sm-10 mt-2">
-                    <input type="text" class="form-control" id="item_description" placeholder="Наименование" v-model.number="item_description">
+                <!-- Удаление записи -->
+                <!-- Modal -->
+                <div class="modal fade" id="deleteElementModal" tabindex="-1" role="dialog" aria-labelledby="deleteElementModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered " role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                      <p>Вы действительно хотите удалить запись?</p>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+                        <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal" v-on:click="deletePurchaseRequisition()">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-trash-fill" viewBox="0 0 16 16">
+                            <path
+                              d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                          </svg>
+                          Удалить</button>
+                      </div>
+                    </div>
+                    <!-- /.modal-content -->
                   </div>
-
-                  <label for="item_level" class="col-sm-2 col-form-label">Код</label>
-                  <div class="col-sm-10 mt-2">
-                    <input type="text" class="form-control" id="item_description_code" placeholder="Код" v-model.number="item_description_code">
-                  </div>
-
-                  <label for="item_level" class="col-sm-2 col-form-label">Количество</label>
-                  <div class="col-sm-10 mt-2">
-                    <input type="text" class="form-control" id="item_quantity" placeholder="Количество" v-model.number="item_quantity">
-                  </div>
-
-                  <label for="item_level" class="col-sm-2 col-form-label">Сумма</label>
-                  <div class="col-sm-10 mt-2">
-                    <input type="text" class="form-control" id="item_sum" placeholder="Сумма" v-model.number="item_sum">
-                  </div>
+                  <!-- /.modal-dialog -->
+                </div>
+                <!-- /.modal -->
 
                 </div>
+                <!-- /.row -->
               </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <button type="button" class="btn btn-primary btn-block" role="button" v-on:click="updateItem()" data-bs-dismiss="modal">
-                  <!--<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 448 512">
-                    <path d="M433.941 129.941l-83.882-83.882A48 48 0 0 0 316.118 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V163.882a48 48 0 0 0-14.059-33.941zM224 416c-35.346 0-64-28.654-64-64 0-35.346 28.654-64 64-64s64 28.654 64 64c0 35.346-28.654 64-64 64zm96-304.52V212c0 6.627-5.373 12-12 12H76c-6.627 0-12-5.373-12-12V108c0-6.627 5.373-12 12-12h228.52c3.183 0 6.235 1.264 8.485 3.515l3.48 3.48A11.996 11.996 0 0 1 320 111.48z"/>
-                  </svg>-->
-                Сохранить
-                </button>
-              </div>
+              <!-- /.col-12 -->
             </div>
           </div>
         </div>
-
-        <!-- Сохранение записи -->
-        <div class="modal fade" id="deleteElementModal" tabindex="-1" aria-labelledby="deleteElementModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                Вы действительно хотите удалить запись?
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <button type="button" class="btn btn-primary btn-danger" data-bs-dismiss="modal" v-on:click="deletePurchaseRequisition()">
-                  <!--<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-                  </svg>-->
-                  Удалить
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </template>
-  </div>
+      </template>
+    </div>
 
 
 </form>
 
 <script>
-  new Vue({
-      delimiters: ['[[', ']]'],
-      el: '#vue',
-      data: {
-        purchase_requisition: {
-          "id": 0,
-          "guid": "",
-          "number": "",
-          "date": "0001-01-01",
-          "comment": "",
-          "sum": 0,
-          "counterparty_iin": "",
-          "counterparty": {
-            "id": 0,
-            "name": "0",
-            "iin": "0"
-          },
-          "document_type": {
-            "id": 0,
-            "name": "",
-            "description": ""
-          },
-          "entity": {
-            "id": 0,
-            "name": "",
-            "iin": ""
-          },
-          "document_type_id": 0,
-          "entity_iin": "",
-          "items": []
-        },
-        purchase_requisition_id: "{{itemId}}",
-        counterpartyList: [],
-        entityList: [],
-        documentTypeList: [],
-        item_service : true,
-        item_type : '',
-        item_description: '',
-        item_description_code: '',
-        item_sum: 0,
-        item_quantity: 0,
-        item_index: -1,
-        item_position: 0,
-      },
-      async mounted() {
-        if(this.purchase_requisition_id!='new'){
-          await this.getPurchaseRequisition()
-         
-        }
-        await this.getCounterpartyList()
-        await this.getEntityList()
-        await this.getDocumentTypeList()
+  $(function() {
+    var Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000
+    });
 
-      },
-      methods: {
-        getPurchaseRequisition: async function(){
-          console.log(Vue.version);
-          try{
-            let response = await axios.get("{{url_for('get_purchase_requisition_list')}}"+this.purchase_requisition_id+"?nested=true");
-            console.log(response.data)
-            this.purchase_requisition = response.data
-            this.purchase_requisition.date = this.dateToStr(this.purchase_requisition.date)
-            console.log(response.data)
-            return response
-          }catch(err){
-            console.log(err)
-            return null
-          }
+    $('.swalDefaultSuccess').click(function() {
+      Toast.fire({
+        icon: 'success',
+        title: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.swalDefaultInfo').click(function() {
+      Toast.fire({
+        icon: 'info',
+        title: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.swalDefaultError').click(function() {
+      Toast.fire({
+        icon: 'error',
+        title: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.swalDefaultWarning').click(function() {
+      Toast.fire({
+        icon: 'warning',
+        title: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.swalDefaultQuestion').click(function() {
+      Toast.fire({
+        icon: 'question',
+        title: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+
+    $('.toastrDefaultSuccess').click(function() {
+      toastr.success('Lorem ipsum dolor sit amet, consetetur sadipscing elitr.')
+    });
+    $('.toastrDefaultInfo').click(function() {
+      toastr.info('Lorem ipsum dolor sit amet, consetetur sadipscing elitr.')
+    });
+    $('.toastrDefaultError').click(function() {
+      toastr.error('Lorem ipsum dolor sit amet, consetetur sadipscing elitr.')
+    });
+    $('.toastrDefaultWarning').click(function() {
+      toastr.warning('Lorem ipsum dolor sit amet, consetetur sadipscing elitr.')
+    });
+
+    $('.toastsDefaultDefault').click(function() {
+      $(document).Toasts('create', {
+        title: 'Toast Title',
+        body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.toastsDefaultTopLeft').click(function() {
+      $(document).Toasts('create', {
+        title: 'Toast Title',
+        position: 'topLeft',
+        body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.toastsDefaultBottomRight').click(function() {
+      $(document).Toasts('create', {
+        title: 'Toast Title',
+        position: 'bottomRight',
+        body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.toastsDefaultBottomLeft').click(function() {
+      $(document).Toasts('create', {
+        title: 'Toast Title',
+        position: 'bottomLeft',
+        body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.toastsDefaultAutohide').click(function() {
+      $(document).Toasts('create', {
+        title: 'Toast Title',
+        autohide: true,
+        delay: 750,
+        body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.toastsDefaultNotFixed').click(function() {
+      $(document).Toasts('create', {
+        title: 'Toast Title',
+        fixed: false,
+        body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.toastsDefaultFull').click(function() {
+      $(document).Toasts('create', {
+        body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
+        title: 'Toast Title',
+        subtitle: 'Subtitle',
+        icon: 'fas fa-envelope fa-lg',
+      })
+    });
+    $('.toastsDefaultFullImage').click(function() {
+      $(document).Toasts('create', {
+        body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
+        title: 'Toast Title',
+        subtitle: 'Subtitle',
+        image: '../../dist/img/user3-128x128.jpg',
+        imageAlt: 'User Picture',
+      })
+    });
+    $('.toastsDefaultSuccess').click(function() {
+      $(document).Toasts('create', {
+        class: 'bg-success',
+        title: 'Toast Title',
+        subtitle: 'Subtitle',
+        body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.toastsDefaultInfo').click(function() {
+      $(document).Toasts('create', {
+        class: 'bg-info',
+        title: 'Toast Title',
+        subtitle: 'Subtitle',
+        body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.toastsDefaultWarning').click(function() {
+      $(document).Toasts('create', {
+        class: 'bg-warning',
+        title: 'Toast Title',
+        subtitle: 'Subtitle',
+        body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.toastsDefaultDanger').click(function() {
+      $(document).Toasts('create', {
+        class: 'bg-danger',
+        title: 'Toast Title',
+        subtitle: 'Subtitle',
+        body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+    $('.toastsDefaultMaroon').click(function() {
+      $(document).Toasts('create', {
+        class: 'bg-maroon',
+        title: 'Toast Title',
+        subtitle: 'Subtitle',
+        body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+      })
+    });
+  });
+</script>
+
+<script>
+    new Vue({
+        delimiters: ['[[', ']]'],
+        el: '#vue',
+        data: {
+            purchase_requisition: {
+                "id": 0,
+                "guid": "",
+                "number": "",
+                "date": "0001-01-01",
+                "comment": "",
+                "sum": 0,
+                "counterparty_iin": "",
+                "counterparty": {
+                    "id": 0,
+                    "name": "0",
+                    "iin": "0"
+                },
+                "document_type": {
+                    "id": 0,
+                    "name": "",
+                    "description": ""
+                },
+                "entity": {
+                    "id": 0,
+                    "name": "",
+                    "iin": ""
+                },
+                "document_type_id": 0,
+                "entity_iin": "",
+                "items": []
+            },
+            purchase_requisition_id: "{{itemId}}",
+            counterpartyList: [],
+            entityList: [],
+            documentTypeList: [],
+            item_service: true,
+            item_type: '',
+            item_description: '',
+            item_description_code: '',
+            item_sum: 0,
+            item_quantity: 0,
+            item_index: -1,
+            item_position: 0,
         },
-        dateToStr: function(valueDate){
-          var date = new Date(valueDate);
-          return date.toISOString().substring(0, 10);
+        async mounted() {
+            if (this.purchase_requisition_id != 'new') {
+                await this.getPurchaseRequisition()
+
+            }
+            await this.getCounterpartyList()
+            await this.getEntityList()
+            await this.getDocumentTypeList()
+
         },
-        strToDate: function(valueDate){
-          //var date = new Date(valueDate);
-          //date.setUTCHours(0,0,0,0);
-          //return date.toISOString();
-          return valueDate+"T18:00:00+00:00";
-        },
-        collectData: function(){
-          purchase_requisition_items = []
-          purchase_requisition_dict = {}
-          this.purchase_requisition.items.forEach((element) => {
-            itemDict = {
-              'id': parseInt(element.id),
-              'service': element.service,
-              'description': element.description,
-              'description_code': element.description_code,
-              'quantity': parseFloat(element.quantity),
-              'sum': parseFloat(element.sum),
-              'hash': "",
+        methods: {
+            getPurchaseRequisition: async function() {
+                console.log(Vue.version);
+                try {
+                    let response = await axios.get("{{url_for('get_purchase_requisition_list')}}" + this.purchase_requisition_id + "?nested=true");
+                    console.log(response.data)
+                    this.purchase_requisition = response.data
+                    this.purchase_requisition.date = this.dateToStr(this.purchase_requisition.date)
+                    console.log(response.data)
+                    return response
+                } catch (err) {
+                    console.log(err)
+                    return null
+                }
+            },
+            dateToStr: function(valueDate) {
+                var date = new Date(valueDate);
+                return date.toISOString().substring(0, 10);
+            },
+            strToDate: function(valueDate) {
+                //var date = new Date(valueDate);
+                //date.setUTCHours(0,0,0,0);
+                //return date.toISOString();
+                return valueDate + "T18:00:00+00:00";
+            },
+            collectData: function() {
+                purchase_requisition_items = []
+                purchase_requisition_dict = {}
+                this.purchase_requisition.items.forEach((element) => {
+                    itemDict = {
+                        'id': parseInt(element.id),
+                        'service': element.service,
+                        'description': element.description,
+                        'description_code': element.description_code,
+                        'quantity': parseFloat(element.quantity),
+                        'sum': parseFloat(element.sum),
+                        'hash': "",
+                    }
+                    purchase_requisition_items.push(itemDict)
+                })
+                purchase_requisition_dict = {
+                    "id": parseInt(this.purchase_requisition_id),
+                    "guid": this.purchase_requisition.guid,
+                    "number": this.purchase_requisition.number,
+                    "date": this.strToDate(this.purchase_requisition.date),
+                    "comment": this.purchase_requisition.comment,
+                    "sum": parseFloat(this.purchase_requisition.sum),
+                    "counterparty_iin": this.purchase_requisition.counterparty_iin,
+                    "document_type_id": parseInt(this.purchase_requisition.document_type_id),
+                    "entity_iin": this.purchase_requisition.entity_iin,
+                    "items": purchase_requisition_items
+                }
+                console.log(this.document_type_id);
+                return purchase_requisition_dict
+            },
+            postPurchaseRequisition: async function() {
+                purchase_requisition_dict = this.collectData()
+                console.log("before send post")
+                console.log(JSON.stringify(purchase_requisition_dict))
+                try {
+                    let response = await axios.post("{{url_for('get_purchase_requisition_list')}}?nested=true", purchase_requisition_dict);
+                    console.log(response.data)
+                    this.purchase_requisition = response.data
+                    this.purchase_requisition_id = this.purchase_requisition['id']
+                    return response
+                } catch (err) {
+                    console.log(err)
+                    return null
+                }
+            },
+
+            putPurchaseRequisition: async function() {
+                purchase_requisition_dict = this.collectData()
+                console.log("before send put")
+                console.log(JSON.stringify(purchase_requisition_dict))
+                try {
+                    let response = await axios.put("{{url_for('get_purchase_requisition_list')}}" + this.purchase_requisition_id + "?nested=true", purchase_requisition_dict);
+                    console.log(response.data)
+                    return response
+                } catch (err) {
+                    console.log(err)
+                }
+            },
+            deletePurchaseRequisition: async function() {
+                try {
+                    let response = await axios.delete("{{url_for('get_purchase_requisition_list')}}" + this.purchase_requisition_id);
+                    if (response != null && (response.status == 200 || response.status == 201)) {
+                        this.goToPurchaseRequisitionLit()
+                    }
+                } catch (err) {
+                    console.log(err)
+                }
+            },
+            goToPurchaseRequisitionLit: function() {
+                window.location.href = "{{url_for('purchase_requisition_list')}}"
+            },
+            clearActiveStep: function() {
+                this.item_type = '',
+                    this.item_index = -1
+                this.item_position = this.purchase_requisition.items.length + 1
+                this.item_service = true
+                this.item_description = ''
+                this.item_description_code = ''
+                this.item_sum = 0
+                this.item_quantity = 0
+            },
+            addNewItem: function() {
+                this.purchase_requisition.items.push({
+                    "id": 0,
+                    "service": this.item_service,
+                    "type": this.item_type,
+                    "description": this.item_description,
+                    "description_code": this.item_description_code,
+                    "sum": this.item_sum,
+                    "quantity": this.item_quantity,
+                })
+            },
+            loadItem: function(item, index) {
+                this.item_service = item.service;
+                this.item_type = item.type;
+                this.item_description = item.description;
+                this.item_description_code = item.description_code;
+                this.item_sum = item.sum;
+                this.item_quantity = item.quantity
+                this.item_index = index;
+                this.item_position = index + 1;
+            },
+            updateItem: function() {
+                if (this.item_index == -1) {
+                    this.addNewItem();
+                    return
+                }
+                item = this.purchase_requisition.items[this.item_index]
+                item.service = this.item_service;
+                item.type = this.item_type;
+                item.description = this.item_description;
+                item.description_code = this.item_description_code;
+                item.sum = this.item_sum;
+                item.quantity = this.item_quantity;
+            },
+            deleteStep: function(item, index) {
+                this.purchase_requisition.items.pop(index);
+            },
+            getDocumentTypeList: async function() {
+                if (this.documentTypeList.length > 0) {
+                    return
+                }
+                try {
+                    let response = await axios.get("{{url_for('get_document_type_list')}}")
+                    console.log(response.data)
+                    this.documentTypeList = response.data
+                } catch (err) {
+                    console.log(err)
+                }
+            },
+            getEntityList: async function() {
+                if (this.entityList.length > 0) {
+                    return
+                }
+                try {
+                    let response = await axios.get("{{url_for('get_entity_list')}}?skip=0&limit=300&nested=false&optional=false")
+                    console.log(response.data)
+                    this.entityList = response.data
+                } catch (err) {
+                    console.log(err)
+                }
+            },
+            getCounterpartyList: async function() {
+                if (this.counterpartyList.length > 0) {
+                    return
+                }
+                try {
+                    let response = await axios.get("{{url_for('get_counterparty_list')}}?skip=0&limit=300&nested=false&optional=false")
+                    console.log(response.data)
+                    this.counterpartyList = response.data
+                } catch (err) {
+                    console.log(err)
+                }
+            },
+            sendData: async function() {
+                if (this.purchase_requisition_id == 'new') {
+
+                    let response = await this.postPurchaseRequisition()
+                    if (response != null && (response.status == 200 || response.status == 201)) {
+                        await this.getPurchaseRequisition()
+                    }
+                } else {
+                    let response = await this.putPurchaseRequisition()
+                    if (response != null && (response.status == 200 || response.status == 201)) {
+                        await this.getPurchaseRequisition()
+                    }
+                }
+
             }
-            purchase_requisition_items.push(itemDict)
-          })
-          purchase_requisition_dict = {
-              "id": parseInt(this.purchase_requisition_id),
-              "guid": this.purchase_requisition.guid,
-              "number": this.purchase_requisition.number,
-              "date": this.strToDate(this.purchase_requisition.date),
-              "comment": this.purchase_requisition.comment,
-              "sum": parseFloat(this.purchase_requisition.sum),
-              "counterparty_iin": this.purchase_requisition.counterparty_iin,
-              "document_type_id": parseInt(this.purchase_requisition.document_type_id),
-              "entity_iin": this.purchase_requisition.entity_iin,
-              "items": purchase_requisition_items
-            }
-          console.log(this.document_type_id);
-          return purchase_requisition_dict
-          },
-        postPurchaseRequisition: async function(){
-          purchase_requisition_dict = this.collectData()
-          console.log("before send post")
-          console.log(JSON.stringify(purchase_requisition_dict))
-          try{
-            let response = await axios.post("{{url_for('get_purchase_requisition_list')}}?nested=true", purchase_requisition_dict);
-            console.log(response.data)
-            this.purchase_requisition = response.data
-            this.purchase_requisition_id = this.purchase_requisition['id']
-            return response
-          }catch(err){
-            console.log(err)
-            return null
-            }
-          },
-        
-        putPurchaseRequisition: async function(){
-          purchase_requisition_dict = this.collectData()
-          console.log("before send put")
-          console.log(JSON.stringify(purchase_requisition_dict))
-          try{
-            let response = await axios.put("{{url_for('get_purchase_requisition_list')}}"+this.purchase_requisition_id+"?nested=true", purchase_requisition_dict);
-            console.log(response.data)
-            return response
-          }catch(err){
-            console.log(err)
-          }
-        },
-        deletePurchaseRequisition: async function(){
-          try{
-            let response = await axios.delete("{{url_for('get_purchase_requisition_list')}}"+this.purchase_requisition_id);
-            if(response!=null && (response.status==200 || response.status==201)){
-              this.goToPurchaseRequisitionLit()  
-            }
-          }catch(err){
-            console.log(err)
-          }
-        },
-        goToPurchaseRequisitionLit: function(){
-          window.location.href = "{{url_for('purchase_requisition_list')}}"
-        },
-        clearActiveStep: function(){
-          this.item_type = '',
-          this.item_index = -1
-          this.item_position = this.purchase_requisition.items.length+1
-          this.item_service = true
-          this.item_description = ''
-          this.item_description_code = ''
-          this.item_sum = 0
-          this.item_quantity = 0
-        },
-        addNewItem: function(){
-          this.purchase_requisition.items.push({
-            "id": 0,
-            "service": this.item_service,
-            "type": this.item_type,
-            "description": this.item_description,
-            "description_code": this.item_description_code,
-            "sum": this.item_sum,
-            "quantity": this.item_quantity,
-            })  
-          },
-        loadItem: function(item, index){
-            this.item_service = item.service;
-            this.item_type = item.type;
-            this.item_description = item.description;
-            this.item_description_code = item.description_code;
-            this.item_sum = item.sum;
-            this.item_quantity = item.quantity
-            this.item_index = index;
-            this.item_position = index+1;
-          },
-        updateItem: function(){
-            if(this.item_index == -1){
-              this.addNewItem();  
-              return
-            }
-            item = this.purchase_requisition.items[this.item_index]
-            item.service = this.item_service; 
-            item.type =  this.item_type; 
-            item.description = this.item_description;
-            item.description_code = this.item_description_code;
-            item.sum = this.item_sum;
-            item.quantity = this.item_quantity;
-          },
-        deleteStep: function(item, index){
-            this.purchase_requisition.items.pop(index);
-          },
-        getDocumentTypeList: async function(){
-            if(this.documentTypeList.length > 0){
-              return
-            }
-            try{
-              let response = await axios.get("{{url_for('get_document_type_list')}}")
-              console.log(response.data)
-              this.documentTypeList = response.data
-            }catch(err){
-              console.log(err)
-            }  
-          },
-        getEntityList: async function(){
-            if(this.entityList.length > 0){
-              return
-            }
-            try{
-              let response = await axios.get("{{url_for('get_entity_list')}}?skip=0&limit=300&nested=false&optional=false")
-              console.log(response.data)
-              this.entityList = response.data
-            }catch(err){
-              console.log(err)
-            }  
-          },
-        getCounterpartyList: async function(){
-          if(this.counterpartyList.length > 0){
-            return
-          }
-          try{
-            let response = await axios.get("{{url_for('get_counterparty_list')}}?skip=0&limit=300&nested=false&optional=false")
-            console.log(response.data)
-            this.counterpartyList = response.data
-          }catch(err){
-            console.log(err)
-          }  
-        },
-        sendData: async function(){
-          if(this.purchase_requisition_id=='new'){
-              
-              let response = await this.postPurchaseRequisition()
-              if(response!=null && (response.status==200 || response.status==201)){
-                await this.getPurchaseRequisition()  
-              }
-            }
-            else {
-              let response = await this.putPurchaseRequisition()
-              if(response!=null && (response.status==200 || response.status==201)){
-                await this.getPurchaseRequisition()  
-              }
-            }
-          
         }
-      }
     })
 </script>
 

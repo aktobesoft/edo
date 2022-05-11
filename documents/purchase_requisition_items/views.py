@@ -35,7 +35,8 @@ async def update_pr_items_by_purchase_requisition(pr_items : list, purchase_requ
     for item in pr_items:
         dict_item = dict(item)
         listID.append(dict_item['id'])
-        listHashID.append(tuple_(dict_item['id'], dict_item['hash']))
+        if dict_item['hash'] != '':
+            listHashID.append(tuple_(dict_item['id'], dict_item['hash']))
 
     select1 = select(PurchaseRequisitionItems.id, PurchaseRequisitionItems.hash, func.lower("delete", type_=String).label('operation')).where(
                 (PurchaseRequisitionItems.purchase_requisition_id == purchase_requisition_id) & (PurchaseRequisitionItems.id.not_in(listID)))
@@ -75,7 +76,7 @@ async def update_pr_items_by_purchase_requisition(pr_items : list, purchase_requ
                 if str(resultHash) != str(pr_item['hash']):
                     print('Внимание хэши не равны {0} и {1}'.format(str(pr_item['hash']), resultHash))
             index = index + 1
-            continue
+            # continue
         elif (pr_item['id'] == 0):
             # в первую запись всегда хэш будет другой потому как id пустой
             # во второй проход хэш уже будет правильный

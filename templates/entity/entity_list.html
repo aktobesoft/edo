@@ -3,15 +3,14 @@
 {% block form_content %}
 
 <form method="POST" action='{{ request.path }}' novalidate >
-    
-    <div class="card">
+  <div class="card" id="vue">
     <div class="card-header">
-      Список сотрудников
+      Список организации
     </div>
-    <div class="card-body">
-      <a class="btn btn-primary" href="{{ url_for('post_new_entity') }}" role="button">Создать новый элемент</a>
+    <div class="card-body table-responsive p-0">
+      <a class="btn btn-primary ml-2 mt-2" href="{{ url_for('post_new_entity') }}" role="button">Создать новый элемент</a>
       <div class="pt-2 col">
-        <table class="table table-hover">
+        <table class="table table-bordered table-hover">
           <thead class="table-dark">
             <tr>
               <th scope="col">ИД</th>
@@ -21,25 +20,104 @@
               <th scope="col">Дата начало</th>
               <th scope="col">Дата конец</th>
               <th scope="col">Пользователь</th>
+              <th scope="col">Операции</th>
             </tr>
           </thead>
           <tbody>
-            {% for entity in entityList %}
-              <tr>
-                <th scope="row">{{ entity.id }}</th>
-                <td>{{ entity.iin }}</td>
-                <td><a href="{{request.path}}{{entity.iin}}" class="link-dark">{{ entity.name }} </a></td>
-                <td>{{ entity.business_type_full_name }}</td>
-                <td>{{ entity.start_date }}</td>
-                <td>{{ entity.end_date }}</td>
-                <td>{{ entity.user_name }} ({{entity.user_email}})</td>
+              <tr v-for="entity in listEntity" :key="entity.iin">
+                <th scope="row">[[ entity.id ]]</th>
+                <td>[[ entity.iin ]]</td>
+                <td>[[ entity.name ]]</td>
+                <td>[[ entity.type.name ]]</td>
+                <td>[[ entity.start_date ]]</td>
+                <td>[[ entity.end_date ]]</td>
+                <td>[[ entity.user.name ]] ([[entity.user.email]])</td>
+                <td>
+                  <button v-on:click="openEntity(entity)" class="btn btn-success btn-sm rounded-3" type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
+                      <i class="fas fa-edit"></i>
+                  </button>
+                  <button v-on:click="setCurrentItem(entity)" class="btn btn-danger btn-sm rounded-3" type="button" data-toggle="modal" data-target="#deleteElementModal">
+                      <i class="fas fa-trash"></i>
+                  </button>
+              </td>
               </tr>  
-            {% endfor %}
           </tbody>
         </table>
       </div>
-    </div>  
+    </div>
+
+    <!-- Удаление записи -->
+      <!-- Modal -->
+    <div class="modal fade" id="deleteElementModal" tabindex="-1" role="dialog" aria-labelledby="deleteElementModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+          <div class="modal-content">
+              <div class="modal-header">
+              <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+              </div>
+              <div class="modal-body">
+                  Вы действительно хотите удалить запись?
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                  <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal" v-on:click="deleteEntity()">
+                      Удалить
+                  </button>
+              </div>
+          </div>
+        </div>
+    </div>
+
   </div>
 </form>
+
+<script>
+  new Vue({
+    el: '#vue',
+    delimiters: ['[[', ']]'],
+    data: {
+      //listEntity: {{ listOfValue|safe }},
+      listEntity: [],
+      currentItemIndex: 0,
+    },
+    async mounted() {
+      await this.getEntityList()
+    },
+    methods: {
+      getEntityList: async function(){
+        console.log(Vue.version);
+        if (this.listEntity.length == 0) {
+            try {
+                let response = await axios.get("{{url_for('get_entity_list')}}?nested=true")
+                console.log(response.data)
+                this.listEntity = response.data
+                } 
+            catch (err) {
+                console.log(err)
+              }
+            };
+          },
+      openEntity: function(item) {
+          window.location.href = "{{ request.path }}" + item.iin
+        },
+      deleteEntity: async function() {
+        try {
+          let iin = this.listEntity[this.currentItemIndex].iin
+          let response = await axios.delete("{{url_for('get_entity_list')}}" + iin);
+          if (response != null && (response.status == 200 || response.status == 201)) {
+              this.listEntity.splice(this.currentItemIndex, 1);
+          }
+          } catch (err) {
+            console.log(err)
+          }
+      },
+      setCurrentItem: function(item) {
+        this.currentItemIndex = this.listEntity.indexOf(item)
+      },
+    }
+  })
+</script>
 
 {% endblock %}
