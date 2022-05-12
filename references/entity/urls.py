@@ -1,16 +1,17 @@
 from fastapi import APIRouter, Depends
-from common_module.urls_module import qp_insert, qp_select_list, qp_select_one, qp_update, qp_select_one_by_iin
+from common_module.urls_module import paginator_execute, qp_insert, qp_select_list, qp_select_one, qp_update
 from documents.base_document.models import OptionsStructure
 from references.entity import views
-from references.entity.models import EntityOut, EntityIn, EntityNestedOut
+from references.entity.models import EntityListNestedOut, EntityListOut, EntityOut, EntityIn, EntityNestedOut
 from typing import List, Union
 
 entityRouter = APIRouter()
 
 
-@entityRouter.get('/', response_model = Union[list[EntityNestedOut],list[EntityOut],List[OptionsStructure]])
-async def get_entity_list(commons: dict = Depends(qp_select_list)):
-    return await views.get_entity_list(**commons)
+@entityRouter.get('/', response_model = Union[EntityListNestedOut,EntityListOut])
+async def get_entity_list(query_param: dict = Depends(qp_select_list)):
+    parametrs = await paginator_execute(query_param, await views.get_entity_count())
+    return {'info': parametrs, 'result': await views.get_entity_list(**parametrs)}
 
 @entityRouter.get('/{entity_iin}', response_model=Union[EntityNestedOut,EntityOut])
 async def get_entity_by_iin(entity_iin: str, qp_select_one: dict = Depends(qp_select_one)):

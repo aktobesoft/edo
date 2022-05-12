@@ -82,8 +82,8 @@
                                 <div class="col-sm-10 mt-2">
                                     <select v-on:click="getBusinessTypeList()" v-model="entity.type_name" class="form-control" aria-label="Сотрудник" id="step_employee">
                                         <option value="0">---------</option>
-                                        <option v-for="item in businessTypeList" v-bind:value="item.value">
-                                        [[ item.text ]]
+                                        <option v-for="item in businessTypeList" v-bind:value="item.name">
+                                        [[ item.full_name ]]
                                         </option>
                                     </select>
                                 </div>
@@ -92,8 +92,8 @@
                                 <div class="col-sm-10 mt-2">
                                     <select v-on:click="getUserList()" v-model="entity.user_id" class="form-control" aria-label="Сотрудник" id="step_employee">
                                         <option value="0">---------</option>
-                                        <option v-for="item in userList" v-bind:value="item.value">
-                                        [[ item.text ]]
+                                        <option v-for="item in userList" v-bind:value="item.id">
+                                        [[ item.name ]] ([[ item.email ]])
                                         </option>
                                     </select>
                                 </div>

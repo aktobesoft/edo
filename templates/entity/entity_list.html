@@ -8,6 +8,36 @@
       <div class="card mt-2">
         <div class="card-header">
           Список организации
+          <div class="card-tools">
+            <ul class="pagination pagination-sm float-right">
+              <template v-if="page > 3">
+                <li class="page-item"><button type="button" class="page-link" v-on:click="getEntityList(1)">1</button></li>
+              </template>
+
+              <template v-if="page-3 > 1">
+                <li class="page-item"><button type="button" class="page-link " v-on:click="getEntityList(page-3)"><i class="fas fa-angle-double-left"></i></button></li>
+              </template>
+              
+              <template v-if="page > 1">
+                <li class="page-item"><button type="button" class="page-link" v-on:click="getEntityList(page-1)">[[page-1]]</button></li>
+              </template>
+              
+              <li class="page-item active"><button type="button" class="page-link">[[page]]</button></li>
+              
+              <template v-if="page < page_count">
+                <li class="page-item"><button type="button" class="page-link" v-on:click="getEntityList(page+1)">[[page+1]]</button></li>
+              </template>
+
+              <template v-if="page+3 < page_count">
+                <li class="page-item"><button type="button" class="page-link" v-on:click="getEntityList(page+3)"><i class="fas fa-angle-double-right"></i></button></li>
+              </template>
+
+              <template v-if="page < page_count-2">
+                <li class="page-item"><button type="button" class="page-link" v-on:click="getEntityList(page_count)">[[page_count]]</button></li>
+              </template>
+              
+            </ul>
+          </div>
         </div>
         <div class="card-body table-responsive p-0">
           <a class="btn btn-primary ml-2 mt-2" href="{{ url_for('post_new_entity') }}" role="button">Создать новый элемент</a>
@@ -84,18 +114,25 @@
       //listEntity: {{ listOfValue|safe }},
       listEntity: [],
       currentItemIndex: 0,
+      page: 1,
+      page_count: 1,
     },
     async mounted() {
-      await this.getEntityList()
+      await this.getEntityList(this.page)
     },
     methods: {
-      getEntityList: async function(){
-        console.log(Vue.version);
-        if (this.listEntity.length == 0) {
+      getEntityList: async function(page){
+        console.log("{{url_for('get_entity_list')}}?nested=true&limit=100&page="+page);
+        //if (this.listEntity.length == 0) {
+          if (true) {
             try {
-                let response = await axios.get("{{url_for('get_entity_list')}}?nested=true")
-                console.log(response.data)
-                this.listEntity = response.data
+                let response = await axios.get("{{url_for('get_entity_list')}}?nested=true&limit=100&page="+page)
+                console.log(response.data['result'])
+                this.listEntity = response.data['result']
+                this.page_count = response.data['info']['pages']
+                if(page>0){
+                    this.page = page
+                  }
                 } 
             catch (err) {
                 console.log(err)

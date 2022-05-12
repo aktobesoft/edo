@@ -1,6 +1,6 @@
 from django.http import Http404
 from fastapi import HTTPException
-from sqlalchemy import select, insert, update, delete
+from sqlalchemy import func, select, insert, update, delete
 from core.db import database
 import asyncpg
 from datetime import date, datetime
@@ -35,11 +35,15 @@ async def delete_entity_by_iin(entity_iin: str):
     resultEntity = await database.execute(queryEntity)
     return resultEntity
 
+async def get_entity_count(limit: int = 100, skip: int = 0, **kwargs)->list[Entity]:
+    query = select(func.count(Entity.id))
+    return await database.execute(query)
+
 async def get_entity_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entity]:
     
     if(kwargs['nested']):
         return await get_entity_nested_list(limit, skip, **kwargs)
-    if(kwargs['optional']):
+    if('optional' in kwargs and kwargs['optional']):
         return await get_entity_options_list(limit, skip, **kwargs)
 
     query = select(Entity.id, 
@@ -56,7 +60,7 @@ async def get_entity_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entit
                 Entity.start_date, 
                 Entity.type_name, 
                 Entity.end_date, 
-                Entity.user_id).limit(limit).offset(skip)
+                Entity.user_id).limit(limit).offset(skip).order_by(Entity.name)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -93,7 +97,7 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs):
     if('iin' in kwargs and kwargs['iin']):
         query = query.where(Entity.iin == kwargs['iin'])
     else:
-        query = query.limit(limit).offset(skip)
+        query = query.limit(limit).offset(skip).order_by(Entity.name)
 
     records = await database.fetch_all(query)
     listValue = []

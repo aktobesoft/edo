@@ -1,6 +1,6 @@
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi import APIRouter, HTTPException, Request, Form
-from common_module.urls_module import qp_select_one
+from fastapi import APIRouter, Depends, HTTPException, Request, Form
+from common_module.urls_module import paginator, paginator_execute, qp_select_list, qp_select_one
 from fastapi.templating import Jinja2Templates
 from documents.purchase_requisition.views import get_purchase_requisition_by_id, get_purchase_requisition_list
 from references.approval_template.models import ApprovalTemplate
@@ -26,10 +26,8 @@ async def index(request: Request):
 # ----------------------------------------------
 # +++ ---------------- entity ------------------
 @interfaceRoute.get("/entity/", response_class=HTMLResponse)
-async def entity_list(request: Request):
-    commons = {'limit': 100, 'skip': 0, 'nested': True}
-    entity_list = await entityService.get_entity_list(**commons)
-    return templates.TemplateResponse("entity/entity_list.html", context={'request': request, 'entityList': entity_list})
+async def entity_list(request: Request, query_param: dict = Depends(qp_select_list)):
+    return templates.TemplateResponse("entity/entity_list.html", context={'request': request, 'page': query_param['page']})
 
 @interfaceRoute.get('/entity/{itemId}', response_class=HTMLResponse)
 async def create_new_entity(request: Request, itemId: str):

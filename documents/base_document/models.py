@@ -1,5 +1,5 @@
 from enum import unique
-from sqlalchemy import Column, Float, String, Integer, Table, DateTime, Boolean, MetaData, ForeignKey, Date, event
+from sqlalchemy import Column, Float, String, Integer, Table, DateTime, Boolean, MetaData, ForeignKey, Date, event, false
 from sqlalchemy.orm import relationship
 from core.db import Base, metadata
 from datetime import date, datetime
@@ -54,6 +54,17 @@ class OptionsStructureStr(BaseModel):
     value: str
     text: str
     
+    class Config:
+        orm_mode = True
+
+class Paginator(BaseModel):
+
+    pages: int = 1
+    page: int = 1
+    limit: int = 100
+    has_previous: bool = false
+    has_next : bool = false
+
     class Config:
         orm_mode = True
 

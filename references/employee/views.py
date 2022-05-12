@@ -22,7 +22,7 @@ async def get_employee_list(limit: int = 100, skip: int = 0, **kwargs)->list[Emp
 
     if(kwargs['nested']):
         return await get_employee_nested_list(limit, skip, **kwargs)
-    if(kwargs['optional']):
+    if('optional' in kwargs and kwargs['optional']):
         return await get_employee_options_list(limit, skip, **kwargs)    
                         
     query = select(Employee.id, 

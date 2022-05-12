@@ -19,7 +19,7 @@ async def post_user(newUser : dict):
     
 async def get_user_list(limit: int = 100, skip: int = 0, **kwargs):
 
-    if(kwargs['optional']):
+    if('optional' in kwargs and kwargs['optional']):
         return await get_user_options_list(limit, skip, **kwargs)
 
     query = select(User.id, User.name, User.email, User.is_active, User.is_company

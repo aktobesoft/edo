@@ -94,8 +94,8 @@
         data: {
             entity_iin_options: [],
             user_id_options: [],
-            selected_entity_iin: {% if not is_new %} {{employee['entity_iin']}} {% else %} 0 {% endif %},
-            selected_user_id: {%if not is_new %} {{employee['user_id']}} {%else %}0 {% endif %},
+            selected_entity_iin: "{% if not is_new %} {{employee['entity_iin']}} {% else %} 0 {% endif %}"",
+            selected_user_id: "{%if not is_new %} {{employee['user_id']}} {%else %}0 {% endif %}"",
         },
         async mounted() {
             console.log(Vue.version);

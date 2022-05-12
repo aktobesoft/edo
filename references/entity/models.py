@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 from core.db import Base
 from datetime import date, datetime
 from pydantic import BaseModel, validator
+from documents.base_document.models import Paginator
 from references.business_type.models import BusinessTypeOut, BusinessType
 from references.document_type.models import DocumentType
 from references.notes.models import Notes
@@ -91,6 +92,9 @@ class EntityNestedOut(BaseModel):
     class Config:
         orm_mode = True
 
+
+    
+
 class EntityOut(BaseModel):
     id: int
     name: str
@@ -139,6 +143,14 @@ class EntityIn(BaseModel):
         if not v.isdigit():
             raise ValueError('must contain only digits')
         return v.title()
+
+class EntityListOut(BaseModel):
+    info: Paginator
+    result: list[EntityOut]
+
+class EntityListNestedOut(BaseModel):
+    info: Paginator
+    result: list[EntityNestedOut]
 
 def entity_fillDataFromDict(queryResult : dict):
     return {

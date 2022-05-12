@@ -19,7 +19,7 @@ async def get_business_type_list(limit: int = 100,skip: int = 0,**kwargs):
 
     # if(kwargs['nested']):
     #     return await get_counterparty_nested_list(limit, skip, **kwargs)
-    if(kwargs['optional']):
+    if('optional' in kwargs and kwargs['optional']):
         return await get_business_type_options_list(limit, skip, **kwargs)
 
     query = select(BusinessType.id, BusinessType.name, BusinessType.full_name).limit(limit).offset(skip)

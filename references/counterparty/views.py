@@ -39,7 +39,7 @@ async def get_counterparty_list(limit: int = 100, skip: int = 0, **kwargs)->list
     
     if(kwargs['nested']):
         return await get_counterparty_nested_list(limit, skip, **kwargs)
-    if(kwargs['optional']):
+    if('optional' in kwargs and kwargs['optional']):
         return await get_counterparty_options_list(limit, skip, **kwargs)
 
     query = select(Counterparty.id, 

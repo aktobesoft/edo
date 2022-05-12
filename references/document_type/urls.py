@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from common_module.urls_module import qp_insert, qp_select_list, qp_select_one, qp_update, qp_select_one_by_iin
+from common_module.urls_module import qp_insert, qp_select_list, qp_select_one, qp_update
 from documents.base_document.models import OptionsStructure
 from references.document_type import views
 from references.document_type.models import DocumentTypeOut, DocumentTypeIn
