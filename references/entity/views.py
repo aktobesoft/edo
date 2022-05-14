@@ -35,7 +35,7 @@ async def delete_entity_by_iin(entity_iin: str):
     resultEntity = await database.execute(queryEntity)
     return resultEntity
 
-async def get_entity_count(limit: int = 100, skip: int = 0, **kwargs)->list[Entity]:
+async def get_entity_count()->list[Entity]:
     query = select(func.count(Entity.id))
     return await database.execute(query)
 

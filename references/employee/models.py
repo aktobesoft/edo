@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy import Column, String, Integer, ForeignKey, Date, DateTime
 from sqlalchemy.orm import relationship
 from core.db import Base
+from documents.base_document.models import Paginator
 from references.business_type.models import BusinessTypeOut
 from references.entity.models import Entity, EntityOut, EntitySmallOut
 from references.user.models import UserOut
@@ -87,6 +88,14 @@ class EmployeeIn(BaseModel):
     
     class Config:
         orm_mode = True
+
+class EmployeeListOut(BaseModel):
+    info: Paginator
+    result: list[EmployeeOut]
+
+class EmployeeListNestedOut(BaseModel):
+    info: Paginator
+    result: list[EmployeeNestedOut]
 
 def employee_fillDataFromDict(queryResult : dict):
     return {

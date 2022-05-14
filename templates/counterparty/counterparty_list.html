@@ -3,41 +3,160 @@
 {% block form_content %}
 
 <form method="POST" action='{{ request.path }}' novalidate >
-    
-    <div class="card">
-    <div class="card-header">
-      Список сотрудников
-    </div>
-    <div class="card-body">
-      <a class="btn btn-primary" href="{{ request.path }}new" role="button">Создать новый элемент</a>
-      <div class="pt-2 col">
-        <table class="table table-bordered table-hover">
-          <thead class="table-dark">
-            <tr>
-              <th scope="col">ИД</th>
-              <th scope="col">ИИН</th>
-              <th scope="col">Наименование</th>
-              <th scope="col">Тип организации</th>
-              <th scope="col">Комментарий</th>
-              <th scope="col">Контакты</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for counterparty in counterpartyList %}
-              <tr>
-                <th scope="row">{{ counterparty.id }}</th>
-                <td>{{ counterparty.iin }}</td>
-                <td><a href="{{request.path}}{{counterparty.iin}}" class="link-dark">{{ counterparty.name }} </a></td>
-                <td>{{ counterparty.type.full_name }}</td>
-                <td>{{ counterparty.comment }}</td>
-                <td>{{ counterparty.contact }}</td>
-              </tr>  
-            {% endfor %}
-          </tbody>
-        </table>
+  <div id="vue">
+    <div class="row">
+      <div class="card mt-2">
+        <div class="card-header">
+          Список контрагентов
+          <div class="card-tools">
+            <ul class="pagination pagination-sm float-right">
+              <template v-if="page > 3">
+                <li class="page-item"><button type="button" class="page-link" v-on:click="getCounterpartyList(1)">1</button></li>
+              </template>
+
+              <template v-if="page-3 > 1">
+                <li class="page-item"><button type="button" class="page-link " v-on:click="getCounterpartyList(page-3)"><i class="fas fa-angle-double-left"></i></button></li>
+              </template>
+              
+              <template v-if="page > 1">
+                <li class="page-item"><button type="button" class="page-link" v-on:click="getCounterpartyList(page-1)">[[page-1]]</button></li>
+              </template>
+              
+              <li class="page-item active"><button type="button" class="page-link">[[page]]</button></li>
+              
+              <template v-if="page < page_count">
+                <li class="page-item"><button type="button" class="page-link" v-on:click="getCounterpartyList(page+1)">[[page+1]]</button></li>
+              </template>
+
+              <template v-if="page+3 < page_count">
+                <li class="page-item"><button type="button" class="page-link" v-on:click="getCounterpartyList(page+3)"><i class="fas fa-angle-double-right"></i></button></li>
+              </template>
+
+              <template v-if="page < page_count-2">
+                <li class="page-item"><button type="button" class="page-link" v-on:click="getCounterpartyList(page_count)">[[page_count]]</button></li>
+              </template>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card-body table-responsive p-0">
+          <a class="btn btn-primary ml-2 mt-2" href="{{ request.path }}new" role="button">Создать новый элемент</a>
+          <div class="pt-2 col">
+            <table class="table table-bordered table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col">ИД</th>
+                  <th scope="col">ИИН</th>
+                  <th scope="col">Наименование</th>
+                  <th scope="col">Тип организации</th>
+                  <th scope="col">Комментарий</th>
+                  <th scope="col">Контакты</th>
+                  <th scope="col">Операции</th>
+                </tr>
+              </thead>
+              <tbody>
+                  <tr v-for="counterparty in listCounterparty" :key="counterparty.iin">
+                    <th scope="row">[[ counterparty.id ]]</th>
+                    <td>[[ counterparty.iin ]]</td>
+                    <td>[[ counterparty.name ]] </a></td>
+                    <td>[[ counterparty.type.full_name ]]</td>
+                    <td>[[ counterparty.comment ]]</td>
+                    <td>[[ counterparty.contact ]]</td>
+                    <td>
+                      <button v-on:click="openCounterparty(counterparty)" class="btn btn-success btn-sm rounded-3" type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
+                          <i class="fas fa-edit"></i>
+                      </button>
+                      <button v-on:click="setCurrentItem(counterparty)" class="btn btn-danger btn-sm rounded-3" type="button" data-toggle="modal" data-target="#deleteElementModal">
+                          <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>  
+              </tbody>
+            </table>
+          </div>
+        </div>  
       </div>
-    </div>  
-  </div>
+
+      <!-- Удаление записи -->
+      <!-- Modal -->
+      <div class="modal fade" id="deleteElementModal" tabindex="-1" role="dialog" aria-labelledby="deleteElementModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                Вы действительно хотите удалить запись?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+              <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal" v-on:click="deleteCounterparty()">
+                  Удалить
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>  
 </form>
+
+<script>
+  new Vue({
+    el: '#vue',
+    delimiters: ['[[', ']]'],
+    data: {
+      //listCounterparty: {{ listOfValue|safe }},
+      listCounterparty: [],
+      currentItemIndex: 0,
+      page: 1,
+      page_count: 1,
+    },
+    async mounted() {
+      await this.getCounterpartyList(this.page)
+    },
+    methods: {
+      getCounterpartyList: async function(page){
+        console.log("{{url_for('get_counterparty_list')}}?nested=true&limit=100&page="+page);
+        //if (this.listCounterparty.length == 0) {
+          if (true) {
+            try {
+                let response = await axios.get("{{url_for('get_counterparty_list')}}?nested=true&limit=100&page="+page)
+                console.log(response.data['result'])
+                this.listCounterparty = response.data['result']
+                this.page_count = response.data['info']['pages']
+                if(page>0){
+                    this.page = page
+                  }
+                } 
+            catch (err) {
+                console.log(err)
+              }
+            };
+          },
+      openCounterparty: function(item) {
+          window.location.href = "{{ request.path }}" + item.iin
+        },
+      deleteCounterparty: async function() {
+        try {
+          let iin = this.listCounterparty[this.currentItemIndex].iin
+          let response = await axios.delete("{{url_for('get_counterparty_list')}}" + iin);
+          if (response != null && (response.status == 200 || response.status == 201)) {
+              this.listCounterparty.splice(this.currentItemIndex, 1);
+          }
+          } catch (err) {
+            console.log(err)
+          }
+      },
+      setCurrentItem: function(item) {
+        this.currentItemIndex = this.listCounterparty.indexOf(item)
+      },
+    }
+  })
+</script>
+
 
 {% endblock %}

@@ -1,120 +1,238 @@
-{% extends 'index.html' %} {% block form_content %}
-
+{% extends 'index.html' %} 
+{% block form_content %}
 <form method="POST" action='{{ request.path }}' novalidate>
-
-    <div class="card" id="vue">
+    <div id="vue">
         <template>
-      <div class="card-header">
-        {{ employee.name }} ({{employee.email}})
-      </div>
-      <div class="card-body">
-        <div class="form-group row">
+            <div class="row">
+                <div class="card mt-2">
+                    <div class="card-header">
+                        [[ employee.name ]] ([[employee.email]])
+                    </div>
+                    <div class="card-body table-responsive p-0 ">
+                        <div class="col-12 ">
+                            <div class="mt-2 ml-1 row">
+                                <label for="item_position" class="col-sm-2 col-form-label">ID</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="number" class="form-control" placeholder="ID" readonly readonly v-model.number="employee.id">
+                                </div> 
+                                
+                                <label for="item_position" class="col-sm-2 col-form-label">Наименование</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="text" class="form-control" placeholder="Наименование" v-model="employee.name">
+                                </div>
 
-          {% for field in employeeLabel if not employeeLabel[field]['skip'] %}
-          <div class="pt-2 row">
-            <label for="{{field}}" class="col-sm-2 col-form-label">{{employeeLabel[field]['label']}}</label>
-            <div class="col-sm-10">
-              {% if employeeLabel[field]['type'] == 'text' %}
-              <input type="text" name="{{field}}" class="form-control" id="{{field}}"
-                placeholder="{{employeeLabel[field]['label']}}" value="{{employee[field]}}" {% if
-                employeeLabel[field]['maxlength'] %} maxlength="{{employeeLabel[field]['maxlength']}}" {% endif %} {% if
-                employeeLabel[field]['min'] %} min="{{employeeLabel[field]['min']}}" {% endif %} {% if
-                employeeLabel[field]['max'] %} max="{{employeeLabel[field]['max']}}" {% endif %} {% if
-                employeeLabel[field]['readonly'] %} readonly {% endif %} {% if employeeLabel[field]['pattern'] %}
-                pattern="{{employeeLabel[field]['pattern']}}" {% endif %}>
-              {% elif employeeLabel[field]['type'] == 'textarea' %}
-              <textarea name="{{field}}" cols="40" rows="3" class="form-control" id="{{field}}" {% if
-                employeeLabel[field]['readonly'] %} readonly {% endif %}>{{employee[field]}}</textarea>
-              {% elif employeeLabel[field]['type'] == 'select' and employeeLabel[field]['get_from_api'] %}
-              <select v-model="selected_{{field}}" name="{{field}}" class="form-control"
-                aria-label="Default select example" id="{{field}}" {% if employeeLabel[field]['maxlength'] %}
-                maxlength="{{employeeLabel[field]['maxlength']}}" {% endif %} {% if employeeLabel[field]['min'] %}
-                min="{{employeeLabel[field]['min']}}" {% endif %} {% if employeeLabel[field]['max'] %}
-                max="{{employeeLabel[field]['max']}}" {% endif %} {% if employeeLabel[field]['readonly'] %} readonly {%
-                endif %} {% if employeeLabel[field]['pattern'] %} pattern="{{employeeLabel[field]['pattern']}}" {% endif
-                %}>
-                <option value="0">---------</option>
-                <option v-for="option in {{field}}_options" v-bind:value="option.value">
-                  [[ option.text ]]
-                </option>
-              </select>
-              {% else %}
-              <input type="{{employeeLabel[field]['type']}}" name="{{field}}" class="form-control" id="{{field}}"
-                placeholder="{{employeeLabel[field]['label']}}" value="{{employee[field]}}" {% if
-                employeeLabel[field]['maxlength'] %} maxlength="{{employeeLabel[field]['maxlength']}}" {% endif %} {% if
-                employeeLabel[field]['min'] %} min="{{employeeLabel[field]['min']}}" {% endif %} {% if
-                employeeLabel[field]['max'] %} max="{{employeeLabel[field]['max']}}" {% endif %} {% if
-                employeeLabel[field]['readonly'] %} readonly {% endif %} {% if employeeLabel[field]['pattern'] %}
-                pattern="{{employeeLabel[field]['pattern']}}" {% endif %}>
-              {% endif %}
-            </div>
-          </div>
-          {% endfor %}
-          <div class="pt-3 row">
-            <div class="col">
-              <button class="btn btn-primary ">Сохранить</button>
-              <button type="button" class="btn btn-primary btn-danger" data-toggle="modal"
-                data-target="#deleteEmployeeModal">
-                Удалить
-              </button>
-            </div>
-          </div>
+                                <label for="item_position" class="col-sm-2 col-form-label">Email</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="text" class="form-control" placeholder="Email" v-model="employee.email">
+                                </div>
 
-          <!-- Modal -->
-          <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="deleteEmployeeModalLabel">Подтвердите действие</h5>
-                  <button type="button" class="btn-close" data-dismiss="modal"
-                    aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  Вы действительно хотите удалить запись?
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" table table-bordered
-                    table-hover="modal">Отмена</button>
-                  <a href="{{ request.path }}/delete" class="btn btn-primary btn-danger" role="button">Удалить</a>
-                </div>
-              </div>
-            </div>
-          </div>
+                                <label for="item_position" class="col-sm-2 col-form-label">Описание сотрудника</label>
+                                <div class="col-sm-10 mt-2">
+                                    
+                                    <input type="text" class="form-control" placeholder="Должность можно указать" v-model="employee.description">
+                                </div>
 
-        </div>
-    </template>
+                                <label for="item_position" class="col-sm-2 col-form-label">Дата рождения</label>
+                                <div class="col-sm-10 mt-2">
+                                    <input type="date" class="form-control" placeholder="Дата рождения" v-model="employee.date_of_birth">
+                                </div>
+
+
+                                <label for="item_position" class="col-sm-2 col-form-label">Сотрудник оррганизации</label>
+                                <div class="col-sm-10 mt-2">
+                                  <select v-on:click="getEntityList()" v-model="employee.entity_iin" class="form-control"
+                                    aria-label="Организация" >
+                                    <option value="0">---------</option>
+                                    <option v-for="item in entityList" v-bind:value="item.iin">
+                                      [[ item.name ]] ([[ item.iin ]])
+                                    </option>
+                                  </select>
+                                </div>
+
+                                <label for="item_position" class="col-sm-2 col-form-label">Пользователь</label>
+                                <div class="col-sm-10 mt-2">
+                                    <select v-on:click="getUserList()" v-model="employee.user_id" class="form-control" aria-label="Сотрудник" >
+                                        <option value="0">---------</option>
+                                        <option v-for="item in userList" v-bind:value="item.id">
+                                        [[ item.name ]] ([[ item.email ]])
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        <div class="pt-3 row">
+                            <div class="col mb-3 ml-2">  
+                                <button type="button" v-on:click="sendData()" class="btn btn-primary">Сохранить</button> 
+                                <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#deleteEmployeeModal">
+                                    Удалить
+                                </button>
+                            </div>
+                        </div>
+                    
+                        <!-- Modal -->
+                        <div class="modal fade" id="deleteEmployeeModal">
+                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteEmployeeModalLabel">Подтвердите действие</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Вы действительно хотите удалить запись?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal" data-dismiss="modal">Отмена</button>
+                                            <button v-on:click="deleteEmployee()" type="button" class="btn btn-primary btn-danger" data-dismiss="modal" data-dismiss="modal">Удалить</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>   
+            </div> 
+        </template>
     </div>
 </form>
-
 <script>
-    new Vue({
-        delimiters: ['[[', ']]'],
-        el: '#vue',
-        data: {
-            entity_iin_options: [],
-            user_id_options: [],
-            selected_entity_iin: "{% if not is_new %} {{employee['entity_iin']}} {% else %} 0 {% endif %}"",
-            selected_user_id: "{%if not is_new %} {{employee['user_id']}} {%else %}0 {% endif %}"",
+   new Vue({
+       delimiters: ['[[', ']]'],
+       el: '#vue',
+       data: {
+           businessTypeList: [],
+           userList: [],
+           employee: {
+            "id": 0,
+            "name": "",
+            "email": "",
+            "entity_iin": 0,
+            "user_id": 0,
+            "description": "",
+            "date_of_birth": ""
+          },
+          employee_id: "{{ employee_id }}",
+          entityList: [],
+       },
+       async mounted() {
+           if (this.employee_id != 'new'){
+            await this.getEmployee()
+           }
+           await this.getBusinessTypeList();
+           await this.getUserList();
+           await this.getEntityList();
+       },
+       methods: {
+        getEntityList: async function() {
+          if (this.entityList.length > 0) {
+              return
+          }
+          try {
+              let response = await axios.get("{{url_for('get_entity_list')}}?skip=0&limit=300&nested=false&optional=false")
+              console.log(response.data['result'])
+              this.entityList = response.data['result']
+          } catch (err) {
+              console.log(err)
+          }
+        }, 
+        getBusinessTypeList: async function(){
+            if (this.businessTypeList.length > 0) {
+                return
+            }
+            let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true")
+                console.log(response.data)
+                this.businessTypeList = response.data
         },
-        async mounted() {
-            console.log(Vue.version);
-            try {
-                let response = await axios.get("{{url_for('get_entity_list')}}?optional=true")
+        getUserList: async function(){
+            if (this.userList.length > 0) {
+                return
+            }
+            let response = await axios.get("{{url_for('get_user_list')}}?optional=true")
                 console.log(response.data)
-                this.entity_iin_options = response.data
-            } catch (err) {
-                console.log(err)
-            };
-            try {
-                let response = await axios.get("{{url_for('get_user_list')}}?optional=true")
+                this.userList = response.data
+        },
+        getEmployee: async function(){
+            console.log(this.employee_id)
+            let response = await axios.get("{{url_for('get_employee_list')}}" + this.employee_id.toString())
                 console.log(response.data)
-                this.user_id_options = response.data
-            } catch (err) {
-                console.log(err)
+                this.employee = response.data
+        },
+        deleteEmployee: async function(){
+            let response = await axios.delete("{{url_for('get_employee_list')}}" + this.employee_id.toString())
+            if (response != null && (response.status == 200 || response.status == 201)) {
+                this.goToEmployeeList()
             }
         },
+        goToEmployeeList: function() {
+            window.location.href = "{{url_for('employee_list')}}"
+        },
+        putEmployee: async function(){
+            employee_data = this.collectData()
+            console.log("before send post")
+            console.log(JSON.stringify(employee_data))
+            try {
+                let response = await axios.put("{{url_for('get_employee_list')}}"+this.employee_id.toString()+"?nested=true", employee_data);
+                console.log(response.data)
+                this.employee = response.data
+                return response
+            } catch (err) {
+                console.log(err)
+                return null
+            }
+        },
+        postEmployee: async function(){
+            employee_data = this.collectData()
+            console.log("before send post")
+            console.log(JSON.stringify(employee_data))
+            try {
+                let response = await axios.post("{{url_for('get_employee_list')}}?nested=true", employee_data);
+                console.log(response.data)
+                this.employee = response.data
+                this.employee_id = this.employee['id']
+                return response
+            } catch (err) {
+                console.log(err)
+                return null
+            }
+        },
+        collectData: function(){
+            employee_data = {
+                    "id": this.employee.id,
+                    "name": this.employee.name,
+                    "email": this.employee.email,
+                    "entity_iin": this.employee.entity_iin,
+                    "user_id": this.employee.user_id,
+                    "description": this.employee.description,
+                    "date_of_birth": this.employee.date_of_birth,
+                  }
+            return employee_data
+        },
+        sendData: async function() {
+            console.log(this.employee_id)
+            employee_data = this.collectData()
+            console.log("before send post")
+            console.log(JSON.stringify(employee_data))
+            if (this.employee_id == 'new'){
+                let response = await this.postEmployee()
+                if (response != null && (response.status == 200 || response.status == 201)) {
+                    await this.getEmployee()
+                }
+            } else {
+                let response = await this.putEmployee()
+                if (response != null && (response.status == 200 || response.status == 201)) {
+                    await this.getEmployee()
+                }
+            }
+        },
+        dateToStr: function(valueDate) {
+            var date = new Date(valueDate);
+            return date.toISOString().substring(0, 10);
+        },
+        strToDate: function(valueDate) {
+            //var date = new Date(valueDate);
+            //date.setUTCHours(0,0,0,0);
+            //return date.toISOString();
+            return valueDate + "T18:00:00+00:00"
+        }
+        }
     })
 </script>
-
 {% endblock %}

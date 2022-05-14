@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Date
 from core.db import Base, metadata
 from sqlalchemy.orm import relationship
+from documents.base_document.models import Paginator
 from references.business_type.models import BusinessType, BusinessTypeOut
 from references.user.models import User
 from datetime import date, datetime
@@ -65,6 +66,7 @@ class CounterpartyNestedOut(BaseModel):
     address: str
     comment: str
     contact: str
+    type_name: str
     type: BusinessTypeOut
     
     class Config:
@@ -81,6 +83,14 @@ class CounterpartyIn(BaseModel):
     
     class Config:
         orm_mode = True
+
+class CounterpartyListOut(BaseModel):
+    info: Paginator
+    result: list[CounterpartyOut]
+
+class CounterpartyListNestedOut(BaseModel):
+    info: Paginator
+    result: list[CounterpartyNestedOut]
 
 def counterparty_fillDataFromDict(queryResult : dict):
     return {

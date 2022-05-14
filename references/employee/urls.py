@@ -1,15 +1,16 @@
 from fastapi import APIRouter, Depends
-from common_module.urls_module import qp_select_list
+from common_module.urls_module import paginator_execute, qp_select_list
 from references.employee import views
-from references.employee.models import EmployeeOut, EmployeeIn, EmployeeNestedOut
+from references.employee.models import EmployeeListNestedOut, EmployeeListOut, EmployeeOut, EmployeeIn
 from typing import List, Union
 from documents.base_document.models import OptionsStructure
 
 employeeRouter = APIRouter()
 
-@employeeRouter.get('/', response_model = Union[list[EmployeeNestedOut], list[EmployeeOut], List[OptionsStructure]])
-async def get_employee_list(commons: dict = Depends(qp_select_list)):
-    return await views.get_employee_list(**commons)
+@employeeRouter.get('/', response_model = Union[EmployeeListNestedOut, EmployeeListOut])
+async def get_employee_list(query_param: dict = Depends(qp_select_list)):
+    parametrs = await paginator_execute(query_param, await views.get_employee_count())
+    return {'info': parametrs, 'result': await views.get_employee_list(**parametrs)}
 
 @employeeRouter.get('/{employee_id}', response_model=EmployeeOut)
 async def get_employee_by_id(employee_id: int):
@@ -25,7 +26,7 @@ async def delete_employee_by_id(employee_id : int):
     result = await views.delete_employee_by_id(employee_id)
     return result
 
-@employeeRouter.put('/', response_model = EmployeeOut)
-async def update_employee(newEmployeeIn : EmployeeOut):
-    result = await views.update_employee(newEmployeeIn.dict())
+@employeeRouter.put('/{employee_id}', response_model = EmployeeOut)
+async def update_employee(newEmployeeIn : EmployeeOut, employee_id: int):
+    result = await views.update_employee(newEmployeeIn.dict(), employee_id)
     return result

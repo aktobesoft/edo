@@ -40,7 +40,7 @@
           </div>
         </div>
         <div class="card-body table-responsive p-0">
-          <a class="btn btn-primary ml-2 mt-2" href="{{ url_for('post_new_entity') }}" role="button">Создать новый элемент</a>
+          <a class="btn btn-primary ml-2 mt-2" href="{{ request.path }}new">Создать новый элемент</a>
           <div class="pt-2 col">
             <table class="table table-bordered table-hover">
               <thead class="table-dark">
@@ -71,7 +71,7 @@
                       <button v-on:click="setCurrentItem(entity)" class="btn btn-danger btn-sm rounded-3" type="button" data-toggle="modal" data-target="#deleteElementModal">
                           <i class="fas fa-trash"></i>
                       </button>
-                  </td>
+                    </td>
                   </tr>  
               </tbody>
             </table>
@@ -82,25 +82,26 @@
           <!-- Modal -->
         <div class="modal fade" id="deleteElementModal" tabindex="-1" role="dialog" aria-labelledby="deleteElementModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-              <div class="modal-content">
-                  <div class="modal-header">
-                  <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                  </button>
-                  </div>
-                  <div class="modal-body">
-                      Вы действительно хотите удалить запись?
-                  </div>
-                  <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                      <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal" v-on:click="deleteEntity()">
-                          Удалить
-                      </button>
-                  </div>
+            <div class="modal-content">
+              <div class="modal-header">
+              <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+              </div>
+              <div class="modal-body">
+                  Вы действительно хотите удалить запись?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal" v-on:click="deleteEntity()">
+                    Удалить
+                </button>
               </div>
             </div>
+          </div>
         </div>
+        
       </div>
     </div>
   </div>

@@ -1,14 +1,6 @@
-from enum import unique
 from sqlalchemy import Column, Float, String, Integer, Table, DateTime, Boolean, MetaData, ForeignKey, Date, event, false
 from sqlalchemy.orm import relationship
-from core.db import Base, metadata
-from datetime import date, datetime
-from pydantic import BaseModel, validator
-from references.business_type.models import BusinessTypeOut, BusinessType
-from references.document_type.models import DocumentType
-from references.notes.models import Notes
-from references.user.models import UserOut, User
-from references.counterparty.models import Counterparty
+from pydantic import BaseModel
 from sqlalchemy.orm import declared_attr
 
 class BaseDocument:
@@ -62,8 +54,8 @@ class Paginator(BaseModel):
     pages: int = 1
     page: int = 1
     limit: int = 100
-    has_previous: bool = false
-    has_next : bool = false
+    has_previous: bool = False
+    has_next : bool = False
 
     class Config:
         orm_mode = True

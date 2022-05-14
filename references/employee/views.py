@@ -1,4 +1,4 @@
-from sqlalchemy import select, insert, update, delete
+from sqlalchemy import func, select, insert, update, delete
 from core.db import database
 import asyncpg
 from datetime import date, datetime
@@ -17,6 +17,10 @@ async def delete_employee_by_id(employee_id: int):
     query = delete(Employee).where(Employee.id == employee_id)
     result = await database.execute(query)
     return result
+
+async def get_employee_count():
+    query = select(func.count(Employee.id))
+    return await database.execute(query)
 
 async def get_employee_list(limit: int = 100, skip: int = 0, **kwargs)->list[Employee]:
 
@@ -104,14 +108,14 @@ async def post_employee(employeeInstance : dict):
     
     return {**employeeInstance, 'id': newEmloyeeId}
 
-async def update_employee(employeeInstance : dict):
+async def update_employee(employeeInstance : dict, employee_id: int):
     employeeInstance['date_of_birth'] = correct_datetime(employeeInstance['date_of_birth'])
     
     query = update(Employee).values(name = employeeInstance["name"], 
                 email = employeeInstance["email"], 
                 date_of_birth = employeeInstance['date_of_birth'],
                 description = employeeInstance["description"], 
-                entity_iin = int(employeeInstance["entity_iin"]),
-                user_id = int(employeeInstance["user_id"])).where(Employee.id == int(employeeInstance['id']))
+                entity_iin = employeeInstance["entity_iin"],
+                user_id = int(employeeInstance["user_id"])).where(Employee.id == employee_id)
     result = await database.execute(query)
     return {**employeeInstance}
