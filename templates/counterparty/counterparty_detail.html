@@ -1,95 +1,97 @@
 {% extends 'index.html' %} {% block form_content %}
 
 <form method="POST" action='{{ request.path }}' novalidate>
-
-    <div class="card" id="vue">
-        <template>
-      <div class="card-header">
-        [[ counterparty.name ]] ([[counterparty.iin]])
-      </div>
-      <div class="card-body">
-        
-        <div class="card-body table-responsive p-0 ">
-          <div class="col-12 ">
-            <div class="mt-2 ml-1 row">
-              <label for="item_position" class="col-sm-2 col-form-label">ID</label>
-              <div class="col-sm-10 mt-2">
-                  <input type="number" class="form-control" placeholder="ID" readonly v-model.number="counterparty.id">
-              </div> 
-              
-              <label for="item_position" class="col-sm-2 col-form-label">Наименование</label>
-              <div class="col-sm-10 mt-2">
-                  <input type="text" class="form-control" placeholder="Наименование" v-model="counterparty.name">
-              </div>
-
-              <label for="item_position" class="col-sm-2 col-form-label">Полное наименование</label>
-              <div class="col-sm-10 mt-2">
-                  <input type="text" class="form-control" placeholder="Полное наименование" v-model="counterparty.full_name">
-              </div>
-
-              <label for="item_position" class="col-sm-2 col-form-label">ИИН</label>
-              <div class="col-sm-10 mt-2">
-                  
-                  <input type="text" class="form-control" placeholder="ИИН" v-model="counterparty.iin">
-              </div>
-
-              <label for="item_position" class="col-sm-2 col-form-label">Адрес</label>
-              <div class="col-sm-10 mt-2">
-                  <input type="text" class="form-control" placeholder="Адрес" v-model="counterparty.address">
-              </div>
-
-              <label for="item_position" class="col-sm-2 col-form-label">Комментарий</label>
-              <div class="col-sm-10 mt-2">
-                  <textarea class="form-control" rows="3" placeholder="Комментарий" v-model="counterparty.comment"></textarea>
-              </div>
-
-              <label for="item_position" class="col-sm-2 col-form-label">Контакты организации</label>
-              <div class="col-sm-10 mt-2">
-                  <input type="text" class="form-control" placeholder="Контакты организации"v-model="counterparty.contact">
-              </div>
-
-              <label for="item_position" class="col-sm-2 col-form-label">Тип организации</label>
-              <div class="col-sm-10 mt-2">
-                  <select v-on:click="getBusinessTypeList()" v-model="counterparty.type_name" class="form-control" aria-label="Тип организации<" >
-                      <option value="0">---------</option>
-                      <option v-for="item in businessTypeList" v-bind:value="item.name">
-                      [[ item.full_name ]]
-                      </option>
-                  </select>
-              </div>
-            </div>
-
-          <div class="pt-3 row">
-              <div class="col mb-3 ml-2">  
-                  <button type="button" v-on:click="sendData()" class="btn btn-primary">Сохранить</button> 
-                  <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#deleteCounterpartyModal">
-                      Удалить
-                  </button>
-              </div>
-          </div>
-      
-      <!-- Modal -->
-          <div class="modal fade" id="deleteCounterpartyModal">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="deleteCounterpartyModalLabel">Подтвердите действие</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+    <div id="vue">
+            <template>
+                <div class="row">
+                    <div class="card mt-2">
+                <div class="card-header">
+                    [[ counterparty.name ]] ([[counterparty.iin]])
+                </div>
+                <div class="card-body">
+                    
+                    <div class="card-body table-responsive p-0 ">
+                    <div class="col-12 ">
+                        <div class="mt-2 ml-1 row">
+                        <label for="item_position" class="col-sm-2 col-form-label">ID</label>
+                        <div class="col-sm-10 mt-2">
+                            <input type="number" class="form-control" placeholder="ID" readonly v-model.number="counterparty.id">
+                        </div> 
+                        
+                        <label for="item_position" class="col-sm-2 col-form-label">Наименование</label>
+                        <div class="col-sm-10 mt-2">
+                            <input type="text" class="form-control" placeholder="Наименование" v-model="counterparty.name">
                         </div>
-                        <div class="modal-body">
-                            Вы действительно хотите удалить запись?
+
+                        <label for="item_position" class="col-sm-2 col-form-label">Полное наименование</label>
+                        <div class="col-sm-10 mt-2">
+                            <input type="text" class="form-control" placeholder="Полное наименование" v-model="counterparty.full_name">
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal" data-dismiss="modal">Отмена</button>
-                            <button v-on:click="deleteCounterparty()" type="button" class="btn btn-primary btn-danger" data-dismiss="modal" data-dismiss="modal">Удалить</button>
+
+                        <label for="item_position" class="col-sm-2 col-form-label">ИИН</label>
+                        <div class="col-sm-10 mt-2">
+                            
+                            <input type="text" class="form-control" placeholder="ИИН" v-model="counterparty.iin">
+                        </div>
+
+                        <label for="item_position" class="col-sm-2 col-form-label">Адрес</label>
+                        <div class="col-sm-10 mt-2">
+                            <input type="text" class="form-control" placeholder="Адрес" v-model="counterparty.address">
+                        </div>
+
+                        <label for="item_position" class="col-sm-2 col-form-label">Комментарий</label>
+                        <div class="col-sm-10 mt-2">
+                            <textarea class="form-control" rows="3" placeholder="Комментарий" v-model="counterparty.comment"></textarea>
+                        </div>
+
+                        <label for="item_position" class="col-sm-2 col-form-label">Контакты организации</label>
+                        <div class="col-sm-10 mt-2">
+                            <input type="text" class="form-control" placeholder="Контакты организации"v-model="counterparty.contact">
+                        </div>
+
+                        <label for="item_position" class="col-sm-2 col-form-label">Тип организации</label>
+                        <div class="col-sm-10 mt-2">
+                            <select v-on:click="getBusinessTypeList()" v-model="counterparty.type_name" class="form-control" aria-label="Тип организации<" >
+                                <option value="0">---------</option>
+                                <option v-for="item in businessTypeList" v-bind:value="item.name">
+                                [[ item.full_name ]]
+                                </option>
+                            </select>
+                        </div>
+                        </div>
+
+                    <div class="pt-3 row">
+                        <div class="col mb-3 ml-2">  
+                            <button type="button" v-on:click="sendData()" class="btn btn-primary">Сохранить</button> 
+                            <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#deleteCounterpartyModal">
+                                Удалить
+                            </button>
                         </div>
                     </div>
+                
+                <!-- Modal -->
+                    <div class="modal fade" id="deleteCounterpartyModal">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                            <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteCounterpartyModalLabel">Подтвердите действие</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Вы действительно хотите удалить запись?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal" data-dismiss="modal">Отмена</button>
+                                        <button v-on:click="deleteCounterparty()" type="button" class="btn btn-primary btn-danger" data-dismiss="modal" data-dismiss="modal">Удалить</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>  
                 </div>
             </div>
-          </div>
-        </div>  
-      </div>
-    </template>
+        </template>
     </div>
 </form>
 

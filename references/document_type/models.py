@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from sqlalchemy import Column, String, Integer 
 from core.db import Base
+from documents.base_document.models import Paginator
 
 class DocumentType(Base):
     __tablename__ = "document_type"
@@ -37,6 +38,10 @@ class DocumentTypeOptionsOut(BaseModel):
     
     class Config:
         orm_mode = True
+
+class DocumentTypeListOut(BaseModel):
+    info: Paginator
+    result: list[DocumentTypeOut]
 
 def document_type_fillDataFromDict(queryResult : dict):
     return {

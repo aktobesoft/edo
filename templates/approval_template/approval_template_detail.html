@@ -29,9 +29,9 @@
 
             <label for="id" class="col-sm-2 col-form-label mt-2">Организация</label>
             <div class="col-sm-10 mt-2">
-                <select v-on:click="getEntityList()" v-model="approval_template.entity" class="form-control">
+                <select v-on:click="getEntityList()" v-model="approval_template.entity_iin" class="form-control">
                   <option value="0">---------</option>
-                  <option v-for="item in entityList" v-bind:value="{ id: item.id, iin: item.iin, name: item.name}">
+                  <option v-for="item in entityList" v-bind:value="item.iin">
                   [[ item.name ]] ([[ item.iin ]])
                   </option>
                 </select>
@@ -39,9 +39,9 @@
 
             <label for="id" class="col-sm-2 col-form-label mt-2">Шаблон документа</label>
             <div class="col-sm-10 mt-2">
-                <select v-on:click="getDocumentTypeList()" v-model="approval_template.document_type" class="form-control" aria-label="Шаблон документа" id="document_type">
+                <select v-on:click="getDocumentTypeList()" v-model="approval_template.document_type_id" class="form-control" aria-label="Шаблон документа" id="document_type">
                   <option value="0">---------</option>
-                  <option v-for="item in documentType" v-bind:value="{ id: item.id, name: item.name, description: item.description}">
+                  <option v-for="item in documentType" v-bind:value="item.id">
                   [[ item.description ]]
                   </option>
                 </select>
@@ -267,9 +267,9 @@
                 })
                 approval_template_dict = {
                     "id": this.approval_template_id,
-                    "document_type_id": this.approval_template.document_type.id,
+                    "document_type_id": this.approval_template.document_type_id,
                     "name": this.approval_template.name,
-                    "entity_iin": this.approval_template.entity.iin,
+                    "entity_iin": this.approval_template.entity_iin,
                     "steps": approval_template_steps
                 }
                 console.log(this.document_type_id);
@@ -366,9 +366,10 @@
                     return
                 }
                 try {
-                    let response = await axios.get("{{url_for('get_document_type_list')}}")
+                    let response = await axios.get("{{url_for('get_document_type_list')}}?skip=0&limit=100&")
+                    console.log("getDocumentTypeList")
                     console.log(response.data)
-                    this.documentType = response.data
+                    this.documentType = response.data['result']
                 } catch (err) {
                     console.log(err)
                 }
@@ -378,9 +379,9 @@
                     return
                 }
                 try {
-                    let response = await axios.get("{{url_for('get_employee_list')}}")
+                    let response = await axios.get("{{url_for('get_employee_list')}}?skip=0&limit=100&")
                     console.log(response.data)
-                    this.emloyeeList = response.data
+                    this.emloyeeList = response.data['result']
                 } catch (err) {
                     console.log(err)
                 }
@@ -392,7 +393,7 @@
                 try {
                     let response = await axios.get("{{url_for('get_entity_list')}}?skip=0&limit=100&nested=false&optional=false")
                     console.log(response.data)
-                    this.entityList = response.data
+                    this.entityList = response.data['result']
                 } catch (err) {
                     console.log(err)
                 }

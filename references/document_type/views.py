@@ -1,4 +1,4 @@
-from sqlalchemy import select, insert, update, delete
+from sqlalchemy import func, select, insert, update, delete
 import asyncpg
 from core.db import database
 from common_module.urls_module import correct_datetime
@@ -14,6 +14,10 @@ async def delete_document_type_by_id(document_type_id: int):
     query = delete(DocumentType).where(DocumentType.id == document_type_id)
     result = await database.execute(query)
     return result
+
+async def get_document_type_count():
+    query = select(func.count(DocumentType.id))
+    return await database.execute(query)
 
 async def get_document_type_list(limit: int = 100,skip: int = 0,**kwargs):
 

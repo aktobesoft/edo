@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
-from common_module.urls_module import qp_select_list, qp_select_one, qp_update, qp_insert
+from common_module.urls_module import paginator_execute, qp_select_list, qp_select_one, qp_update, qp_insert
 from typing import List, Union
 
-from documents.purchase_requisition.models import PurchaseRequisitionNestedItemsOut, PurchaseRequisitionPUT,\
+from documents.purchase_requisition.models import PurchaseRequisitionListNestedOut, PurchaseRequisitionListOut, PurchaseRequisitionNestedItemsOut, PurchaseRequisitionPUT,\
         PurchaseRequisitionPOST, PurchaseRequisitionNestedOut, PurchaseRequisitionOut, PurchaseRequisitionItemsOut
 from documents.purchase_requisition import views
 from documents.purchase_requisition_items.models import _PurchaseRequisitionItemsPOST
@@ -10,10 +10,10 @@ from documents.purchase_requisition_items.models import _PurchaseRequisitionItem
 
 purchase_requisitionRouter = APIRouter()
 
-@purchase_requisitionRouter.get('/', response_model = Union[List[PurchaseRequisitionNestedOut], List[PurchaseRequisitionOut]])
-async def get_purchase_requisition_list(qp_select_list: dict = Depends(qp_select_list)):
-    records = await views.get_purchase_requisition_list(**qp_select_list)
-    return records
+@purchase_requisitionRouter.get('/', response_model = Union[PurchaseRequisitionListNestedOut, PurchaseRequisitionListOut])
+async def get_purchase_requisition_list(query_param: dict = Depends(qp_select_list)):
+    parametrs = await paginator_execute(query_param, await views.get_purchase_requisition_count())
+    return {'info': parametrs, 'result': await views.get_purchase_requisition_list(**parametrs)}
 
 @purchase_requisitionRouter.get('/{purchase_requisition_id}',response_model = Union[PurchaseRequisitionNestedItemsOut, PurchaseRequisitionItemsOut])
 async def get_purchase_requisition_by_id(purchase_requisition_id : int, qp_select_one: dict = Depends(qp_select_one)):

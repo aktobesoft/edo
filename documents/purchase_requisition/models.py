@@ -1,5 +1,8 @@
 from datetime import datetime
-from documents.base_document.models import BaseDocument
+from typing import Union
+
+from sqlalchemy import null, union
+from documents.base_document.models import BaseDocument, Paginator
 from core.db import Base
 from pydantic import BaseModel
 
@@ -7,6 +10,7 @@ from references.counterparty.models import CounterpartySmallOut
 from references.document_type.models import DocumentTypeOut
 from references.entity.models import EntitySmallOut
 from documents.purchase_requisition_items.models import _PurchaseRequisitionItemsOut, _PurchaseRequisitionItemsPOST, _PurchaseRequisitionItemsPUT, _PurchaseRequisitionItemsOutWithLine
+from references.enum_types.models import status_type
 
 class PurchaseRequisition(BaseDocument, Base):
     __tablename__ = "purchase_requisition"
@@ -25,6 +29,7 @@ class PurchaseRequisitionOut(BaseModel):
     counterparty_iin: str
     document_type_id: int
     entity_iin: str
+    status: Union[status_type, None]
     
     class Config:
         orm_mode = True
@@ -40,6 +45,7 @@ class PurchaseRequisitionItemsOut(BaseModel):
     counterparty_iin: str
     document_type_id: int
     entity_iin: str
+    status: Union[status_type, None]
     items: list[_PurchaseRequisitionItemsOut]
     
     class Config:
@@ -58,6 +64,7 @@ class PurchaseRequisitionNestedOut(BaseModel):
     entity_iin: str
     counterparty: CounterpartySmallOut
     document_type: DocumentTypeOut
+    status: Union[status_type, None]
     entity: EntitySmallOut
     
     class Config:
@@ -77,10 +84,19 @@ class PurchaseRequisitionNestedItemsOut(BaseModel):
     counterparty: CounterpartySmallOut
     document_type: DocumentTypeOut
     entity: EntitySmallOut
+    status: Union[status_type, None]
     items: list[_PurchaseRequisitionItemsOutWithLine]
     
     class Config:
         orm_mode = True
+
+class PurchaseRequisitionListOut(BaseModel):
+    info: Paginator
+    result: list[PurchaseRequisitionOut]
+
+class PurchaseRequisitionListNestedOut(BaseModel):
+    info: Paginator
+    result: list[PurchaseRequisitionNestedOut]
 
 class PurchaseRequisitionPUT(BaseModel):
     

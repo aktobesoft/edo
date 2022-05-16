@@ -1,4 +1,4 @@
-from sqlalchemy import desc, func, select, insert, update, delete
+from sqlalchemy import desc, func, null, select, insert, update, delete
 from core.db import database
 import asyncpg
 from datetime import date, datetime, timezone
@@ -7,10 +7,12 @@ from common_module.urls_module import correct_datetime, correct_datetime
 from documents.purchase_requisition.models import PurchaseRequisition, PurchaseRequisitionOut
 from documents.purchase_requisition_items.models import PurchaseRequisitionItems
 from documents.purchase_requisition_items.views import delete_all_pr_items_by_purchase_requisition, delete_pr_items_by_purchase_requisition, get_pr_items_list_by_purchase_requisition_id, post_pr_items_by_purchase_requisition, update_pr_items_by_purchase_requisition
+from references.approval_process.models import ApprovalProcess
 from references.business_type.models import BusinessType
 from references.counterparty.models import Counterparty, counterparty_fillDataFromDict
 from references.document_type.models import DocumentType, document_type_fillDataFromDict
 from references.entity.models import Entity, entity_fillDataFromDict
+from references.enum_types.models import status_type
 from references.user.models import User
 
 
@@ -22,6 +24,10 @@ async def get_purchase_requisition_by_id(purchase_requisition_id: int, **kwargs)
     resultPurchaseRequisition = dict(result)
     resultPurchaseRequisition['items'] = await get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id, **kwargs)
     return resultPurchaseRequisition
+
+async def get_purchase_requisition_count():
+    query = select(func.count(PurchaseRequisition.id))
+    return await database.execute(query)
 
 async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **kwargs):
     queryPurchaseRequisition = select(
@@ -68,7 +74,12 @@ async def get_purchase_requisition_list(limit: int = 100, skip: int = 0, **kwarg
                 PurchaseRequisition.sum, 
                 PurchaseRequisition.counterparty_iin, 
                 PurchaseRequisition.document_type_id, 
-                PurchaseRequisition.entity_iin).order_by(
+                PurchaseRequisition.entity_iin,
+                ApprovalProcess.status).\
+                    join(
+                ApprovalProcess, (PurchaseRequisition.id == ApprovalProcess.document_id) & 
+                    (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id), isouter=True).\
+                    order_by(
                 PurchaseRequisition.id).limit(limit).offset(skip)
    
     records = await database.fetch_all(query)
@@ -94,13 +105,17 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
                 Counterparty.id.label("counterparty_id"), 
                 Counterparty.name.label("counterparty_name"),
                 DocumentType.name.label("document_type_name"),
-                DocumentType.description.label("document_type_description")).\
+                DocumentType.description.label("document_type_description"),
+                ApprovalProcess.status).\
                     join(
                 Entity, PurchaseRequisition.entity_iin == Entity.iin, isouter=True).\
                     join(
                 Counterparty, PurchaseRequisition.counterparty_iin == Counterparty.iin, isouter=True).\
                     join(
                 DocumentType, PurchaseRequisition.document_type_id == DocumentType.id, isouter=True).\
+                    join(
+                ApprovalProcess, (PurchaseRequisition.id == ApprovalProcess.document_id) & 
+                    (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id), isouter=True).\
                     order_by(
                 PurchaseRequisition.id).\
                     limit(limit).offset(skip)

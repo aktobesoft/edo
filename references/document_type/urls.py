@@ -1,16 +1,17 @@
 from fastapi import APIRouter, Depends
-from common_module.urls_module import qp_insert, qp_select_list, qp_select_one, qp_update
+from common_module.urls_module import paginator_execute, qp_insert, qp_select_list, qp_select_one, qp_update
 from documents.base_document.models import OptionsStructure
 from references.document_type import views
-from references.document_type.models import DocumentTypeOut, DocumentTypeIn
+from references.document_type.models import DocumentTypeListOut, DocumentTypeOut, DocumentTypeIn
 from typing import List, Union
 
 document_typeRouter = APIRouter()
 
 
-@document_typeRouter.get('/', response_model = Union[list[DocumentTypeOut],List[OptionsStructure]])
-async def get_document_type_list(commons: dict = Depends(qp_select_list)):
-    return await views.get_document_type_list(**commons)
+@document_typeRouter.get('/', response_model = DocumentTypeListOut)
+async def get_document_type_list(query_param: dict = Depends(qp_select_list)):
+    parametrs = await paginator_execute(query_param, await views.get_document_type_count())
+    return {'info': parametrs, 'result': await views.get_document_type_list(**parametrs)}
 
 @document_typeRouter.get('/{document_type_iin}', response_model=DocumentTypeOut)
 async def get_document_type_by_iin(document_type_iin: str, qp_select_one: dict = Depends(qp_select_one)):

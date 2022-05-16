@@ -19,6 +19,7 @@
                                         <th>Номер</th>
                                         <th>Дата</th>
                                         <th>Организация</th>
+                                        <th>Статус согласования</th>
                                         <th>Тип документа</th>
                                         <th>Контрагент</th>
                                         <th>Сумма</th>
@@ -32,6 +33,7 @@
                                         <td>[[ item.number ]]</td>
                                         <td>[[ item.date | liveSubstr ]]</td>
                                         <td>[[ item.entity.name]] ([[ item.entity.iin]])</td>
+                                        <td>[[ item.status]] </td>
                                         <td>[[ item.document_type.description ]]</td>
                                         <td>[[ item.counterparty.name]] ([[ item.counterparty.iin]])</td>
                                         <td>[[ item.sum ]]</td>
@@ -101,19 +103,11 @@
             //purchaseRequisitionList: {{ listOfValue|safe }},
             purchaseRequisitionList: [],
             currentItemIndex: 0,
+            page: 1,
+            page_count: 1,
         },
         async mounted() {
-            console.log(Vue.version);
-            if (this.purchaseRequisitionList.length == 0) {
-                try {
-
-                    let response = await axios.get("{{url_for('get_purchase_requisition_list')}}?nested=true")
-                    console.log(response.data)
-                    this.purchaseRequisitionList = response.data
-                } catch (err) {
-                    console.log(err)
-                }
-            };
+            await this.getPurchaseRequisitionList();
         },
         filters: {
             liveSubstr: function(string) {
@@ -121,6 +115,18 @@
             }
         },
         methods: {
+            getPurchaseRequisitionList: async function(){
+            if (this.purchaseRequisitionList.length == 0) {
+                try {
+                        let response = await axios.get("{{url_for('get_purchase_requisition_list')}}?nested=true")
+                        console.log(response.data['result'])
+                        this.purchaseRequisitionList = response.data['result']
+                        this.page_count = response.data['info']['pages']
+                    } catch (err) {
+                        console.log(err)
+                    }
+                }
+            },
             openPurchaseRequisition: function(item) {
                 console.log(item.entity.iin);
                 window.location.href = "{{ request.path }}" + item.id
