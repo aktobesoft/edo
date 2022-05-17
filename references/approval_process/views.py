@@ -6,12 +6,14 @@ from sqlalchemy import false, func, select, insert, true, update, delete
 import asyncpg
 from core.db import database
 from common_module.urls_module import correct_datetime, qp_select_list
+from documents.purchase_requisition.models import PurchaseRequisition
 
 from references.approval_process.models import ApprovalProcess, ApprovalProcessIn
 from references.approval_template.models import ApprovalTemplate
 from references.approval_template_step.models import ApprovalTemplateStep
 from references.approval_template_step.views import get_approval_template_step_list, get_approval_template_step_nested_list
 from references.approval_route.views import post_approval_route, post_many_approval_route, get_approval_route_by_aproval_process_id
+from references.document_type.models import DocumentType
 from references.enum_types.models import status_type
 
 async def get_approval_process_by_id(approval_process_id: int):
@@ -27,12 +29,38 @@ async def delete_approval_process_by_id(approval_process_id: int):
 
 async def get_approval_process_list(limit: int = 100,skip: int = 0,**kwargs):
 
+    if(kwargs['nested']):
+        return await get_approval_process_nested_list(limit, skip, **kwargs)
+
     query = select(ApprovalProcess).limit(limit).offset(skip).\
-                where(ApprovalProcess.is_active)
+                where((ApprovalProcess.is_active))#&(ApprovalProcess.entity_iin.in_(kwargs['entity_iin'])))
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
         recordDict = dict(rec)
+        listValue.append(recordDict)
+    return listValue
+
+async def get_approval_process_nested_list(limit: int = 100,skip: int = 0,**kwargs):
+    # Будем делать Union all, потому как левое соединение со всеми таблицами рождает нагрузку на субд
+    query_AR = select(ApprovalProcess,
+                    PurchaseRequisition.number.label('number'),
+                    PurchaseRequisition.date.label('date'),
+                    DocumentType.description.label('document_type_description')).\
+                join(ApprovalProcess, ((PurchaseRequisition.id == ApprovalProcess.document_id) & (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id))).\
+                join(ApprovalTemplate, (ApprovalTemplate.id == ApprovalProcess.document_id)).\
+                join(DocumentType, (DocumentType.id == ApprovalProcess.document_type_id)).\
+                where(ApprovalProcess.is_active).\
+                limit(limit).offset(skip)
+
+    # query = query_purchase_requisition.union_all(select2).alias('pr_list')
+    query = query_AR
+    records = await database.fetch_all(query)
+    listValue = []
+    print(query)
+    for rec in records:
+        recordDict = dict(rec)
+        recordDict['document'] = {'number': recordDict['number'], 'date': recordDict['date'], 'document_type_description': recordDict['document_type_description']}
         listValue.append(recordDict)
     return listValue
 

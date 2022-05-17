@@ -78,7 +78,7 @@ async def get_purchase_requisition_list(limit: int = 100, skip: int = 0, **kwarg
                 ApprovalProcess.status).\
                     join(
                 ApprovalProcess, (PurchaseRequisition.id == ApprovalProcess.document_id) & 
-                    (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id), isouter=True).\
+                    (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id) & (ApprovalProcess.is_active), isouter=True).\
                     order_by(
                 PurchaseRequisition.id).limit(limit).offset(skip)
    
@@ -115,7 +115,7 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
                 DocumentType, PurchaseRequisition.document_type_id == DocumentType.id, isouter=True).\
                     join(
                 ApprovalProcess, (PurchaseRequisition.id == ApprovalProcess.document_id) & 
-                    (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id), isouter=True).\
+                    (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id) & (ApprovalProcess.is_active), isouter=True).\
                     order_by(
                 PurchaseRequisition.id).\
                     limit(limit).offset(skip)

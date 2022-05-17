@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from common_module.urls_module import qp_select_list
 from typing import List, Optional, Union
 
-from references.approval_process.models import ApprovalProcess, ApprovalProcessCheck, ApprovalProcessIn, ApprovalProcessOut
+from references.approval_process.models import ApprovalProcess, ApprovalProcessCheck, ApprovalProcessIn, ApprovalProcessNestedOut, ApprovalProcessOut
 from references.approval_process import views
 
 async def ap_select(document_id: int = 0, document_type_id: int = 0, entity_iin: str = ''):
@@ -30,7 +30,7 @@ async def check_many_approval_processes(approvalProcessCheck: ApprovalProcessChe
     result = await views.check_approval_processes(parametrs)
     return result
 
-@approval_processRouter.get('/', response_model = list[ApprovalProcessOut])
+@approval_processRouter.get('/', response_model = Union[list[ApprovalProcessNestedOut], list[ApprovalProcessOut]])
 async def get_approval_process_list(commons: dict = Depends(qp_select_list)):
     records = await views.get_approval_process_list(**commons)
     return records

@@ -1,4 +1,5 @@
 from datetime import datetime, date
+from typing import Any
 from pydantic import BaseModel
 from sqlalchemy import Column, Date, Enum, ForeignKey, String, Integer, Boolean, DateTime, null
 from core.db import Base
@@ -32,6 +33,22 @@ class ApprovalProcessOut(BaseModel):
     status: status_type
     start_date: date = None
     end_date: date = None
+    
+    class Config:
+        orm_mode = True
+
+class ApprovalProcessNestedOut(BaseModel):
+    
+    id: int
+    is_active: bool
+    document_id: int
+    document_type_id: int
+    entity_iin: str
+    approval_template_id: int
+    status: status_type
+    start_date: date = None
+    end_date: date = None
+    document: dict
     
     class Config:
         orm_mode = True

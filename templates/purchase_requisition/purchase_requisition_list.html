@@ -6,7 +6,38 @@
             <div class="col-12">
                 <div class="card mt-2">
                     <div class="card-header">
-                        <h3 class="card-title">Список заявок на согласование</h3>
+                        <h3 class="card-title">Список организации</h3>
+                            <div class="card-tools">
+                              <ul class="pagination pagination-sm float-right">
+                                <template v-if="page > 3">
+                                  <li class="page-item"><button type="button" class="page-link" v-on:click="getPurchaseRequisitionList(1)">1</button></li>
+                                </template>
+                  
+                                <template v-if="page-3 > 1">
+                                  <li class="page-item"><button type="button" class="page-link " v-on:click="getPurchaseRequisitionList(page-3)"><i class="fas fa-angle-double-left"></i></button></li>
+                                </template>
+                                
+                                <template v-if="page > 1">
+                                  <li class="page-item"><button type="button" class="page-link" v-on:click="getPurchaseRequisitionList(page-1)">[[page-1]]</button></li>
+                                </template>
+                                
+                                <li class="page-item active"><button type="button" class="page-link">[[page]]</button></li>
+                                
+                                <template v-if="page < page_count">
+                                  <li class="page-item"><button type="button" class="page-link" v-on:click="getPurchaseRequisitionList(page+1)">[[page+1]]</button></li>
+                                </template>
+                  
+                                <template v-if="page+3 < page_count">
+                                  <li class="page-item"><button type="button" class="page-link" v-on:click="getPurchaseRequisitionList(page+3)"><i class="fas fa-angle-double-right"></i></button></li>
+                                </template>
+                  
+                                <template v-if="page < page_count-2">
+                                  <li class="page-item"><button type="button" class="page-link" v-on:click="getPurchaseRequisitionList(page_count)">[[page_count]]</button></li>
+                                </template>
+                                
+                              </ul>
+                            </div>
+                          </div>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body table-responsive p-0">
@@ -107,7 +138,7 @@
             page_count: 1,
         },
         async mounted() {
-            await this.getPurchaseRequisitionList();
+            await this.getPurchaseRequisitionList(this.page);
         },
         filters: {
             liveSubstr: function(string) {
@@ -115,14 +146,18 @@
             }
         },
         methods: {
-            getPurchaseRequisitionList: async function(){
-            if (this.purchaseRequisitionList.length == 0) {
+            getPurchaseRequisitionList: async function(page){
+            if (true) {
                 try {
-                        let response = await axios.get("{{url_for('get_purchase_requisition_list')}}?nested=true")
+                        let response = await axios.get("{{url_for('get_purchase_requisition_list')}}?nested=true&page="+page)
                         console.log(response.data['result'])
                         this.purchaseRequisitionList = response.data['result']
                         this.page_count = response.data['info']['pages']
-                    } catch (err) {
+                        if(page>0){
+                            this.page = page
+                            }
+                        } 
+                    catch (err) {
                         console.log(err)
                     }
                 }
