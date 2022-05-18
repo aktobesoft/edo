@@ -1,9 +1,10 @@
 from datetime import datetime, date
-from typing import Any
+from typing import Any, Union
 from pydantic import BaseModel
 from sqlalchemy import Column, Date, Enum, ForeignKey, String, Integer, Boolean, DateTime, null
 from core.db import Base
 from sqlalchemy.orm import relationship
+from references.approval_route.models import ApprovalRouteOut
 from references.enum_types.models import step_type, status_type
    
 class ApprovalProcess(Base):
@@ -30,7 +31,7 @@ class ApprovalProcessOut(BaseModel):
     document_type_id: int
     entity_iin: str
     approval_template_id: int
-    status: status_type
+    status: Union[status_type, None]
     start_date: date = None
     end_date: date = None
     
@@ -45,10 +46,46 @@ class ApprovalProcessNestedOut(BaseModel):
     document_type_id: int
     entity_iin: str
     approval_template_id: int
-    status: status_type
+    status: Union[status_type, None]
     start_date: date = None
     end_date: date = None
     document: dict
+    document_type: dict
+    entity: dict
+    approval_template: dict
+
+class ApprovalProcessRoutOut(BaseModel):
+    
+    id: int
+    is_active: bool
+    document_id: int
+    document_type_id: int
+    entity_iin: str
+    approval_template_id: int
+    status: Union[status_type, None]
+    start_date: date = None
+    end_date: date = None
+    routes: list[ApprovalRouteOut]
+    
+    class Config:
+        orm_mode = True
+
+class ApprovalProcessRoutNestedOut(BaseModel):
+    
+    id: int
+    is_active: bool
+    document_id: int
+    document_type_id: int
+    entity_iin: str
+    approval_template_id: int
+    status: Union[status_type, None]
+    start_date: date = None
+    end_date: date = None
+    document: dict
+    document_type: dict
+    entity: dict
+    approval_template: dict
+    routes: list[ApprovalRouteOut]
     
     class Config:
         orm_mode = True

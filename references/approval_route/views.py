@@ -12,9 +12,12 @@ async def get_approval_route_by_id(approval_route_id: int):
 
 async def get_approval_route_by_aproval_process_id(aproval_process_id: int):
     query = select(ApprovalRoute).where(ApprovalRoute.approval_process_id == aproval_process_id)
-    result = await database.fetch_all(query)
-    return result
-
+    records = await database.fetch_all(query)
+    listValue = []
+    for rec in records:
+        recordDict = dict(rec)
+        listValue.append(recordDict)
+    return listValue
 
 async def get_approval_route_nested_by_id(approval_route_id: int):
     query = select(ApprovalRoute).where(ApprovalRoute.id == approval_route_id)

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
-from common_module.urls_module import qp_select_list
+from common_module.urls_module import qp_select_list, qp_select_one
 from typing import List, Optional, Union
 
-from references.approval_process.models import ApprovalProcess, ApprovalProcessCheck, ApprovalProcessIn, ApprovalProcessNestedOut, ApprovalProcessOut
+from references.approval_process.models import ApprovalProcess, ApprovalProcessCheck, ApprovalProcessIn, ApprovalProcessNestedOut, ApprovalProcessOut, ApprovalProcessRoutNestedOut, ApprovalProcessRoutOut
 from references.approval_process import views
 
 async def ap_select(document_id: int = 0, document_type_id: int = 0, entity_iin: str = ''):
@@ -35,9 +35,9 @@ async def get_approval_process_list(commons: dict = Depends(qp_select_list)):
     records = await views.get_approval_process_list(**commons)
     return records
 
-@approval_processRouter.get('/{approval_process_id}',  response_model = ApprovalProcessOut)
-async def get_approval_process_by_id(approval_process_id : int):
-    result = await views.get_approval_process_by_id(approval_process_id)
+@approval_processRouter.get('/{approval_process_id}',  response_model = Union[ApprovalProcessRoutNestedOut, ApprovalProcessRoutOut])
+async def get_approval_process_by_id(approval_process_id : int, qp_select_one: dict = Depends(qp_select_one)):
+    result = await views.get_approval_process_by_id(approval_process_id, **qp_select_one)
     return result
 
 @approval_processRouter.post('/', response_model = ApprovalProcessOut)

@@ -109,4 +109,11 @@ class ApprovalTemplatePUT(BaseModel):
     class Config:
         orm_mode = True
 
+def approval_template_fillDataFromDict(queryResult : dict):
+    return {
+        'id': queryResult['approval_template_id'],
+        'document_type_id': queryResult['document_type_id'],
+        'name': queryResult['approval_template_name']
+        } 
+
 

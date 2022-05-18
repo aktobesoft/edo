@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Form
 from common_module.urls_module import paginator, paginator_execute, qp_select_list, qp_select_one
 from fastapi.templating import Jinja2Templates
 from documents.purchase_requisition.views import get_purchase_requisition_by_id, get_purchase_requisition_list
+from references.approval_process.urls import get_approval_process_list
 from references.approval_template.models import ApprovalTemplate
 from references.counterparty.models import Counterparty
 from references.employee.models import Employee
@@ -88,3 +89,13 @@ async def purchase_requisition_detail(request: Request, itemId: str):
     parametrs = {'nested': True}
     purchase_requisition = await get_purchase_requisition_by_id(int(itemId), **parametrs)
     return templates.TemplateResponse("purchase_requisition/purchase_requisition_detail.html", context={'request': request, 'purchase_requisition': purchase_requisition, 'itemId': int(itemId)})
+
+# ----------------------------------------------
+# approval_process
+@interfaceRoute.get("/approval_process/", response_class=HTMLResponse)
+async def approval_process_list(request: Request):
+    return templates.TemplateResponse("approval_process_rout/approval_process_rout_list.html", context={'request': request})
+
+@interfaceRoute.get("/approval_process/{itemId}", response_class=HTMLResponse)
+async def approval_process_detail(request: Request, itemId: str):
+    return templates.TemplateResponse("approval_process_rout/approval_process_rout_detail.html", context={'request': request, 'itemId': int(itemId)})

@@ -2,6 +2,7 @@ from tkinter.tix import Tree
 from typing import List
 from datetime import date, datetime
 import databases
+from fastapi import HTTPException
 from sqlalchemy import false, func, select, insert, true, update, delete
 import asyncpg
 from core.db import database
@@ -9,18 +10,25 @@ from common_module.urls_module import correct_datetime, qp_select_list
 from documents.purchase_requisition.models import PurchaseRequisition
 
 from references.approval_process.models import ApprovalProcess, ApprovalProcessIn
-from references.approval_template.models import ApprovalTemplate
+from references.approval_template.models import ApprovalTemplate, approval_template_fillDataFromDict
 from references.approval_template_step.models import ApprovalTemplateStep
 from references.approval_template_step.views import get_approval_template_step_list, get_approval_template_step_nested_list
 from references.approval_route.views import post_approval_route, post_many_approval_route, get_approval_route_by_aproval_process_id
-from references.document_type.models import DocumentType
+from references.document_type.models import DocumentType, document_type_fillDataFromDict
+from references.entity.models import Entity, entity_fillDataFromDict
 from references.enum_types.models import status_type
 
-async def get_approval_process_by_id(approval_process_id: int):
-    query = select(ApprovalProcess).\
-                where((ApprovalProcess.id == approval_process_id) & (ApprovalProcess.is_active))
-    result = await database.fetch_one(query)
-    return result
+async def get_approval_process_by_id(approval_process_id: int, **kwargs):
+    kwargs['id'] = approval_process_id 
+    if(kwargs['nested']): 
+        result = await get_approval_process_nested_list(1,0, **kwargs)
+    else:
+        result = await get_approval_process_list(1,0, **kwargs)
+    print(result)
+    if len(result)>0:
+        return {**result[0], 'routes': await get_approval_route_by_aproval_process_id(approval_process_id) }
+    else:
+        raise HTTPException(status_code=404, detail="Item not found") 
 
 async def delete_approval_process_by_id(approval_process_id: int):
     query = delete(ApprovalProcess).where(ApprovalProcess.id == approval_process_id)
@@ -34,6 +42,8 @@ async def get_approval_process_list(limit: int = 100,skip: int = 0,**kwargs):
 
     query = select(ApprovalProcess).limit(limit).offset(skip).\
                 where((ApprovalProcess.is_active))#&(ApprovalProcess.entity_iin.in_(kwargs['entity_iin'])))
+    if('id' in kwargs and kwargs['id']):
+        query = query.where(ApprovalProcess.id == int(kwargs['id']))
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -46,21 +56,31 @@ async def get_approval_process_nested_list(limit: int = 100,skip: int = 0,**kwar
     query_AR = select(ApprovalProcess,
                     PurchaseRequisition.number.label('number'),
                     PurchaseRequisition.date.label('date'),
-                    DocumentType.description.label('document_type_description')).\
+                    DocumentType.description.label('document_type_description'),
+                    DocumentType.name.label('document_type_name'),
+                    ApprovalTemplate.name.label('approval_template_name'),
+                    ApprovalTemplate.id.label('approval_template_id'),
+                    Entity.name.label("entity_name"),
+                    Entity.iin.label("entity_iin"),
+                    Entity.id.label("entity_id")).\
                 join(ApprovalProcess, ((PurchaseRequisition.id == ApprovalProcess.document_id) & (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id))).\
-                join(ApprovalTemplate, (ApprovalTemplate.id == ApprovalProcess.document_id)).\
+                join(ApprovalTemplate, (ApprovalTemplate.id == ApprovalProcess.approval_template_id)).\
+                join(Entity, (Entity.iin == ApprovalProcess.entity_iin)).\
                 join(DocumentType, (DocumentType.id == ApprovalProcess.document_type_id)).\
                 where(ApprovalProcess.is_active).\
                 limit(limit).offset(skip)
-
+    if('id' in kwargs and kwargs['id']):
+        query_AR = query_AR.where(ApprovalProcess.id == int(kwargs['id']))
     # query = query_purchase_requisition.union_all(select2).alias('pr_list')
     query = query_AR
     records = await database.fetch_all(query)
     listValue = []
-    print(query)
     for rec in records:
         recordDict = dict(rec)
-        recordDict['document'] = {'number': recordDict['number'], 'date': recordDict['date'], 'document_type_description': recordDict['document_type_description']}
+        recordDict['document_type'] = document_type_fillDataFromDict(recordDict)
+        recordDict['document'] = {'number': recordDict['number'], 'date': recordDict['date']}
+        recordDict['entity'] = entity_fillDataFromDict(recordDict)
+        recordDict['approval_template'] = approval_template_fillDataFromDict(recordDict)
         listValue.append(recordDict)
     return listValue
 
@@ -257,8 +277,8 @@ async def cancel_approval_process(parametrs):
                     status = status_type.canceled,
                     end_date = date.today()).\
                 where(
-                    (ApprovalProcess.document_id == parametrs['document_id']) &
-                    (ApprovalProcess.document_type_id == parametrs['document_type_id']) &
+                    (ApprovalProcess.document_id == int(parametrs['document_id'])) &
+                    (ApprovalProcess.document_type_id == int(parametrs['document_type_id'])) &
                     (ApprovalProcess.entity_iin == parametrs['entity_iin']))
 
     result = await database.execute(query)
