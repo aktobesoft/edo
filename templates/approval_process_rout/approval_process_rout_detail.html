@@ -11,14 +11,15 @@
             </div>
             <div class="card-body table-responsive p-0">
               <div class="col-12 ">
-                
+
                 <div class="form-group row">
 
                   <div class="mt-2 ml-1 row">
 
                     <label for="id" class="col-sm-2 col-form-label mt-2">ИД</label>
                     <div class="col-sm-10 mt-2">
-                        <input type="text" name="id" class="form-control" id="id" placeholder="ИД" v-model="approval_process.id" readonly>
+                      <input type="text" name="id" class="form-control" id="id" placeholder="ИД"
+                        v-model="approval_process.id" readonly>
                     </div>
 
                     <label for="id" class="col-sm-2 col-form-label mt-2">Активный</label>
@@ -28,7 +29,7 @@
                       </div>
                     </div>
 
-                    
+
 
                     <label for="id" class="col-sm-2 col-form-label mt-2">Организация</label>
                     <div class="col-sm-10 mt-2">
@@ -63,12 +64,12 @@
 
                     <label for="id" class="col-sm-2 col-form-label mt-2">Дата начало</label>
                     <div class="col-sm-10 mt-2">
-                      <input type="datetime-local" name="id" class="form-control" v-model="approval_process.start_date">
+                      <input type="date" name="id" class="form-control" v-model="approval_process.start_date">
                     </div>
 
                     <label for="id" class="col-sm-2 col-form-label mt-2">Дата конец</label>
                     <div class="col-sm-10 mt-2">
-                      <input type="datetime-local" name="id" class="form-control" v-model="approval_process.end_date">
+                      <input type="date" name="id" class="form-control" v-model="approval_process.end_date">
                     </div>
 
                   </div>
@@ -88,36 +89,35 @@
                           <th scope="col">#</th>
                           <th scope="col">ID</th>
                           <th scope="col">Уровень</th>
+                          <th scope="col">Активный</th>
                           <th scope="col">Тип</th>
                           <th scope="col">Сотрудник</th>
                           <th scope="col">Операции</th>
                         </tr>
                       </thead>
-                      <tbody v-for="(rout, index) in approval_process.routs" :key="index">
+                      <tbody v-for="(rout, index) in approval_process.routes" :key="index">
                         <tr>
                           <td>[[ index+1 ]]</td>
                           <td>[[ rout.id ]]</td>
                           <td>[[ rout.level ]]</td>
+                          <template v-if="rout.is_active">
+                            <td>да</td>
+                          </template>
+                          <template v-else>
+                            <td>нет</td>
+                          </template>
                           <td>[[ rout.type]]</td>
                           <td>[[ rout.employee.name ]] ([[ rout.employee.email ]])</td>
                           <td>
                             <button v-on:click="loadStep(rout, index)" data-toggle="modal"
                               data-target="#newElementModal" class="btn btn-success btn-sm rounded-3" type="button"
                               data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                                <path
-                                  d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z" />
-                              </svg>
+                              <i class="fas fa-edit"></i>
                             </button>
                             <button v-on:click="deleteStep(rout, index)" class="btn btn-danger btn-sm rounded-3"
                               type="button" data-toggle="tooltip" data-placement="top" title=""
                               data-original-title="Delete">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                <path
-                                  d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
-                              </svg>
+                              <i class="fas fa-trash"></i>
                             </button>
                           </td>
                         </tr>
@@ -127,16 +127,10 @@
                   <div class="pt-3 row">
                     <div class="col mt-2 mb-2 ml-2">
                       <button type="button" class="btn btn-primary " v-on:click="sendData()">
-                        <!--<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 448 512">
-                    <path d="M433.941 129.941l-83.882-83.882A48 48 0 0 0 316.118 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V163.882a48 48 0 0 0-14.059-33.941zM224 416c-35.346 0-64-28.654-64-64 0-35.346 28.654-64 64-64s64 28.654 64 64c0 35.346-28.654 64-64 64zm96-304.52V212c0 6.627-5.373 12-12 12H76c-6.627 0-12-5.373-12-12V108c0-6.627 5.373-12 12-12h228.52c3.183 0 6.235 1.264 8.485 3.515l3.48 3.48A11.996 11.996 0 0 1 320 111.48z"/>
-                  </svg>-->
                         Сохранить
                       </button>
                       <button type="button" class="btn btn-primary btn-danger" data-toggle="modal"
                         data-target="#deleteElementModal">
-                        <!--<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-                  </svg>-->
                         Удалить
                       </button>
                     </div>
@@ -149,7 +143,7 @@
                       <div class="modal-content">
                         <div class="modal-header">
                           <h5 class="modal-title" id="newElementModalLabel">Строка записи</h5>
-                          <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                          <button type="button" data-dismiss="modal" aria-label="Отмена" class="close"><span aria-hidden="true">×</span></button>
                         </div>
                         <div class="modal-body">
                           <div class="pt-2 row">
@@ -160,7 +154,14 @@
                                 v-model.number="rout_position" readonly>
                             </div>
 
-                            <label for="rout_level" class="col-sm-2 col-form-label">Уровень</label>
+                            <label for="rout_is_active" class="col-sm-2 col-form-label">Активный</label>
+                            <div class="col-sm-10 mt-2">
+                              <div class="form-check">
+                                <input type="checkbox" class="form-check-input" v-model="rout_is_active">
+                              </div>
+                            </div>
+
+                            <label for="rout_level" class="col-sm-2 col-form-label mt-2">Уровень</label>
                             <div class="col-sm-10 mt-2">
                               <input type="number" class="form-control" id="rout_level" placeholder="Уровень"
                                 v-model.number="rout_level" min="1" max="100">
@@ -182,7 +183,7 @@
                                 aria-label="Сотрудник" id="rout_employee">
                                 <option value="0">---------</option>
                                 <option v-for="item in emloyeeList"
-                                  v-bind:value="{ id: item.id, name: item.name, email: item.email }">
+                                  v-bind:value="{id: item.id, name: item.name, email: item.email }">
                                   [[ item.name ]]
                                 </option>
                               </select>
@@ -211,7 +212,7 @@
                       <div class="modal-content">
                         <div class="modal-header">
                           <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
-                          <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                          <button type="button" data-dismiss="modal" aria-label="Отмена" class="close"><span aria-hidden="true">×</span></button>
                         </div>
                         <div class="modal-body">
                           Вы действительно хотите удалить запись?
@@ -219,7 +220,7 @@
                         <div class="modal-footer">
                           <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
                           <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal"
-                            v-on:click="deleteAproovalTemplate()">
+                            v-on:click="deleteApprovalProcess()">
                             <!--<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
                         <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
                       </svg>-->
@@ -280,15 +281,16 @@
       entityList: [],
       documentType: [],
       statusList: ['В работе', 'Подписан', 'Отклонен', 'Отменен', 'В работе', 'Черновик'],
-      rout_employee: '',
+      rout_employee: {},
       rout_type: '',
       rout_level: 0,
       rout_index: -1,
       rout_position: 0,
+      rout_is_active: true
     },
     async mounted() {
       if (this.approval_process_id != 'new') {
-        await this.getAproovalTemplate()
+        await this.getApprovalProcess()
 
       }
       await this.getEmployeeList()
@@ -297,7 +299,7 @@
 
     },
     methods: {
-      getAproovalTemplate: async function () {
+      getApprovalProcess: async function () {
         console.log(Vue.version);
         try {
           let response = await axios.get("{{url_for('get_approval_process_list')}}" + this.approval_process_id + "?nested=true");
@@ -310,29 +312,40 @@
         }
       },
       collectData: function () {
-        approval_process_routs = []
+        approval_process_routes = []
         approval_process_dict = {}
-        this.approval_process.routs.forEach((element) => {
+        this.approval_process.routes.forEach((element) => {
           routDict = {
             'id': parseInt(element.id),
+            'is_active': element.is_active,
             'level': element.level,
             'type': element.type,
+            "document_id": this.approval_process.document_id,
+            "document_type_id": this.approval_process.document_type_id,
+            "entity_iin": this.approval_process.entity_iin,
             'employee_id': element.employee_id,
+            'approval_template_id': this.approval_process.approval_template_id,
+            'approval_process_id': this.approval_process.id,
             'hash': ''
           }
-          approval_process_routs.push(routDict)
+          approval_process_routes.push(routDict)
         })
         approval_process_dict = {
-          "id": this.approval_process_id,
+          "id": this.approval_process.id,
+          "is_active": this.approval_process.is_active,
+          "document_id": this.approval_process.document_id,
           "document_type_id": this.approval_process.document_type_id,
-          "name": this.approval_process.name,
+          "status": this.approval_process.status,
+          "start_date": this.approval_process.start_date,
+          "end_date": this.approval_process.end_date,
           "entity_iin": this.approval_process.entity_iin,
-          "routs": approval_process_routs
+          'approval_template_id': this.approval_process.approval_template_id,
+          "routes": approval_process_routes
         }
         console.log(this.document_type_id);
         return approval_process_dict
       },
-      postAproovalTemplate: async function () {
+      postApprovalProcess: async function () {
         approval_process_dict = this.collectData()
         console.log(Vue.version);
         try {
@@ -347,10 +360,10 @@
         }
       },
 
-      putAproovalTemplate: async function () {
+      putApprovalProcess: async function () {
         approval_process_dict = this.collectData()
         console.log("before send")
-        console.log(approval_process_dict);
+        console.log(JSON.stringify(approval_process_dict));
         try {
           let response = await axios.put("{{url_for('get_approval_process_list')}}" + this.approval_process_id, approval_process_dict);
           console.log(response.data)
@@ -359,30 +372,32 @@
           console.log(err)
         }
       },
-      deleteAproovalTemplate: async function () {
+      deleteApprovalProcess: async function () {
         try {
           let response = await axios.delete("{{url_for('get_approval_process_list')}}" + this.approval_process_id);
           if (response != null && (response.status == 200 || response.status == 201)) {
-            this.goToAproovalTemplateList()
+            this.goToApprovalProcessList()
           }
         } catch (err) {
           console.log(err)
         }
       },
-      goToAproovalTemplateList: function () {
+      goToApprovalProcessList: function () {
         window.location.href = "{{url_for('approval_process_list')}}"
       },
       clearActiveStep: function () {
-        this.rout_employee = '',
+        this.rout_employee = {},
           this.rout_type = '',
-          this.rout_level = 0,
+          this.rout_level = 1,
+          this.rout_is_active = true,
           this.rout_index = -1
-        this.rout_position = this.approval_process.routs.length + 1
+        this.rout_position = this.approval_process.routes.length + 1
       },
       addNewStep: function () {
-        this.approval_process.routs.push({
+        this.approval_process.routes.push({
           "id": 0,
           "level": this.rout_level,
+          "is_active": this.rout_is_active,
           "type": this.rout_type,
           "employee_id": this.rout_employee.id,
           "employee": {
@@ -395,10 +410,8 @@
       loadStep: function (rout, index) {
         this.rout_level = rout.level;
         this.rout_type = rout.type;
-        this.rout_employee.name = rout.employee.name;
-        this.rout_employee.id = rout.employee_id;
-        this.rout_employee.email = rout.employee.email;
         this.rout_employee = rout.employee
+        this.rout_is_active = rout.is_active
         this.rout_index = index;
         this.rout_position = index + 1;
       },
@@ -407,16 +420,15 @@
           this.addNewStep();
           return
         }
-        rout = this.approval_process.routs[this.rout_index]
+        rout = this.approval_process.routes[this.rout_index]
         rout.level = this.rout_level;
         rout.type = this.rout_type;
+        rout.is_active = this.rout_is_active;
         rout.employee_id = this.rout_employee.id;
-        rout.employee.name = this.rout_employee.name;
-        rout.employee.id = this.rout_employee.id;
-        rout.employee.email = this.rout_employee.email;
+        rout.employee = this.rout_employee;
       },
       deleteStep: function (rout, index) {
-        this.approval_process.routs.pop(index);
+        this.approval_process.routes.pop(index);
       },
       getDocumentTypeList: async function () {
         if (this.documentType.length > 0) {
@@ -457,14 +469,14 @@
       },
       sendData: async function () {
         if (this.approval_process_id == 'new') {
-          let response = await this.postAproovalTemplate()
+          let response = await this.postApprovalProcess()
           if (response != null && (response.status == 200 || response.status == 201)) {
-            await this.getAproovalTemplate()
+            await this.getApprovalProcess()
           }
         } else {
-          let response = await this.putAproovalTemplate()
+          let response = await this.putApprovalProcess()
           if (response != null && (response.status == 200 || response.status == 201)) {
-            await this.getAproovalTemplate()
+            await this.getApprovalProcess()
             $("#success-alert").fadeTo(2000, 500).slideUp(500, function () {
               $("#success-alert").slideUp(500);
             });

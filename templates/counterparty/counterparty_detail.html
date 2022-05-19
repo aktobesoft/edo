@@ -1,233 +1,242 @@
 {% extends 'index.html' %} {% block form_content %}
 
 <form method="POST" action='{{ request.path }}' novalidate>
-    <div id="vue">
-            <template>
-                <div class="row">
-                    <div class="card mt-2">
-                <div class="card-header">
-                    [[ counterparty.name ]] ([[counterparty.iin]])
+  <div id="vue">
+    <template>
+      <div class="row">
+        <div class="card mt-2">
+          <div class="card-header">
+            [[ counterparty.name ]] ([[counterparty.iin]])
+          </div>
+          <div class="card-body">
+
+            <div class="card-body table-responsive p-0 ">
+              <div class="col-12 ">
+                <div class="mt-2 ml-1 row">
+                  <label for="item_position" class="col-sm-2 col-form-label">ID</label>
+                  <div class="col-sm-10 mt-2">
+                    <input type="number" class="form-control" placeholder="ID" readonly
+                      v-model.number="counterparty.id">
+                  </div>
+
+                  <label for="item_position" class="col-sm-2 col-form-label">Наименование</label>
+                  <div class="col-sm-10 mt-2">
+                    <input type="text" class="form-control" placeholder="Наименование" v-model="counterparty.name">
+                  </div>
+
+                  <label for="item_position" class="col-sm-2 col-form-label">Полное наименование</label>
+                  <div class="col-sm-10 mt-2">
+                    <input type="text" class="form-control" placeholder="Полное наименование"
+                      v-model="counterparty.full_name">
+                  </div>
+
+                  <label for="item_position" class="col-sm-2 col-form-label">ИИН</label>
+                  <div class="col-sm-10 mt-2">
+
+                    <input type="text" class="form-control" placeholder="ИИН" v-model="counterparty.iin">
+                  </div>
+
+                  <label for="item_position" class="col-sm-2 col-form-label">Адрес</label>
+                  <div class="col-sm-10 mt-2">
+                    <input type="text" class="form-control" placeholder="Адрес" v-model="counterparty.address">
+                  </div>
+
+                  <label for="item_position" class="col-sm-2 col-form-label">Комментарий</label>
+                  <div class="col-sm-10 mt-2">
+                    <textarea class="form-control" rows="3" placeholder="Комментарий"
+                      v-model="counterparty.comment"></textarea>
+                  </div>
+
+                  <label for="item_position" class="col-sm-2 col-form-label">Контакты организации</label>
+                  <div class="col-sm-10 mt-2">
+                    <input type="text" class="form-control" placeholder="Контакты организации"
+                      v-model="counterparty.contact">
+                  </div>
+
+                  <label for="item_position" class="col-sm-2 col-form-label">Тип организации</label>
+                  <div class="col-sm-10 mt-2">
+                    <select v-on:click="getBusinessTypeList()" v-model="counterparty.type_name" class="form-control"
+                      aria-label="Тип организации<">
+                      <option value="0">---------</option>
+                      <option v-for="item in businessTypeList" v-bind:value="item.name">
+                        [[ item.full_name ]]
+                      </option>
+                    </select>
+                  </div>
                 </div>
-                <div class="card-body">
-                    
-                    <div class="card-body table-responsive p-0 ">
-                    <div class="col-12 ">
-                        <div class="mt-2 ml-1 row">
-                        <label for="item_position" class="col-sm-2 col-form-label">ID</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="number" class="form-control" placeholder="ID" readonly v-model.number="counterparty.id">
-                        </div> 
-                        
-                        <label for="item_position" class="col-sm-2 col-form-label">Наименование</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="text" class="form-control" placeholder="Наименование" v-model="counterparty.name">
-                        </div>
 
-                        <label for="item_position" class="col-sm-2 col-form-label">Полное наименование</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="text" class="form-control" placeholder="Полное наименование" v-model="counterparty.full_name">
-                        </div>
+                <div class="pt-3 row">
+                  <div class="col mb-3 ml-2">
+                    <button type="button" v-on:click="sendData()" class="btn btn-primary">Сохранить</button>
+                    <button type="button" class="btn btn-primary btn-danger" data-toggle="modal"
+                      data-target="#deleteCounterpartyModal">
+                      Удалить
+                    </button>
+                  </div>
+                </div>
 
-                        <label for="item_position" class="col-sm-2 col-form-label">ИИН</label>
-                        <div class="col-sm-10 mt-2">
-                            
-                            <input type="text" class="form-control" placeholder="ИИН" v-model="counterparty.iin">
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Адрес</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="text" class="form-control" placeholder="Адрес" v-model="counterparty.address">
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Комментарий</label>
-                        <div class="col-sm-10 mt-2">
-                            <textarea class="form-control" rows="3" placeholder="Комментарий" v-model="counterparty.comment"></textarea>
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Контакты организации</label>
-                        <div class="col-sm-10 mt-2">
-                            <input type="text" class="form-control" placeholder="Контакты организации"v-model="counterparty.contact">
-                        </div>
-
-                        <label for="item_position" class="col-sm-2 col-form-label">Тип организации</label>
-                        <div class="col-sm-10 mt-2">
-                            <select v-on:click="getBusinessTypeList()" v-model="counterparty.type_name" class="form-control" aria-label="Тип организации<" >
-                                <option value="0">---------</option>
-                                <option v-for="item in businessTypeList" v-bind:value="item.name">
-                                [[ item.full_name ]]
-                                </option>
-                            </select>
-                        </div>
-                        </div>
-
-                    <div class="pt-3 row">
-                        <div class="col mb-3 ml-2">  
-                            <button type="button" v-on:click="sendData()" class="btn btn-primary">Сохранить</button> 
-                            <button type="button" class="btn btn-primary btn-danger" data-toggle="modal" data-target="#deleteCounterpartyModal">
-                                Удалить
-                            </button>
-                        </div>
-                    </div>
-                
                 <!-- Modal -->
-                    <div class="modal fade" id="deleteCounterpartyModal">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                            <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteCounterpartyModalLabel">Подтвердите действие</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Вы действительно хотите удалить запись?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal" data-dismiss="modal">Отмена</button>
-                                        <button v-on:click="deleteCounterparty()" type="button" class="btn btn-primary btn-danger" data-dismiss="modal" data-dismiss="modal">Удалить</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="modal fade" id="deleteCounterpartyModal">
+                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="deleteCounterpartyModalLabel">Подтвердите действие</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        Вы действительно хотите удалить запись?
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                          data-dismiss="modal">Отмена</button>
+                        <button v-on:click="deleteCounterparty()" type="button" class="btn btn-primary btn-danger"
+                          data-dismiss="modal" data-dismiss="modal">Удалить</button>
+                      </div>
                     </div>
-                    </div>  
+                  </div>
                 </div>
+              </div>
             </div>
-        </template>
-    </div>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
 </form>
 
 <script>
   new Vue({
-      delimiters: ['[[', ']]'],
-      el: '#vue',
-      data: {
-          businessTypeList: [],
-          userList: [],
-          counterparty: {
-            "id": 0,
-            "name": "",
-            "full_name": "",
-            "iin": "",
-            "address": "",
-            "comment": "",
-            "contact": "",
-            "type_name": "",
-            "type": {
-              "id": 0,
-              "name": "",
-              "full_name": ""
-            }
-          },
-           counterparty_iin: "{{ counterparty_iin }}",
+    delimiters: ['[[', ']]'],
+    el: '#vue',
+    data: {
+      businessTypeList: [],
+      userList: [],
+      counterparty: {
+        "id": 0,
+        "name": "",
+        "full_name": "",
+        "iin": "",
+        "address": "",
+        "comment": "",
+        "contact": "",
+        "type_name": "",
+        "type": {
+          "id": 0,
+          "name": "",
+          "full_name": ""
+        }
       },
-      async mounted() {
-          if (this.counterparty_iin != 'new'){
-           await this.getCounterparty()
+      counterparty_iin: "{{ counterparty_iin }}",
+    },
+    async mounted() {
+      if (this.counterparty_iin != 'new') {
+        await this.getCounterparty()
+      }
+      await this.getBusinessTypeList();
+    },
+    methods: {
+      getBusinessTypeList: async function () {
+        if (this.businessTypeList.length > 0) {
+          return
+        }
+        let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true")
+        console.log(response.data)
+        this.businessTypeList = response.data
+      },
+      getUserList: async function () {
+        if (this.userList.length > 0) {
+          return
+        }
+        let response = await axios.get("{{url_for('get_user_list')}}?optional=true")
+        console.log(response.data)
+        this.userList = response.data
+      },
+      getCounterparty: async function () {
+        console.log(this.counterparty_iin)
+        let response = await axios.get("{{url_for('get_counterparty_list')}}" + this.counterparty_iin.toString())
+        console.log(response.data)
+        this.counterparty = response.data
+      },
+      deleteCounterparty: async function () {
+        let response = await axios.delete("{{url_for('get_counterparty_list')}}" + this.counterparty_iin.toString())
+        if (response != null && (response.status == 200 || response.status == 201)) {
+          this.goToCounterpartyList()
+        }
+      },
+      goToCounterpartyList: function () {
+        window.location.href = "{{url_for('counterparty_list')}}"
+      },
+      putCounterparty: async function () {
+        counterparty_data = this.collectData()
+        console.log("before send post")
+        console.log(JSON.stringify(counterparty_data))
+        try {
+          let response = await axios.put("{{url_for('get_counterparty_list')}}" + this.counterparty_iin.toString(), counterparty_data);
+          console.log(response.data)
+          this.counterparty = response.data
+          return response
+        } catch (err) {
+          console.log(err)
+          return null
+        }
+      },
+      postCounterparty: async function () {
+        counterparty_data = this.collectData()
+        console.log("before send post")
+        console.log(JSON.stringify(counterparty_data))
+        try {
+          let response = await axios.post("{{url_for('get_counterparty_list')}}", counterparty_data);
+          console.log(response.data)
+          this.counterparty = response.data
+          this.counterparty_iin = this.counterparty['iin']
+          return response
+        } catch (err) {
+          console.log(err)
+          return null
+        }
+      },
+      collectData: function () {
+        counterparty_data = {
+          "id": this.counterparty.id,
+          "name": this.counterparty.name,
+          "full_name": this.counterparty.full_name,
+          "iin": this.counterparty.iin,
+          "address": this.counterparty.address,
+          "comment": this.counterparty.comment,
+          "contact": this.counterparty.contact,
+          "type_name": this.counterparty.type_name,
+        }
+        return counterparty_data
+      },
+      sendData: async function () {
+        console.log(this.counterparty_iin)
+        counterparty_data = this.collectData()
+        console.log("before send post")
+        console.log(JSON.stringify(counterparty_data))
+        if (this.counterparty_iin == 'new') {
+          let response = await this.postCounterparty()
+          if (response != null && (response.status == 200 || response.status == 201)) {
+            await this.getCounterparty()
           }
-          await this.getBusinessTypeList();
+        } else {
+          let response = await this.putCounterparty()
+          if (response != null && (response.status == 200 || response.status == 201)) {
+            await this.getCounterparty()
+          }
+        }
       },
-      methods: {
-       getBusinessTypeList: async function(){
-           if (this.businessTypeList.length > 0) {
-               return
-           }
-           let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true")
-               console.log(response.data)
-               this.businessTypeList = response.data
-       },
-       getUserList: async function(){
-           if (this.userList.length > 0) {
-               return
-           }
-           let response = await axios.get("{{url_for('get_user_list')}}?optional=true")
-               console.log(response.data)
-               this.userList = response.data
-       },
-       getCounterparty: async function(){
-           console.log(this.counterparty_iin)
-           let response = await axios.get("{{url_for('get_counterparty_list')}}" + this.counterparty_iin.toString())
-               console.log(response.data)
-               this.counterparty = response.data
-       },
-       deleteCounterparty: async function(){
-           let response = await axios.delete("{{url_for('get_counterparty_list')}}" + this.counterparty_iin.toString())
-           if (response != null && (response.status == 200 || response.status == 201)) {
-               this.goToCounterpartyList()
-           }
-       },
-       goToCounterpartyList: function() {
-           window.location.href = "{{url_for('counterparty_list')}}"
-       },
-       putCounterparty: async function(){
-           counterparty_data = this.collectData()
-           console.log("before send post")
-           console.log(JSON.stringify(counterparty_data))
-           try {
-               let response = await axios.put("{{url_for('get_counterparty_list')}}" + this.counterparty_iin.toString(), counterparty_data);
-               console.log(response.data)
-               this.counterparty = response.data
-               return response
-           } catch (err) {
-               console.log(err)
-               return null
-           }
-       },
-       postCounterparty: async function(){
-           counterparty_data = this.collectData()
-           console.log("before send post")
-           console.log(JSON.stringify(counterparty_data))
-           try {
-               let response = await axios.post("{{url_for('get_counterparty_list')}}", counterparty_data);
-               console.log(response.data)
-               this.counterparty = response.data
-               this.counterparty_iin = this.counterparty['iin']
-               return response
-           } catch (err) {
-               console.log(err)
-               return null
-           }
-       },
-       collectData: function(){
-           counterparty_data = {
-                   "id": this.counterparty.id,
-                   "name": this.counterparty.name,
-                   "full_name": this.counterparty.full_name,
-                   "iin": this.counterparty.iin,
-                   "address": this.counterparty.address,
-                   "comment": this.counterparty.comment,
-                   "contact": this.counterparty.contact,
-                   "type_name": this.counterparty.type_name,
-                 }
-           return counterparty_data
-       },
-       sendData: async function() {
-           console.log(this.counterparty_iin)
-           counterparty_data = this.collectData()
-           console.log("before send post")
-           console.log(JSON.stringify(counterparty_data))
-           if (this.counterparty_iin == 'new'){
-               let response = await this.postCounterparty()
-               if (response != null && (response.status == 200 || response.status == 201)) {
-                   await this.getCounterparty()
-               }
-           } else {
-               let response = await this.putCounterparty()
-               if (response != null && (response.status == 200 || response.status == 201)) {
-                   await this.getCounterparty()
-               }
-           }
-       },
-       dateToStr: function(valueDate) {
-           var date = new Date(valueDate);
-           return date.toISOString().substring(0, 10);
-       },
-       strToDate: function(valueDate) {
-           //var date = new Date(valueDate);
-           //date.setUTCHours(0,0,0,0);
-           //return date.toISOString();
-           return valueDate + "T18:00:00+00:00"
-       }
-       }
-   })
+      dateToStr: function (valueDate) {
+        var date = new Date(valueDate);
+        return date.toISOString().substring(0, 10);
+      },
+      strToDate: function (valueDate) {
+        //var date = new Date(valueDate);
+        //date.setUTCHours(0,0,0,0);
+        //return date.toISOString();
+        return valueDate + "T18:00:00+00:00"
+      }
+    }
+  })
 </script>
 
 {% endblock %}

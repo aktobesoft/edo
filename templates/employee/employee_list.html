@@ -1,46 +1,51 @@
 {% extends 'index.html' %}
-
 {% block form_content %}
 
-<form method="POST" action='{{ request.path }}' novalidate >
+<form method="POST" action='{{ request.path }}' novalidate>
   <div id="vue">
     <div class="row">
-      <div class="card mt-2">  
+      <div class="card mt-2">
         <div class="card ">
           <div class="card-header">
             Список сотрудников
             <template v-if="page_count > 1">
-            <div class="card-tools">
-              <ul class="pagination pagination-sm float-right">
-                <template v-if="page > 3">
-                  <li class="page-item"><button type="button" class="page-link" v-on:click="getEmployeeList(1)">1</button></li>
-                </template>
-  
-                <template v-if="page-3 > 1">
-                  <li class="page-item"><button type="button" class="page-link " v-on:click="getEmployeeList(page-3)"><i class="fas fa-angle-double-left"></i></button></li>
-                </template>
-                
-                <template v-if="page > 1">
-                  <li class="page-item"><button type="button" class="page-link" v-on:click="getEmployeeList(page-1)">[[page-1]]</button></li>
-                </template>
-                
-                <li class="page-item active"><button type="button" class="page-link">[[page]]</button></li>
-                
-                <template v-if="page < page_count">
-                  <li class="page-item"><button type="button" class="page-link" v-on:click="getEmployeeList(page+1)">[[page+1]]</button></li>
-                </template>
-  
-                <template v-if="page+3 < page_count">
-                  <li class="page-item"><button type="button" class="page-link" v-on:click="getEmployeeList(page+3)"><i class="fas fa-angle-double-right"></i></button></li>
-                </template>
-  
-                <template v-if="page < page_count-2">
-                  <li class="page-item"><button type="button" class="page-link" v-on:click="getEmployeeList(page_count)">[[page_count]]</button></li>
-                </template>
-                
-              </ul>
-            </div>
-          </template>
+              <div class="card-tools">
+                <ul class="pagination pagination-sm float-right">
+                  <template v-if="page > 3">
+                    <li class="page-item"><button type="button" class="page-link"
+                        v-on:click="getEmployeeList(1)">1</button></li>
+                  </template>
+
+                  <template v-if="page-3 > 1">
+                    <li class="page-item"><button type="button" class="page-link "
+                        v-on:click="getEmployeeList(page-3)"><i class="fas fa-angle-double-left"></i></button></li>
+                  </template>
+
+                  <template v-if="page > 1">
+                    <li class="page-item"><button type="button" class="page-link"
+                        v-on:click="getEmployeeList(page-1)">[[page-1]]</button></li>
+                  </template>
+
+                  <li class="page-item active"><button type="button" class="page-link">[[page]]</button></li>
+
+                  <template v-if="page < page_count">
+                    <li class="page-item"><button type="button" class="page-link"
+                        v-on:click="getEmployeeList(page+1)">[[page+1]]</button></li>
+                  </template>
+
+                  <template v-if="page+3 < page_count">
+                    <li class="page-item"><button type="button" class="page-link"
+                        v-on:click="getEmployeeList(page+3)"><i class="fas fa-angle-double-right"></i></button></li>
+                  </template>
+
+                  <template v-if="page < page_count-2">
+                    <li class="page-item"><button type="button" class="page-link"
+                        v-on:click="getEmployeeList(page_count)">[[page_count]]</button></li>
+                  </template>
+
+                </ul>
+              </div>
+            </template>
           </div>
           <div class="card-body table-responsive p-0">
             <a class="btn btn-primary ml-2 mt-2 " href="{{ request.path }}new" role="button">Создать новый элемент</a>
@@ -58,45 +63,49 @@
                   </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="employee in listEmployee" :key="employee.id">
-                      <th scope="row">[[ employee.id ]]</th>
-                      <td>[[ employee.email ]]</td>
-                      <td>[[ employee.name ]]</a></td>
-                      <td>[[ employee.entity.name ]] </td>
-                      <td>[[ employee.date_of_birth ]]</td>
-                      <td>[[ employee.user.name ]] ([[employee.user.email]])</td>
-                      <td>
-                        <button v-on:click="openEmployee(employee)" class="btn btn-success btn-sm rounded-3" type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button v-on:click="setCurrentItem(employee)" class="btn btn-danger btn-sm rounded-3" type="button" data-toggle="modal" data-target="#deleteElementModal">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                      </td>
-                    </tr>  
+                  <tr v-for="employee in listEmployee" :key="employee.id">
+                    <th scope="row">[[ employee.id ]]</th>
+                    <td>[[ employee.email ]]</td>
+                    <td>[[ employee.name ]]</a></td>
+                    <td>[[ employee.entity.name ]] </td>
+                    <td>[[ employee.date_of_birth ]]</td>
+                    <td>[[ employee.user.name ]] ([[employee.user.email]])</td>
+                    <td>
+                      <button v-on:click="openEmployee(employee)" class="btn btn-success btn-sm rounded-3" type="button"
+                        data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button v-on:click="setCurrentItem(employee)" class="btn btn-danger btn-sm rounded-3"
+                        type="button" data-toggle="modal" data-target="#deleteElementModal">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
-          </div> 
-          
+          </div>
+
           <!-- Удаление записи -->
           <!-- Modal -->
-          <div class="modal fade" id="deleteElementModal" tabindex="-1" role="dialog" aria-labelledby="deleteElementModalLabel" aria-hidden="true">
+          <div class="modal fade" id="deleteElementModal" tabindex="-1" role="dialog"
+            aria-labelledby="deleteElementModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
-                </button>
+                  </button>
                 </div>
                 <div class="modal-body">
-                    Вы действительно хотите удалить запись?
+                  Вы действительно хотите удалить запись?
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                  <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal" v-on:click="deleteEmployee()">
-                      Удалить
+                  <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal"
+                    v-on:click="deleteEmployee()">
+                    Удалить
                   </button>
                 </div>
               </div>
@@ -123,39 +132,39 @@
       await this.getEmployeeList(this.page)
     },
     methods: {
-      getEmployeeList: async function(page){
-        console.log("{{url_for('get_employee_list')}}?nested=true&limit=100&page="+page);
+      getEmployeeList: async function (page) {
+        console.log("{{url_for('get_employee_list')}}?nested=true&limit=100&page=" + page);
         //if (this.listEmployee.length == 0) {
-          if (true) {
-            try {
-                let response = await axios.get("{{url_for('get_employee_list')}}?nested=true&limit=100&page="+page)
-                console.log(response.data['result'])
-                this.listEmployee = response.data['result']
-                this.page_count = response.data['info']['pages']
-                if(page>0){
-                    this.page = page
-                  }
-                } 
-            catch (err) {
-                console.log(err)
-              }
-            };
-          },
-      openEmployee: function(item) {
-          window.location.href = "{{ request.path }}" + item.id
-        },
-      deleteEmployee: async function() {
+        if (true) {
+          try {
+            let response = await axios.get("{{url_for('get_employee_list')}}?nested=true&limit=100&page=" + page)
+            console.log(response.data['result'])
+            this.listEmployee = response.data['result']
+            this.page_count = response.data['info']['pages']
+            if (page > 0) {
+              this.page = page
+            }
+          }
+          catch (err) {
+            console.log(err)
+          }
+        };
+      },
+      openEmployee: function (item) {
+        window.location.href = "{{ request.path }}" + item.id
+      },
+      deleteEmployee: async function () {
         try {
           let id = this.listEmployee[this.currentItemIndex].id
           let response = await axios.delete("{{url_for('get_employee_list')}}" + id);
           if (response != null && (response.status == 200 || response.status == 201)) {
-              this.listEmployee.splice(this.currentItemIndex, 1);
+            this.listEmployee.splice(this.currentItemIndex, 1);
           }
-          } catch (err) {
-            console.log(err)
-          }
+        } catch (err) {
+          console.log(err)
+        }
       },
-      setCurrentItem: function(item) {
+      setCurrentItem: function (item) {
         this.currentItemIndex = this.listEmployee.indexOf(item)
       },
     }

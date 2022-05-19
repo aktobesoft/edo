@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from common_module.urls_module import qp_select_list, qp_select_one
 from typing import List, Optional, Union
 
-from references.approval_process.models import ApprovalProcess, ApprovalProcessCheck, ApprovalProcessIn, ApprovalProcessNestedOut, ApprovalProcessOut, ApprovalProcessRoutNestedOut, ApprovalProcessRoutOut
+from references.approval_process.models import ApprovalProcess, ApprovalProcessCheck, ApprovalProcessIn, ApprovalProcessNestedOut, ApprovalProcessOut, ApprovalProcessRoutNestedOut, ApprovalProcessRoutOut, ApprovalProcessRoutPOST, ApprovalProcessRoutPUT
 from references.approval_process import views
 
 async def ap_select(document_id: int = 0, document_type_id: int = 0, entity_iin: str = ''):
@@ -41,16 +41,16 @@ async def get_approval_process_by_id(approval_process_id : int, qp_select_one: d
     return result
 
 @approval_processRouter.post('/', response_model = ApprovalProcessOut)
-async def post_approval_process(approval_processInstance : ApprovalProcessIn):
-    businessTypeDict = approval_processInstance.dict()
-    result = await views.post_approval_process(businessTypeDict)
+async def post_approval_process(approvalProcessRoutPOST : ApprovalProcessRoutPOST):
+    approval_processInstanceDict = dict(approvalProcessRoutPOST)
+    result = await views.post_approval_process(approval_processInstanceDict)
     return result
 
 @approval_processRouter.put('/{approval_process_id}', response_model = ApprovalProcessOut)
-async def update_approval_process(approval_process_id : int, newApprovalProcessIn : ApprovalProcessOut):
-    newApprovalProcessIn = dict(newApprovalProcessIn)
-    result = await views.update_approval_process(approval_process_id, newApprovalProcessIn)
-    return newApprovalProcessIn
+async def update_approval_process(approval_process_id : int, approvalProcessRoutPUT : ApprovalProcessRoutPUT):
+    approval_processInstanceDict = dict(approvalProcessRoutPUT)
+    result = await views.update_approval_process(approval_process_id, approval_processInstanceDict)
+    return approvalProcessRoutPUT
 
 @approval_processRouter.delete('/{approval_process_id}')
 async def delete_approval_process_by_id(approval_process_id : int):

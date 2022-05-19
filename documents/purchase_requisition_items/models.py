@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Union
 from pydantic import BaseModel
 from sqlalchemy import Column, Float, String, Integer, Boolean, ForeignKey, Date
 from sqlalchemy.orm import relationship
@@ -35,7 +36,7 @@ class _PurchaseRequisitionItemsPUT(BaseModel):
     description_code: str
     quantity: float
     sum: float
-    hash: str
+    hash: Union[str, None] = ''
     
     class Config:
         orm_mode = True
@@ -47,7 +48,7 @@ class _PurchaseRequisitionItemsPOST(BaseModel):
     description_code: str
     quantity: float
     sum: float
-    hash: str
+    hash: Union[str, None] = ''
     
     class Config:
         orm_mode = True

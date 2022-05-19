@@ -1,3 +1,4 @@
+from typing import Union
 from pydantic import BaseModel
 from sqlalchemy import Column, ForeignKey, Index, String, Integer, Boolean, Enum 
 from core.db import Base
@@ -31,7 +32,7 @@ class _ApprovalTemplateStepOut(BaseModel):
     type: step_type = step_type.line
     employee_id: int = 0
     approval_template_id: int = 0
-    hash: str = ''
+    hash: Union[str, None] = ''
     
     class Config:
         orm_mode = True
@@ -43,7 +44,7 @@ class _ApprovalTemplateStepNestedOut(BaseModel):
     type: step_type = step_type.line
     employee_id: int = 0
     employee: EmployeeSmallOut
-    hash: str = ''
+    hash: Union[str, None] = ''
     
     class Config:
         orm_mode = True
@@ -54,7 +55,7 @@ class _ApprovalTemplateStepPUT(BaseModel):
     level: int = 0
     type: step_type = step_type.line
     employee_id: int = 0
-    hash: str = ''
+    hash: Union[str, None] = ''
 
     class Config:
         orm_mode = True
@@ -64,7 +65,7 @@ class _ApprovalTemplateStepPOST(BaseModel):
     level: int = 0
     type: step_type = step_type.line
     employee_id: int = 0
-    hash: str = ''
+    hash: Union[str, None] = ''
 
     class Config:
         orm_mode = True

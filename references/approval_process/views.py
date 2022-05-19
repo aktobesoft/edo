@@ -5,6 +5,7 @@ import databases
 from fastapi import HTTPException
 from sqlalchemy import false, func, select, insert, true, update, delete
 import asyncpg
+from common_module.mapping_module import list_object_to_list_dict
 from core.db import database
 from common_module.urls_module import correct_datetime, qp_select_list
 from documents.purchase_requisition.models import PurchaseRequisition
@@ -12,25 +13,40 @@ from documents.purchase_requisition.models import PurchaseRequisition
 from references.approval_process.models import ApprovalProcess, ApprovalProcessIn
 from references.approval_template.models import ApprovalTemplate, approval_template_fillDataFromDict
 from references.approval_template_step.models import ApprovalTemplateStep
-from references.approval_template_step.views import get_approval_template_step_list, get_approval_template_step_nested_list
-from references.approval_route.views import post_approval_route, post_many_approval_route, get_approval_route_by_aproval_process_id
+from references.approval_template_step.views import get_approval_template_step_list
+from references.approval_route.views import delete_approval_routes_by_approval_process_id, get_approval_route_by_aproval_process_id,\
+                 post_approval_routes_by_approval_process_id, get_approval_route_nested_by_aproval_process_id, update_approval_routes_by_approval_process_id
 from references.document_type.models import DocumentType, document_type_fillDataFromDict
 from references.entity.models import Entity, entity_fillDataFromDict
-from references.enum_types.models import status_type
+from references.enum_types.models import status_type, step_type
+
+async def collectRoutes(list_of_object: list):
+    listDict = []
+    for item in list_of_object:
+        itemDict = dict(item)
+        # itemDict['type'] = 'Линейное' if itemDict['type'] == step_type.line  else 'Паралельное'
+        itemDict['type'] = 'line' if itemDict['type'] == step_type.line else 'paralel'
+        # for field in ignore_field:
+        #     itemDict.pop(itemDict)
+        listDict.append(itemDict)
+    return listDict
 
 async def get_approval_process_by_id(approval_process_id: int, **kwargs):
     kwargs['id'] = approval_process_id 
     if(kwargs['nested']): 
         result = await get_approval_process_nested_list(1,0, **kwargs)
+        routes = await get_approval_route_nested_by_aproval_process_id(approval_process_id)
     else:
         result = await get_approval_process_list(1,0, **kwargs)
-    print(result)
+        routes = await get_approval_route_by_aproval_process_id(approval_process_id)
+    
     if len(result)>0:
-        return {**result[0], 'routes': await get_approval_route_by_aproval_process_id(approval_process_id) }
+        return {**result[0], 'routes': routes}
     else:
         raise HTTPException(status_code=404, detail="Item not found") 
 
 async def delete_approval_process_by_id(approval_process_id: int):
+    resultDelete = await delete_approval_routes_by_approval_process_id(approval_process_id)
     query = delete(ApprovalProcess).where(ApprovalProcess.id == approval_process_id)
     result = await database.execute(query)
     return result
@@ -96,6 +112,8 @@ async def post_approval_process(apInstance : dict):
                 end_date = apInstance["end_date"],
                 status = apInstance["status"])
     result = await database.execute(query)
+    print(apInstance)
+    routesResult = await post_approval_routes_by_approval_process_id(await collectRoutes(apInstance['routes']), result)
     return {**apInstance, 'id': result}
 
 async def update_approval_process(approval_process_id: int, apInstance: dict):
@@ -112,6 +130,7 @@ async def update_approval_process(approval_process_id: int, apInstance: dict):
                     where(ApprovalProcess.id == approval_process_id)
 
     result = await database.execute(query)
+    routesResult = await update_approval_routes_by_approval_process_id(await collectRoutes(apInstance['routes']), approval_process_id)
     return apInstance
 
 async def start_approval_process(parametrs):
@@ -213,10 +232,11 @@ async def start_approval_process(parametrs):
             'employee_id': item['employee_id'],
             'approval_template_id': approval_template['id'],
             'approval_process_id': responseMap['ApprovalProcess']['id'],
+            'hash': '',
         }
         listRout.append(rout_step) 
     
-    await post_many_approval_route(listRout)
+    await post_approval_routes_by_approval_process_id(listRout)
     responseMap['ApprovalRoute'] =  await get_approval_route_by_aproval_process_id(responseMap['ApprovalProcess']['id'])
     return responseMap
 

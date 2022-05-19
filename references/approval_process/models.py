@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from sqlalchemy import Column, Date, Enum, ForeignKey, String, Integer, Boolean, DateTime, null
 from core.db import Base
 from sqlalchemy.orm import relationship
-from references.approval_route.models import ApprovalRouteOut
+from references.approval_route.models import ApprovalRouteNestedOut, ApprovalRouteOut, ApprovalRoutePOST, ApprovalRoutePUT
 from references.enum_types.models import step_type, status_type
    
 class ApprovalProcess(Base):
@@ -70,6 +70,37 @@ class ApprovalProcessRoutOut(BaseModel):
     class Config:
         orm_mode = True
 
+class ApprovalProcessRoutPUT(BaseModel):
+    
+    id: int
+    is_active: bool
+    document_id: int
+    document_type_id: int
+    entity_iin: str
+    approval_template_id: int
+    status: status_type = status_type.in_process
+    start_date: date = None
+    end_date: date = None
+    routes: list[ApprovalRoutePUT]
+    
+    class Config:
+        orm_mode = True
+
+class ApprovalProcessRoutPOST(BaseModel):
+    
+    is_active: bool
+    document_id: int
+    document_type_id: int
+    entity_iin: str
+    approval_template_id: int
+    status: status_type = status_type.in_process
+    start_date: date = None
+    end_date: date = None
+    routes: list[ApprovalRoutePOST]
+    
+    class Config:
+        orm_mode = True
+
 class ApprovalProcessRoutNestedOut(BaseModel):
     
     id: int
@@ -85,7 +116,7 @@ class ApprovalProcessRoutNestedOut(BaseModel):
     document_type: dict
     entity: dict
     approval_template: dict
-    routes: list[ApprovalRouteOut]
+    routes: list[ApprovalRouteNestedOut]
     
     class Config:
         orm_mode = True

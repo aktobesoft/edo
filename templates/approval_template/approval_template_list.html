@@ -1,122 +1,126 @@
 {% extends 'index.html' %} {% block form_content %}
 
 <form method="POST" action='#' novalidate>
-    <div id="vue">
-        <div class="row">
+  <div id="vue">
+    <div class="row">
+      <div class="col-12">
+        <div class="card mt-2">
+          <div class="card-header">
+            Список шаблонов согласования документов
+          </div>
+          <div class="card-body table-responsive p-0">
+            <a class="btn btn-primary m-2" href="{{ request.path }}new" role="button">Создать новый
+              элемент</a>
             <div class="col-12">
-                <div class="card mt-2">
-                    <div class="card-header">
-                        Список шаблонов согласования документов
-                    </div>
-                    <div class="card-body table-responsive p-0">
-                        <a class="btn btn-primary m-2" href="{{ request.path }}new" role="button">Создать новый элемент</a>
-                        <div class="col-12">
-                            <table class="table table-bordered table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Наименование шаблона</th>
-                                        <th scope="col">Организация</th>
-                                        <th scope="col">Тип документа</th>
-                                        <th scope="col">Операции</th>
-                                    </tr>
-                                </thead>
-                                <tbody v-for="item in listOfApprovalTemplate" :key="item.id">
-                                    <tr>
-                                        <td>[[ item.id ]]</td>
-                                        <td>[[ item.name ]]</td>
-                                        <td>[[ item.entity.name]] ([[ item.entity.iin]])</td>
-                                        <td>[[ item.document_type.description ]]</td>
-                                        <td>
-                                            <button v-on:click="openAproovalTemplate(item)" class="btn btn-success btn-sm rounded-3" type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button v-on:click="setCurrentItem(item)" class="btn btn-danger btn-sm rounded-3" type="button" data-toggle="modal" data-target="#deleteElementModal">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Удаление записи -->
-                    <!-- Modal -->
-                    <div class="modal fade" id="deleteElementModal" tabindex="-1" role="dialog" aria-labelledby="deleteElementModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                </div>
-                                <div class="modal-body">
-                                    Вы действительно хотите удалить запись?
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                                    <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal" v-on:click="deleteAproovalTemplate()">
-                                        Удалить
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+              <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Наименование шаблона</th>
+                    <th scope="col">Организация</th>
+                    <th scope="col">Тип документа</th>
+                    <th scope="col">Операции</th>
+                  </tr>
+                </thead>
+                <tbody v-for="item in listOfApprovalTemplate" :key="item.id">
+                  <tr>
+                    <td>[[ item.id ]]</td>
+                    <td>[[ item.name ]]</td>
+                    <td>[[ item.entity.name]] ([[ item.entity.iin]])</td>
+                    <td>[[ item.document_type.description ]]</td>
+                    <td>
+                      <button v-on:click="openAproovalTemplate(item)" class="btn btn-success btn-sm rounded-3"
+                        type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button v-on:click="setCurrentItem(item)" class="btn btn-danger btn-sm rounded-3" type="button"
+                        data-toggle="modal" data-target="#deleteElementModal">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
+          </div>
+
+          <!-- Удаление записи -->
+          <!-- Modal -->
+          <div class="modal fade" id="deleteElementModal" tabindex="-1" role="dialog"
+            aria-labelledby="deleteElementModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  Вы действительно хотите удалить запись?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                  <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal"
+                    v-on:click="deleteAproovalTemplate()">
+                    Удалить
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </form>
 
 <script>
-    new Vue({
-        el: '#vue',
-        delimiters: ['[[', ']]'],
-        data: {
-            //listOfApprovalTemplate: {{ listOfValue|safe }},
-            listOfApprovalTemplate: [],
-            currentItemIndex: 0,
-        },
-        async mounted() {
-            await this.getApprovalTemplateList()
-        },
-        methods: {
-            getApprovalTemplateList: async function(){
-                console.log(Vue.version);
-                if (this.listOfApprovalTemplate.length == 0) {
-                    try {
-    
-                        let response = await axios.get("{{url_for('get_approval_template_list')}}?nested=true")
-                        console.log(response.data)
-                        this.listOfApprovalTemplate = response.data
-                    } catch (err) {
-                        console.log(err)
-                    }
-                };
-            },
-            openAproovalTemplate: function(item) {
-                console.log(item.entity.iin);
-                window.location.href = "{{ request.path }}" + item.id
-            },
-            deleteAproovalTemplate: async function() {
-                try {
-                    let id = this.listOfApprovalTemplate[this.currentItemIndex].id
-                    let response = await axios.delete("{{url_for('get_approval_template_list')}}" + id);
-                    if (response != null && (response.status == 200 || response.status == 201)) {
-                        this.listOfApprovalTemplate.splice(this.currentItemIndex, 1);
-                    }
-                } catch (err) {
-                    console.log(err)
-                }
-            },
-            setCurrentItem: function(item) {
-                this.currentItemIndex = this.listOfApprovalTemplate.indexOf(item)
-            },
+  new Vue({
+    el: '#vue',
+    delimiters: ['[[', ']]'],
+    data: {
+      //listOfApprovalTemplate: {{ listOfValue|safe }},
+      listOfApprovalTemplate: [],
+      currentItemIndex: 0,
+    },
+    async mounted() {
+      await this.getApprovalTemplateList()
+    },
+    methods: {
+      getApprovalTemplateList: async function () {
+        console.log(Vue.version);
+        if (this.listOfApprovalTemplate.length == 0) {
+          try {
+
+            let response = await axios.get("{{url_for('get_approval_template_list')}}?nested=true")
+            console.log(response.data)
+            this.listOfApprovalTemplate = response.data
+          } catch (err) {
+            console.log(err)
+          }
+        };
+      },
+      openAproovalTemplate: function (item) {
+        console.log(item.entity.iin);
+        window.location.href = "{{ request.path }}" + item.id
+      },
+      deleteAproovalTemplate: async function () {
+        try {
+          let id = this.listOfApprovalTemplate[this.currentItemIndex].id
+          let response = await axios.delete("{{url_for('get_approval_template_list')}}" + id);
+          if (response != null && (response.status == 200 || response.status == 201)) {
+            this.listOfApprovalTemplate.splice(this.currentItemIndex, 1);
+          }
+        } catch (err) {
+          console.log(err)
         }
-    })
+      },
+      setCurrentItem: function (item) {
+        this.currentItemIndex = this.listOfApprovalTemplate.indexOf(item)
+      },
+    }
+  })
 </script>
 
 {% endblock %}

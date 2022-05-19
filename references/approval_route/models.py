@@ -1,3 +1,4 @@
+from typing import Union
 from pydantic import BaseModel
 from sqlalchemy import Column, ForeignKey, Index, String, Integer, Boolean, Enum 
 from core.db import Base
@@ -23,6 +24,7 @@ class ApprovalRoute(Base):
     approval_template = relationship("ApprovalTemplate")
     approval_process_id = Column(Integer, ForeignKey('approval_process.id', ondelete = "CASCADE"), nullable = False, index = True)
     approval_process = relationship("ApprovalProcess")
+    hash = Column(String, index = True)
 
     def __repr__(self) -> str:
         return self.name
@@ -42,6 +44,58 @@ class ApprovalRouteOut(BaseModel):
     employee_id: int
     approval_template_id: int
     approval_process_id: int
+    hash: Union[str, None] = ''
+    
+    class Config:
+        orm_mode = True
+
+class ApprovalRoutePUT(BaseModel):
+    
+    id: int
+    is_active: bool
+    level: int
+    type: step_type
+    document_id: int
+    document_type_id: int
+    entity_iin: str
+    employee_id: int
+    approval_template_id: int
+    approval_process_id: int
+    hash: Union[str, None] = ''
+    
+    class Config:
+        orm_mode = True
+
+class ApprovalRoutePOST(BaseModel):
+    
+    is_active: bool
+    level: int
+    type: step_type
+    document_id: int
+    document_type_id: int
+    entity_iin: str
+    employee_id: int
+    approval_template_id: int
+    approval_process_id: int
+    hash: Union[str, None] = ''
+    
+    class Config:
+        orm_mode = True
+
+class ApprovalRouteNestedOut(BaseModel):
+    
+    id: int
+    is_active: bool
+    level: int
+    type: step_type
+    document_id: int
+    document_type_id: int
+    entity_iin: str
+    employee_id: int
+    employee: dict
+    approval_template_id: int
+    approval_process_id: int
+    hash: Union[str, None] = ''
     
     class Config:
         orm_mode = True
@@ -57,6 +111,7 @@ class ApprovalRouteIn(BaseModel):
     employee_id: int
     approval_template_id: int
     approval_process_id: int
+    hash: Union[str, None] = ''
     
     class Config:
         orm_mode = True
