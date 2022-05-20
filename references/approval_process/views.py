@@ -20,14 +20,12 @@ from references.document_type.models import DocumentType, document_type_fillData
 from references.entity.models import Entity, entity_fillDataFromDict
 from references.enum_types.models import status_type, step_type
 
-async def collectRoutes(list_of_object: list):
+async def collectRoutes(list_of_object: list, approval_process_id):
     listDict = []
     for item in list_of_object:
         itemDict = dict(item)
-        # itemDict['type'] = 'Линейное' if itemDict['type'] == step_type.line  else 'Паралельное'
         itemDict['type'] = 'line' if itemDict['type'] == step_type.line else 'paralel'
-        # for field in ignore_field:
-        #     itemDict.pop(itemDict)
+        itemDict['approval_process_id'] = approval_process_id
         listDict.append(itemDict)
     return listDict
 
@@ -113,7 +111,7 @@ async def post_approval_process(apInstance : dict):
                 status = apInstance["status"])
     result = await database.execute(query)
     print(apInstance)
-    routesResult = await post_approval_routes_by_approval_process_id(await collectRoutes(apInstance['routes']), result)
+    routesResult = await post_approval_routes_by_approval_process_id(await collectRoutes(apInstance['routes'], result))
     return {**apInstance, 'id': result}
 
 async def update_approval_process(approval_process_id: int, apInstance: dict):
@@ -130,7 +128,7 @@ async def update_approval_process(approval_process_id: int, apInstance: dict):
                     where(ApprovalProcess.id == approval_process_id)
 
     result = await database.execute(query)
-    routesResult = await update_approval_routes_by_approval_process_id(await collectRoutes(apInstance['routes']), approval_process_id)
+    routesResult = await update_approval_routes_by_approval_process_id(await collectRoutes(apInstance['routes'], approval_process_id), approval_process_id)
     return apInstance
 
 async def start_approval_process(parametrs):
@@ -203,24 +201,10 @@ async def start_approval_process(parametrs):
    
     # ------------------------------ СОЗДАНИЕ ПРОЦЕССА -------------------------------
     
-    # если все норм то создаем сам процесс
-    apInstance = {
-        'is_active': True,
-        'document_id': parametrs['document_id'],
-        'document_type_id': parametrs['document_type_id'],
-        'entity_iin': parametrs['entity_iin'],
-        'approval_template_id': approval_template['id'],
-        'status': status_type.in_process,
-        'start_date': date.today(),
-        'end_date': None
-    }
-
-    responseMap['ApprovalProcess'] = await post_approval_process(apInstance)
-    responseMap['ApprovalProcessStatus'] = status_type.in_process
-    responseMap['Text'] = 'Процесс согласования запущен'
+    
 
     # Создаем шаги согласования
-    listRout = []
+    listRoutes = []
     for item in approval_template_steps:
         rout_step = {
             'is_active': True,
@@ -231,13 +215,48 @@ async def start_approval_process(parametrs):
             'entity_iin': parametrs['entity_iin'],
             'employee_id': item['employee_id'],
             'approval_template_id': approval_template['id'],
-            'approval_process_id': responseMap['ApprovalProcess']['id'],
+            'approval_process_id': 0,
             'hash': '',
         }
-        listRout.append(rout_step) 
-    
-    await post_approval_routes_by_approval_process_id(listRout)
+        listRoutes.append(rout_step) 
+
+    # если все норм то создаем сам процесс
+    apInstance = {
+        'is_active': True,
+        'document_id': parametrs['document_id'],
+        'document_type_id': parametrs['document_type_id'],
+        'entity_iin': parametrs['entity_iin'],
+        'approval_template_id': approval_template['id'],
+        'status': status_type.in_process,
+        'start_date': date.today(),
+        'end_date': None,
+        'routes': listRoutes
+    }
+
+    responseMap['ApprovalProcess'] = await post_approval_process(apInstance)
+    responseMap['ApprovalProcessStatus'] = status_type.in_process
+    responseMap['Text'] = 'Процесс согласования запущен'
     responseMap['ApprovalRoute'] =  await get_approval_route_by_aproval_process_id(responseMap['ApprovalProcess']['id'])
+
+    # # Создаем шаги согласования
+    # listRout = []
+    # for item in approval_template_steps:
+    #     rout_step = {
+    #         'is_active': True,
+    #         'level': item['level'],
+    #         'type': item['type'],
+    #         'document_id': parametrs['document_id'],
+    #         'document_type_id': parametrs['document_type_id'],
+    #         'entity_iin': parametrs['entity_iin'],
+    #         'employee_id': item['employee_id'],
+    #         'approval_template_id': approval_template['id'],
+    #         'approval_process_id': responseMap['ApprovalProcess']['id'],
+    #         'hash': '',
+    #     }
+    #     listRout.append(rout_step) 
+    # print(listRout)
+    # await post_approval_routes_by_approval_process_id(listRout)
+    # responseMap['ApprovalRoute'] =  await get_approval_route_by_aproval_process_id(responseMap['ApprovalProcess']['id'])
     return responseMap
 
 async def check_approval_processes(parametrs):

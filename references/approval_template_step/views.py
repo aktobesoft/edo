@@ -98,10 +98,12 @@ async def update_approval_template_steps_by_approval_template_id(at_steps : list
         at_item_dict = dict(at_item)
         listID.append(at_item_dict['id'])
         at_item_dict['approval_template_id'] = approval_template_id
-        at_item_dict['type'] = 'line' if at_item_dict['type'] == 'Линейное' else 'paralel' 
+        # at_item_dict['type'] = 'line' if at_item_dict['type'] == 'Линейное' else 'paralel'
+        print(at_item_dict['type'])
+        at_item_dict['type'] = 'line' if at_item_dict['type'] == 'Линейное' or at_item_dict['type'] == step_type.line else at_item_dict['type']
+        at_item_dict['type'] = 'paralel' if at_item_dict['type'] == 'Паралельное' or at_item_dict['type'] == step_type.paralel else at_item_dict['type'] 
         newList.append(at_item_dict)
         # listHashID.append(tuple_(dict_item['id'], dict_item['hash']))
-
         
     select1 = select(ApprovalTemplateStep.id, ApprovalTemplateStep.hash, func.lower("delete", type_=String).label('operation')).where(
                 (ApprovalTemplateStep.approval_template_id == approval_template_id) & (ApprovalTemplateStep.id.not_in(listID)))

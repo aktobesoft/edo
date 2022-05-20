@@ -1,193 +1,200 @@
-{% extends 'index.html' %} 
+{% extends 'index.html' %}
 {% block form_content %}
 
 <form method="POST" action='{{ request.path }}' novalidate>
-
-  <div class="card" id="vue">
+  <div id="vue">
     <template>
-
-      <div class="card-header">
-        [[approval_template.name]]
-      </div>
-      <div class="card-body">
-        <button v-on:click="goToAproovalTemplateList()" class="btn btn-primary " type="button" data-toggle="tooltip"
-          data-placement="top">
-          Перейти к списку шаблона
-        </button>
-        <div class="form-group row">
-
-          <div class="pt-2 row">
-            <label for="id" class="col-sm-2 col-form-label">ИД</label>
-            <div class="col-sm-10">
-              <input type="text" name="id" class="form-control" id="id" placeholder="ИД" v-model="approval_template.id"
-                readonly>
+      <div class="row">
+        <div class="col-12">
+          <div class="card mt-2">
+            <div class="card-header">
+              [[approval_template.name]]
             </div>
-            <label for="id" class="col-sm-2 col-form-label mt-2">Наименование</label>
-            <div class="col-sm-10 mt-2">
-              <input type="text" name="name" class="form-control" id="name" placeholder="Наименование"
-                v-model="approval_template.name">
-            </div>
+            <div class="card-body table-responsive p-0">
+              <div class="col-12 mt-2">
+                <button v-on:click="goToAproovalTemplateList()" class="btn btn-primary " type="button"
+                  data-toggle="tooltip" data-placement="top">
+                  Перейти к списку шаблона
+                </button>
 
-            <label for="id" class="col-sm-2 col-form-label mt-2">Организация</label>
-            <div class="col-sm-10 mt-2">
-              <select v-on:click="getEntityList()" v-model="approval_template.entity_iin" class="form-control">
-                <option value="0">---------</option>
-                <option v-for="item in entityList" v-bind:value="item.iin">
-                  [[ item.name ]] ([[ item.iin ]])
-                </option>
-              </select>
-            </div>
+                <div class="form-group row">
 
-            <label for="id" class="col-sm-2 col-form-label mt-2">Шаблон документа</label>
-            <div class="col-sm-10 mt-2">
-              <select v-on:click="getDocumentTypeList()" v-model="approval_template.document_type_id"
-                class="form-control" aria-label="Шаблон документа" id="document_type">
-                <option value="0">---------</option>
-                <option v-for="item in documentType" v-bind:value="item.id">
-                  [[ item.description ]]
-                </option>
-              </select>
-            </div>
-
-          </div>
-          <div class="mt-2 mb-2">
-            <button v-on:click="clearActiveStep()" type="button" type="button" class="btn btn-success"
-              data-target="#newElementModal" data-toggle="modal">
-              Добавить
-            </button>
-          </div>
-          <div class="col-12">
-            <table class="table table-bordered table-hover">
-              <thead class="table-dark">
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">ID</th>
-                  <th scope="col">Уровень</th>
-                  <th scope="col">Тип</th>
-                  <th scope="col">Сотрудник</th>
-                  <th scope="col">Операции</th>
-                </tr>
-              </thead>
-              <tbody v-for="(step, index) in approval_template.steps" :key="index">
-                <tr>
-                  <td>[[ index+1 ]]</td>
-                  <td>[[ step.id ]]</td>
-                  <td>[[ step.level ]]</td>
-                  <td>[[ step.type]]</td>
-                  <td>[[ step.employee.name ]] ([[ step.employee.email ]])</td>
-                  <td>
-                    <button v-on:click="loadStep(step, index)" data-toggle="modal" data-target="#newElementModal"
-                      class="btn btn-success btn-sm rounded-3" type="button" data-toggle="tooltip" data-placement="top"
-                      title="" data-original-title="Edit">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                        class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                        <path
-                          d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z" />
-                      </svg>
-                    </button>
-                    <button v-on:click="deleteStep(step, index)" class="btn btn-danger btn-sm rounded-3" type="button"
-                      data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                        class="bi bi-trash-fill" viewBox="0 0 16 16">
-                        <path
-                          d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="pt-3 row">
-            <div class="col">
-              <button type="button" class="btn btn-primary " v-on:click="sendData()">
-                Сохранить
-              </button>
-              <button type="button" class="btn btn-primary btn-danger" data-toggle="modal"
-                data-target="#deleteElementModal">
-                Удалить
-              </button>
-            </div>
-          </div>
-
-          <!-- Новый элемент -->
-          <div class="modal fade" id="newElementModal" tabindex="-1" aria-labelledby="newElementModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="newElementModalLabel">Строка записи</h5>
-                  <button type="button" data-dismiss="modal" aria-label="Отмена" class="close"><span
-                      aria-hidden="true">×</span></button>
-                </div>
-                <div class="modal-body">
-                  <div class="pt-2 row">
-
-                    <label for="step_position" class="col-sm-2 col-form-label">Номер записи</label>
-                    <div class="col-sm-10 mt-2">
-                      <input type="number" class="form-control" id="step_position" placeholder="Уровень"
-                        v-model.number="step_position" readonly>
-                    </div>
-
-                    <label for="step_level" class="col-sm-2 col-form-label">Уровень</label>
-                    <div class="col-sm-10 mt-2">
-                      <input type="number" class="form-control" id="step_level" placeholder="Уровень"
-                        v-model.number="step_level" min="1" max="100">
-                    </div>
-
-                    <label for="step_level" class="col-sm-2 col-form-label">Тип согласования</label>
-                    <div class="col-sm-10 mt-2">
-                      <select class="form-control" aria-label="Тип согласования" id="step_type" v-model="step_type">
-                        <option selected>-------------------</option>
-                        <option value="Линейное">Линейное</option>
-                        <option value="Паралельное">Паралельное</option>
-                      </select>
-                    </div>
-
-                    <label for="step_employee_id" class="col-sm-2 col-form-label">Сотрудник</label>
-                    <div class="col-sm-10 mt-2">
-                      <select v-on:click="getEmployeeList()" v-model="step_employee" class="form-control"
-                        aria-label="Сотрудник" id="step_employee">
-                        <option value="0">---------</option>
-                        <option v-for="item in emloyeeList"
-                          v-bind:value="{ id: item.id, name: item.name, email: item.email }">
-                          [[ item.name ]]
-                        </option>
-                      </select>
-                    </div>
-
+                  <label for="id" class="col-sm-2 col-form-label">ИД</label>
+                  <div class="col-sm-10">
+                    <input type="text" name="id" class="form-control" id="id" placeholder="ИД"
+                      v-model="approval_template.id" readonly>
                   </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                  <button type="button" class="btn btn-primary " role="button" v-on:click="updateStep()"
-                    data-dismiss="modal">
-                    Сохранить
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+                  <label for="id" class="col-sm-2 col-form-label mt-2">Наименование</label>
+                  <div class="col-sm-10 mt-2">
+                    <input type="text" name="name" class="form-control" id="name" placeholder="Наименование"
+                      v-model="approval_template.name">
+                  </div>
 
-          <!-- Сохранение записи -->
-          <div class="modal fade" id="deleteElementModal" tabindex="-1" aria-labelledby="deleteElementModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
-                  <button type="button" data-dismiss="modal" aria-label="Отмена" class="close"><span
-                      aria-hidden="true">×</span></button>
-                </div>
-                <div class="modal-body">
-                  Вы действительно хотите удалить запись?
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                  <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal"
-                    v-on:click="deleteAproovalTemplate()">
-                    Удалить
-                  </button>
+                  <label for="id" class="col-sm-2 col-form-label mt-2">Организация</label>
+                  <div class="col-sm-10 mt-2">
+                    <select v-on:click="getEntityList()" v-model="approval_template.entity_iin" class="form-control">
+                      <option value="0">---------</option>
+                      <option v-for="item in entityList" v-bind:value="item.iin">
+                        [[ item.name ]] ([[ item.iin ]])
+                      </option>
+                    </select>
+                  </div>
+
+                  <label for="id" class="col-sm-2 col-form-label mt-2">Шаблон документа</label>
+                  <div class="col-sm-10 mt-2">
+                    <select v-on:click="getDocumentTypeList()" v-model="approval_template.document_type_id"
+                      class="form-control" aria-label="Шаблон документа" id="document_type">
+                      <option value="0">---------</option>
+                      <option v-for="item in documentType" v-bind:value="item.id">
+                        [[ item.description ]]
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="mt-2 mb-2 ml-2">
+                    <button v-on:click="clearActiveStep()" type="button" type="button" class="btn btn-success"
+                      data-target="#newElementModal" data-toggle="modal">
+                      Добавить
+                    </button>
+                  </div>
+                  <div class="col-12">
+                    <table class="table table-bordered table-hover">
+                      <thead class="table-dark">
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">ID</th>
+                          <th scope="col">Уровень</th>
+                          <th scope="col">Тип</th>
+                          <th scope="col">Сотрудник</th>
+                          <th scope="col">Операции</th>
+                        </tr>
+                      </thead>
+                      <tbody v-for="(step, index) in approval_template.steps" :key="index">
+                        <tr>
+                          <td>[[ index+1 ]]</td>
+                          <td>[[ step.id ]]</td>
+                          <td>[[ step.level ]]</td>
+                          <td>[[ step.type]]</td>
+                          <td>[[ step.employee.name ]] ([[ step.employee.email ]])</td>
+                          <td>
+                            <button v-on:click="loadStep(step, index)" data-toggle="modal"
+                              data-target="#newElementModal" class="btn btn-success btn-sm rounded-3" type="button"
+                              data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                <path
+                                  d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z" />
+                              </svg>
+                            </button>
+                            <button v-on:click="deleteStep(step, index)" class="btn btn-danger btn-sm rounded-3"
+                              type="button" data-toggle="tooltip" data-placement="top" title=""
+                              data-original-title="Delete">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                <path
+                                  d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                              </svg>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="mt-2 mb-2">
+                    <div class="col">
+                      <button type="button" class="btn btn-primary " v-on:click="sendData()">
+                        Сохранить
+                      </button>
+                      <button type="button" class="btn btn-primary btn-danger" data-toggle="modal"
+                        data-target="#deleteElementModal">
+                        Удалить
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Новый элемент -->
+                  <div class="modal fade" id="newElementModal" tabindex="-1" aria-labelledby="newElementModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="newElementModalLabel">Строка записи</h5>
+                          <button type="button" data-dismiss="modal" aria-label="Отмена" class="close"><span
+                              aria-hidden="true">×</span></button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="pt-2 row">
+
+                            <label for="step_position" class="col-sm-2 col-form-label">Номер записи</label>
+                            <div class="col-sm-10 mt-2">
+                              <input type="number" class="form-control" id="step_position" placeholder="Уровень"
+                                v-model.number="step_position" readonly>
+                            </div>
+
+                            <label for="step_level" class="col-sm-2 col-form-label">Уровень</label>
+                            <div class="col-sm-10 mt-2">
+                              <input type="number" class="form-control" id="step_level" placeholder="Уровень"
+                                v-model.number="step_level" min="1" max="100">
+                            </div>
+
+                            <label for="step_level" class="col-sm-2 col-form-label">Тип согласования</label>
+                            <div class="col-sm-10 mt-2">
+                              <select class="form-control" aria-label="Тип согласования" id="step_type"
+                                v-model="step_type">
+                                <option selected>-------------------</option>
+                                <option value="Линейное">Линейное</option>
+                                <option value="Паралельное">Паралельное</option>
+                              </select>
+                            </div>
+
+                            <label for="step_employee_id" class="col-sm-2 col-form-label">Сотрудник</label>
+                            <div class="col-sm-10 mt-2">
+                              <select v-on:click="getEmployeeList()" v-model="step_employee" class="form-control"
+                                aria-label="Сотрудник" id="step_employee">
+                                <option value="0">---------</option>
+                                <option v-for="item in emloyeeList"
+                                  v-bind:value="{ id: item.id, name: item.name, email: item.email }">
+                                  [[ item.name ]]
+                                </option>
+                              </select>
+                            </div>
+
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                          <button type="button" class="btn btn-primary " role="button" v-on:click="updateStep()"
+                            data-dismiss="modal">
+                            Сохранить
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Сохранение записи -->
+                  <div class="modal fade" id="deleteElementModal" tabindex="-1"
+                    aria-labelledby="deleteElementModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
+                          <button type="button" data-dismiss="modal" aria-label="Отмена" class="close"><span
+                              aria-hidden="true">×</span></button>
+                        </div>
+                        <div class="modal-body">
+                          Вы действительно хотите удалить запись?
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                          <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal"
+                            v-on:click="deleteAproovalTemplate()">
+                            Удалить
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -196,8 +203,6 @@
       </div>
     </template>
   </div>
-
-
 </form>
 
 <script>

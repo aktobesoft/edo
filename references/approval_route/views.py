@@ -13,6 +13,7 @@ async def get_approval_route_by_id(approval_route_id: int):
 
 async def get_approval_route_by_aproval_process_id(aproval_process_id: int):
     query = select(ApprovalRoute).where(ApprovalRoute.approval_process_id == aproval_process_id).order_by(ApprovalRoute.id)
+    
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -27,6 +28,7 @@ async def get_approval_route_nested_by_aproval_process_id(aproval_process_id: in
             Employee.name.label('employee_name')).\
             join(Employee, ApprovalRoute.employee_id == Employee.id, isouter=True).\
             where(ApprovalRoute.approval_process_id == aproval_process_id).order_by(ApprovalRoute.id)
+    print(query)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:

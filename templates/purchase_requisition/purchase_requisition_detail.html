@@ -7,21 +7,27 @@
         <div class="col-12">
           <div class="card mt-3">
             <div class="card-header">
-              Заявка на расходование средств
+                Заявка на расходование средств
             </div>
             <div class="card-body table-responsive p-0">
               <div class="col-12 ">
+                <button v-on:click="goToPurchaseRequisitionLit()" class="btn btn-primary mt-2 " type="button" data-toggle="tooltip"
+                  data-placement="top">
+                  Перейти к списку заявок
+                </button>
+
                 <div class="mt-2 ml-1 row">
+
                   <label for="id" class="col-sm-2 col-form-label mt-2">ID</label>
                   <div class="col-sm-10">
                     <input type="number" name="id" class="form-control" id="id" placeholder="ID" readonly
-                      v-model="purchase_requisition.id" readonly>
+                      v-model.number="purchase_requisition.id" readonly>
                   </div>
 
                   <label for="id" class="col-sm-2 col-form-label mt-2">Номер</label>
                   <div class="col-sm-10 mt-2">
-                    <input type="text" name="number" class="form-control" id="name" placeholder="Номер"
-                      v-model="purchase_requisition.number">
+                    <input type="number" name="number" class="form-control" id="name" placeholder="Номер" readonly
+                      v-model.number="purchase_requisition.number">
                   </div>
 
                   <label for="id" class="col-sm-2 col-form-label mt-2">Дата</label>
@@ -66,13 +72,13 @@
                   <label for="id" class="col-sm-2 col-form-label mt-2">Сумма</label>
                   <div class="col-sm-10 mt-2">
                     <input type="number" name="sum" class="form-control" id="sum" placeholder="Сумма"
-                      v-model="purchase_requisition.sum">
+                      v-model.number="purchase_requisition.sum">
                   </div>
 
                   <label for="id" class="col-sm-2 col-form-label mt-2">Комментарий</label>
                   <div class="col-sm-10 mt-2">
-                    <input type="text" name="comment" class="form-control" id="comment" placeholder="Комментарий"
-                      v-model="purchase_requisition.comment">
+                    <textarea class="form-control" rows="3" placeholder="Комментарий"
+                    v-model="purchase_requisition.comment"></textarea>
                   </div>
 
                 </div>
@@ -128,14 +134,25 @@
                     </tbody>
                   </table>
                 </div>
-                <div class="mt-2 mb-2 ml-2">
+                <div class="mt-2 mb-2 ml-3">
+                  <div class="row">
                   <button type="button" class="btn btn-primary" v-on:click="sendData()">
                     Сохранить
                   </button>
-                  <button type="button" class="btn btn-primary btn-danger" data-toggle="modal"
+                  <button type="button" class="btn btn-primary btn-danger ml-1" data-toggle="modal"
                     data-target="#deleteElementModal">
                     Удалить
                   </button>
+                  <div class="dropdown ml-1">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Согласование
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                      <button class="dropdown-item" type="button" @click="startApprovalProcess()">Отправить на согласование</button>
+                      <button class="dropdown-item" type="button">Отменить согласование</button>
+                    </div>
+                  </div>
+                </div>
                 </div>
 
                 <!-- Modal -->
@@ -160,8 +177,9 @@
 
                           <label for="item_level" class="col-sm-2 col-form-label">Это услуга</label>
                           <div class="col-sm-10 mt-2">
-                            <input class="form-check-input" type="checkbox" value="" id="item_service"
-                              v-model.number="item_service">
+                            <div class="form-check">
+                              <input type="checkbox" class="form-check-input" v-model="item_service">
+                            </div>
                           </div>
 
                           <label for="item_level" class="col-sm-2 col-form-label">Наименование</label>
@@ -257,7 +275,7 @@
         "id": 0,
         "guid": "",
         "number": "",
-        "date": "0001-01-01",
+        "date": new Date().toISOString().slice(0, 10),
         "comment": "",
         "sum": 0,
         "counterparty_iin": "",
@@ -497,8 +515,17 @@
             await this.getPurchaseRequisition()
           }
         }
-
-      }
+      },
+      startApprovalProcess: async function(){
+        try {
+          let response = await axios.get("{{url_for('get_approval_process_list')}}start?document_id="+
+                                      this.purchase_requisition_id+"&document_type_id="+this.purchase_requisition.document_type_id+"&entity_iin="+this.purchase_requisition.entity_iin)
+          console.log(response.data)
+          result = response.data
+        } catch (err) {
+          console.log(err)
+        }  
+      },
     }
   })
 </script>

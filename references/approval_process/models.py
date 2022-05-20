@@ -142,3 +142,12 @@ class ApprovalProcessCheck(BaseModel):
     document_type_id: int
     entity_iin: str
 
+class ResponseMapStart(BaseModel):
+    Error: bool = False
+    Text: str = ''
+    ApprovalProcess: Union[dict, None] 
+    ApprovalProcessStatus: Union[dict, None]
+    ApprovalRoute: list = []
+    ApprovalTemplate: Union[dict, None] 
+    ApprovalRouteCurrentStep: list = []
+

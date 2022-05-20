@@ -1,4 +1,4 @@
-from sqlalchemy import desc, func, null, select, insert, update, delete
+from sqlalchemy import desc, func, null, select, insert, update, delete, event
 from core.db import database
 import asyncpg
 from datetime import date, datetime, timezone
@@ -128,20 +128,34 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
         recordDict['counterparty'] = counterparty_fillDataFromDict(rec)
         listValue.append(recordDict)
     return listValue
+    
+async def get_max_purchase_requisition_number(entity_iin: str)->str:
+    query = select(func.max(PurchaseRequisition.number).label('number')).where(PurchaseRequisition.entity_iin == entity_iin)
+    result = await database.fetch_one(query)
+    
+    if result == None or result['number'] == null or result['number'] == None:
+        number = 1
+    else:
+        number = ''.join(filter(str.isdigit, result['number']))
+        number = int(number) + 1
+
+    return str(number)
 
 async def post_purchase_requisition(purchaseRequisitionInstance : dict):
 
     purchaseRequisitionInstance["date"] = correct_datetime(purchaseRequisitionInstance["date"])
-    
+    max_number = await get_max_purchase_requisition_number(purchaseRequisitionInstance["entity_iin"])
+    print(max_number)
     query = insert(PurchaseRequisition).values(
                 guid = purchaseRequisitionInstance["guid"], 
-                number = purchaseRequisitionInstance["number"], 
+                number = max_number, 
                 date = purchaseRequisitionInstance["date"],
                 comment = purchaseRequisitionInstance["comment"], 
                 sum = float(purchaseRequisitionInstance["sum"]), 
                 counterparty_iin = purchaseRequisitionInstance["counterparty_iin"], 
                 document_type_id = int(purchaseRequisitionInstance["document_type_id"]), 
                 entity_iin = purchaseRequisitionInstance["entity_iin"])
+
     newPurchaseRequisitionId = await database.execute(query)
     await post_pr_items_by_purchase_requisition(purchaseRequisitionInstance["items"], newPurchaseRequisitionId)
     return {**purchaseRequisitionInstance, 'id': newPurchaseRequisitionId}

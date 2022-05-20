@@ -1,16 +1,51 @@
 from turtle import end_fill
 from typing import List
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, websockets, Request
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, websockets
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from requests import request
 from core.db import engine, SessionLocal
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import insert
 from datetime import datetime
 
-templates = Jinja2Templates(directory="templates")
+
+html = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+        <h1>WebSocket Chat</h1>
+        <h2>Your ID: <span id="ws-id"></span></h2>
+        <form action="" onsubmit="sendMessage(event)">
+            <input type="text" id="messageText" autocomplete="off"/>
+            <button>Send</button>
+        </form>
+        <ul id='messages'>
+        </ul>
+        <script>
+            var client_id = Date.now()
+            document.querySelector("#ws-id").textContent = client_id;
+            var ws = new WebSocket(`ws://127.0.0.1:8000/ws/ws/${client_id}`);
+            ws.onmessage = function(event) {
+                var messages = document.getElementById('messages')
+                var message = document.createElement('li')
+                var content = document.createTextNode(event.data)
+                message.appendChild(content)
+                messages.appendChild(message)
+            };
+            function sendMessage(event) {
+                var input = document.getElementById("messageText")
+                ws.send(input.value)
+                input.value = ''
+                event.preventDefault()
+            }
+        </script>
+    </body>
+</html>
+"""
+
 
 class ConnectionManager:
     def __init__(self):
@@ -35,12 +70,12 @@ manager = ConnectionManager()
 
 wsRouter = APIRouter()
 
-@wsRouter.get("/", response_class = HTMLResponse)
-async def websocket_index(request: Request):
-    return templates.TemplateResponse("websocket/websocket.html", context={'request': request})
+@wsRouter.get("/", response_class=HTMLResponse)
+async def websocket_index():
+    return HTMLResponse(html)
 
 
-@wsRouter.websocket("/{client_id}")
+@wsRouter.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
     
     await manager.connect(websocket)
