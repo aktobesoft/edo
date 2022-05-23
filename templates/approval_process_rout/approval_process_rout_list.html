@@ -33,13 +33,13 @@
                     <td >[[ item.document_type.description ]] №[[ item.document.number ]] от [[
                       item.document.date ]]</td>
                     <td >
-                      <template v-if="item.status === 'В работе'">
+                      <template v-if="item.status === 'в работе'">
                         <i class='fas fa-circle' style='color:#faab00'>&nbsp;</i>
                       </template>
-                      <template v-else-if="item.status === 'Подписан'">
+                      <template v-else-if="item.status === 'подписан'">
                         <i class='fas fa-circle' style='color:#28a745'>&nbsp;</i> 
                       </template>
-                      <template v-else-if="item.status === 'Отклонен'">
+                      <template v-else-if="item.status === 'отклонен'">
                         <i class='fas fa-circle' style='color: red'>&nbsp;</i> 
                       </template>
                       [[ item.status ]]</td>

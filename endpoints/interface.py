@@ -3,19 +3,19 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Form
 from common_module.urls_module import paginator, paginator_execute, qp_select_list, qp_select_one
 from fastapi.templating import Jinja2Templates
 from documents.purchase_requisition.views import get_purchase_requisition_by_id, get_purchase_requisition_list
-from references.approval_process.urls import get_approval_process_list
-from references.approval_template.models import ApprovalTemplate
-from references.counterparty.models import Counterparty
-from references.employee.models import Employee
-from references.employee import views as employeeService
-from references.entity import views as entityService
-from references.counterparty import views as counterpartyService
-from references.approval_template.views import get_approval_template_by_id, get_approval_template_list
-from references.entity.models import Entity
+from catalogs.approval_process.urls import get_approval_process_list
+from catalogs.approval_template.models import ApprovalTemplate
+from catalogs.counterparty.models import Counterparty
+from catalogs.employee.models import Employee
+from catalogs.employee import views as employeeService
+from catalogs.entity import views as entityService
+from catalogs.counterparty import views as counterpartyService
+from catalogs.approval_template.views import get_approval_template_by_id, get_approval_template_list
+from catalogs.entity.models import Entity
 from datetime import datetime
 from starlette.status import HTTP_302_FOUND
 
-from references.enum_types.models import step_type
+from catalogs.enum_types.models import StepType
 
 templates = Jinja2Templates(directory="templates")
 interfaceRoute = APIRouter() 
@@ -68,10 +68,6 @@ async def approval_template_detail(request: Request, itemId: str):
         return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, 'approval_template': approval_template, 'itemId': itemId})    
     parametrs = {'nested': True}
     approval_template = await get_approval_template_by_id(int(itemId), **parametrs)
-    # _approval_template = dict(approval_template)
-    for item in approval_template['steps']:
-        item['type'] = 'Линейное' if item['type'] == step_type.line  else 'Паралельное'
-    # _approval_template['type'] = 'Линейное' if _approval_template['type'] == step_type.line else 'Паралельное'
     return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, 'approval_template': approval_template, 'itemId': int(itemId)})
 
 # ----------------------------------------------

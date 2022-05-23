@@ -8,9 +8,9 @@ from documents.base_document.models import BaseDocument
 from core.db import Base
 from pydantic import BaseModel
 
-from references.counterparty.models import CounterpartySmallOut
-from references.document_type.models import DocumentTypeOut
-from references.entity.models import EntitySmallOut
+from catalogs.counterparty.models import CounterpartySmallOut
+from catalogs.document_type.models import DocumentTypeOut
+from catalogs.entity.models import EntitySmallOut
 
 class PurchaseRequisitionItems(Base):
     __tablename__ = "purchase_requisition_items"

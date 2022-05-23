@@ -87,6 +87,8 @@
                           <th scope="col">Активный</th>
                           <th scope="col">Тип</th>
                           <th scope="col">Сотрудник</th>
+                          <th scope="col">Статус</th>
+                          <th scope="col">Комментарий</th>
                           <th scope="col">Операции</th>
                         </tr>
                       </thead>
@@ -103,6 +105,15 @@
                           </template>
                           <td>[[ rout.type]]</td>
                           <td>[[ rout.employee.name ]] ([[ rout.employee.email ]])</td>
+                          <td>
+                            <template v-if="rout.status === 'согласован'">
+                              <i class='fas fa-circle' style='color:#28a745'>&nbsp;</i> 
+                            </template>
+                            <template v-else-if="rout.status === 'отклонен'">
+                              <i class='fas fa-circle' style='color: red'>&nbsp;</i> 
+                            </template>
+                            [[ rout.status]]</td>
+                          <td>[[ rout.status_comment]]</td>
                           <td>
                             <button v-on:click="loadStep(rout, index)" data-toggle="modal"
                               data-target="#newElementModal" class="btn btn-success btn-sm rounded-3" type="button"
@@ -156,6 +167,17 @@
                                 <input type="checkbox" class="form-check-input" v-model="rout_is_active">
                               </div>
                             </div>
+                            
+                            <label for="rout_status" class="col-sm-2 col-form-label">Статус</label>
+                            <div class="col-sm-10 mt-2">
+                              <input type="text" class="form-control" id="rout_status" placeholder="Уровень"
+                                v-model="rout_status" readonly>
+                            </div>
+
+                            <label for="rout_status_comment" class="col-sm-2 col-form-label" >Комментарий</label>
+                            <div class="col-sm-10 mt-2">
+                              <textarea class="form-control" rows="3" placeholder="Комментарий" v-model="rout_status_comment" readonly></textarea>
+                            </div>
 
                             <label for="rout_level" class="col-sm-2 col-form-label mt-2">Уровень</label>
                             <div class="col-sm-10 mt-2">
@@ -168,8 +190,8 @@
                               <select class="form-control" aria-label="Тип согласования" id="rout_type"
                                 v-model="rout_type">
                                 <option selected>-------------------</option>
-                                <option value="Линейное">Линейное</option>
-                                <option value="Паралельное">Паралельное</option>
+                                <option value="линейное">линейное</option>
+                                <option value="параллельное">параллельное</option>
                               </select>
                             </div>
 
@@ -243,7 +265,7 @@
         "document_type_id": 0,
         "entity_iin": "",
         "approval_template_id": 0,
-        "status": "В работе",
+        "status": "в работе",
         "start_date": "",
         "end_date": "",
         "document": {
@@ -271,10 +293,12 @@
       emloyeeList: [],
       entityList: [],
       documentType: [],
-      statusList: ['В работе', 'Подписан', 'Отклонен', 'Отменен', 'В работе', 'Черновик'],
+      statusList: ['в работе', 'подписан', 'отклонен', 'отменен', 'в работе', 'черновик'],
       rout_employee: {},
       rout_type: '',
       rout_level: 0,
+      rout_status: '',
+      rout_status_comment: '',
       rout_index: -1,
       rout_position: 0,
       rout_is_active: true
@@ -381,6 +405,8 @@
           this.rout_type = '',
           this.rout_level = 1,
           this.rout_is_active = true,
+          this.rout_status = "";
+          this.rout_status_comment = "";
           this.rout_index = -1
         this.rout_position = this.approval_process.routes.length + 1
       },
@@ -404,6 +430,9 @@
         this.rout_employee = rout.employee
         this.rout_is_active = rout.is_active
         this.rout_index = index;
+        this.rout_status = rout.status;
+        this.rout_status_comment = rout.status_comment;
+        this.rout_index = index;
         this.rout_position = index + 1;
       },
       updateStep: function () {
@@ -416,6 +445,8 @@
         rout.type = this.rout_type;
         rout.is_active = this.rout_is_active;
         rout.employee_id = this.rout_employee.id;
+        rout.status = this.rout_status;
+        rout.status_comment = this.rout_status_comment;
         rout.employee = this.rout_employee;
       },
       deleteStep: function (rout, index) {

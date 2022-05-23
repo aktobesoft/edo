@@ -6,11 +6,11 @@ from documents.base_document.models import BaseDocument, Paginator
 from core.db import Base
 from pydantic import BaseModel
 
-from references.counterparty.models import CounterpartySmallOut
-from references.document_type.models import DocumentTypeOut
-from references.entity.models import EntitySmallOut
+from catalogs.counterparty.models import CounterpartySmallOut
+from catalogs.document_type.models import DocumentTypeOut
+from catalogs.entity.models import EntitySmallOut
 from documents.purchase_requisition_items.models import _PurchaseRequisitionItemsOut, _PurchaseRequisitionItemsPOST, _PurchaseRequisitionItemsPUT, _PurchaseRequisitionItemsOutWithLine
-from references.enum_types.models import status_type
+from catalogs.enum_types.models import ProcessStatusType
 
 class PurchaseRequisition(BaseDocument, Base):
     __tablename__ = "purchase_requisition"
@@ -29,7 +29,7 @@ class PurchaseRequisitionOut(BaseModel):
     counterparty_iin: str
     document_type_id: int
     entity_iin: str
-    status: Union[status_type, None]
+    status: Union[str, None]
     
     class Config:
         orm_mode = True
@@ -45,7 +45,7 @@ class PurchaseRequisitionItemsOut(BaseModel):
     counterparty_iin: str
     document_type_id: int
     entity_iin: str
-    status: Union[status_type, None]
+    status: Union[str, None]
     items: list[_PurchaseRequisitionItemsOut]
     
     class Config:
@@ -64,7 +64,7 @@ class PurchaseRequisitionNestedOut(BaseModel):
     entity_iin: str
     counterparty: CounterpartySmallOut
     document_type: DocumentTypeOut
-    status: Union[status_type, None]
+    status: Union[str, None]
     entity: EntitySmallOut
     
     class Config:
@@ -84,7 +84,7 @@ class PurchaseRequisitionNestedItemsOut(BaseModel):
     counterparty: CounterpartySmallOut
     document_type: DocumentTypeOut
     entity: EntitySmallOut
-    status: Union[status_type, None]
+    status: Union[str, None]
     items: list[_PurchaseRequisitionItemsOutWithLine]
     
     class Config:

@@ -139,11 +139,11 @@
 
                             <label for="step_level" class="col-sm-2 col-form-label">Тип согласования</label>
                             <div class="col-sm-10 mt-2">
-                              <select class="form-control" aria-label="Тип согласования" id="step_type"
-                                v-model="step_type">
+                              <select class="form-control" aria-label="Тип согласования" id="StepType"
+                                v-model="StepType">
                                 <option selected>-------------------</option>
-                                <option value="Линейное">Линейное</option>
-                                <option value="Паралельное">Паралельное</option>
+                                <option value="линейное">линейное</option>
+                                <option value="параллельное">параллельное</option>
                               </select>
                             </div>
 
@@ -236,7 +236,7 @@
       entityList: [],
       documentType: [],
       step_employee: '',
-      step_type: '',
+      StepType: '',
       step_level: 0,
       step_index: -1,
       step_position: 0,
@@ -329,7 +329,7 @@
       },
       clearActiveStep: function () {
         this.step_employee = '',
-          this.step_type = '',
+          this.StepType = '',
           this.step_level = 1,
           this.step_index = -1
         this.step_position = this.approval_template.steps.length + 1
@@ -338,7 +338,7 @@
         this.approval_template.steps.push({
           "id": 0,
           "level": this.step_level,
-          "type": this.step_type,
+          "type": this.StepType,
           "employee_id": this.step_employee.id,
           "employee": {
             "id": this.step_employee.id,
@@ -349,7 +349,7 @@
       },
       loadStep: function (step, index) {
         this.step_level = step.level;
-        this.step_type = step.type;
+        this.StepType = step.type;
         this.step_employee.name = step.employee.name;
         this.step_employee.id = step.employee_id;
         this.step_employee.email = step.employee.email;
@@ -364,7 +364,7 @@
         }
         step = this.approval_template.steps[this.step_index]
         step.level = this.step_level;
-        step.type = this.step_type;
+        step.type = this.StepType;
         step.employee_id = this.step_employee.id;
         step.employee.name = this.step_employee.name;
         step.employee.id = this.step_employee.id;

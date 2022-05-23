@@ -2,11 +2,12 @@ import email
 from typing import List
 from unicodedata import name
 from fastapi import APIRouter
-from references.counterparty.models import Counterparty, CounterpartyNestedOut, CounterpartyOut
-from references.entity.models import Entity, EntityNestedOut, EntityOut
-from references.business_type.models import BusinessType
-from references.document_type.models import DocumentType
-from references.user.models import User
+from catalogs.counterparty.models import Counterparty, CounterpartyNestedOut, CounterpartyOut
+from catalogs.entity.models import Entity, EntityNestedOut, EntityOut
+from catalogs.business_type.models import BusinessType
+from catalogs.document_type.models import DocumentType
+from catalogs.enum_types.models import ProcessStatusType, RouteStatusType, StepType
+from catalogs.user.models import User
 from core.db import database, SessionLocal
 from sqlalchemy import select, insert, tuple_, join
 
@@ -21,6 +22,25 @@ def create_BusinessType():
     typeList.append(BusinessType(name = 'ИП', full_name = 'Индивидуальный предприниматель'))
     typeList.append(BusinessType(name = 'ФизЛицо', full_name = 'Физическое лицо'))
     typeList.append(BusinessType(name = 'ГП', full_name = 'Государственное предприятие'))
+    session.add_all(typeList)
+    session.commit()
+    return {'status': 'done'}
+
+@initRouter.get('/createAllTypes')
+def create_types():
+    typeList = []
+    typeList.append(ProcessStatusType(name = 'подписан', description = 'Подписан'))
+    typeList.append(ProcessStatusType(name = 'отклонен', description = 'Отклонен'))
+    typeList.append(ProcessStatusType(name = 'отменен', description = 'Отменен'))
+    typeList.append(ProcessStatusType(name = 'в работе', description = 'В работе'))
+    typeList.append(ProcessStatusType(name = 'черновик', description = 'Черновик'))
+
+    typeList.append(RouteStatusType(name = 'согласован', description = 'Согласован'))
+    typeList.append(RouteStatusType(name = 'отклонен', description = 'Отклонен'))
+
+    typeList.append(StepType(name = 'линейное', description = 'Линейное'))
+    typeList.append(StepType(name = 'параллельное', description = 'Параллельное'))
+
     session.add_all(typeList)
     session.commit()
     return {'status': 'done'}

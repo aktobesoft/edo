@@ -1,19 +1,13 @@
-from sqlalchemy import desc, func, null, select, insert, update, delete, event
+from sqlalchemy import func, null, select, insert, update, delete
 from core.db import database
-import asyncpg
-from datetime import date, datetime, timezone
 from common_module.urls_module import correct_datetime, correct_datetime
 
 from documents.purchase_requisition.models import PurchaseRequisition, PurchaseRequisitionOut
-from documents.purchase_requisition_items.models import PurchaseRequisitionItems
-from documents.purchase_requisition_items.views import delete_all_pr_items_by_purchase_requisition, delete_pr_items_by_purchase_requisition, get_pr_items_list_by_purchase_requisition_id, post_pr_items_by_purchase_requisition, update_pr_items_by_purchase_requisition
-from references.approval_process.models import ApprovalProcess
-from references.business_type.models import BusinessType
-from references.counterparty.models import Counterparty, counterparty_fillDataFromDict
-from references.document_type.models import DocumentType, document_type_fillDataFromDict
-from references.entity.models import Entity, entity_fillDataFromDict
-from references.enum_types.models import status_type
-from references.user.models import User
+from documents.purchase_requisition_items.views import delete_all_pr_items_by_purchase_requisition, get_pr_items_list_by_purchase_requisition_id, post_pr_items_by_purchase_requisition, update_pr_items_by_purchase_requisition
+from catalogs.approval_process.models import ApprovalProcess
+from catalogs.counterparty.models import Counterparty, counterparty_fillDataFromDict
+from catalogs.document_type.models import DocumentType, document_type_fillDataFromDict
+from catalogs.entity.models import Entity, entity_fillDataFromDict
 
 
 async def get_purchase_requisition_by_id(purchase_requisition_id: int, **kwargs):
