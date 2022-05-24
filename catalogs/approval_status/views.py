@@ -1,7 +1,6 @@
 from sqlalchemy import bindparam, func, select, insert, update, delete
 from datetime import datetime, timezone
 
-from tomlkit import comment
 from core.db import database
 from common_module.urls_module import correct_datetime
 

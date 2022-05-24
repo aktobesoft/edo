@@ -5,15 +5,11 @@ from sqlalchemy.sql.expression import bindparam
 import asyncpg
 import binascii
 
-from tomlkit import value
 from core.db import database
 from common_module.urls_module import correct_datetime
 
 from catalogs.approval_template_step.models import ApprovalTemplateStep, _ApprovalTemplateStepPUT
-from catalogs.counterparty.models import counterparty_fillDataFromDict
-from catalogs.document_type.models import document_type_fillDataFromDict
 from catalogs.employee.models import Employee, employee_fillDataFromDict
-from catalogs.entity.models import Entity, entity_fillDataFromDict
 from catalogs.enum_types.models import StepType
 
 async def get_approval_template_step_by_id(approval_template_step_id: int):

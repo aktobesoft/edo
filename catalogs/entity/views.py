@@ -1,4 +1,3 @@
-from django.http import Http404
 from fastapi import HTTPException
 from sqlalchemy import func, select, insert, update, delete
 from core.db import database
