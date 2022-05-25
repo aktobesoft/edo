@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from auth.user_auth import UserModel, get_current_active_user
 from common_module.urls_module import qp_select_list
 from documents.base_document.models import OptionsStructure
 from core.db import database
@@ -12,7 +13,7 @@ from catalogs.user import views as userService
 userRouter = APIRouter()
 
 @userRouter.get('/', response_model = Union[List[UserOut], List[OptionsStructure]])
-async def get_user_list(commons: dict = Depends(qp_select_list)):
+async def get_user_list(commons: dict = Depends(qp_select_list), current_user: UserModel = Depends(get_current_active_user)):
     listValue = await userService.get_user_list(**commons)
     return listValue
 

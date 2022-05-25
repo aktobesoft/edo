@@ -48,7 +48,6 @@ async def get_approval_route_nested_by_aproval_process_id(aproval_process_id: in
             join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalRoute.employee_id == ApprovalStatus.employee_id)\
                 & (ApprovalStatus.is_active), isouter=True).\
                 where(ApprovalRoute.approval_process_id == aproval_process_id).order_by(ApprovalRoute.id)
-    print(query)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:

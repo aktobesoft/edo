@@ -19,7 +19,6 @@ async def get_approval_status_nested_by_id(aproval_status_id: int):
             Employee.name.label('employee_name')).\
             join(Employee, ApprovalStatus.employee_id == Employee.id, isouter=True).\
             where(ApprovalStatus.id == aproval_status_id)
-    print(query)
     records = await database.fetch_one(query)
     listValue = []
     for rec in records:

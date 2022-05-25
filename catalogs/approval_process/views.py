@@ -110,7 +110,6 @@ async def post_approval_process(apInstance : dict):
                 end_date = apInstance["end_date"],
                 status = apInstance["status"])
     result = await database.execute(query)
-    print(apInstance)
     routesResult = await post_approval_routes_by_approval_process_id(await collectRoutes(apInstance['routes'], result))
     return {**apInstance, 'id': result}
 

@@ -2,6 +2,7 @@ from typing import Optional
 from fastapi import Depends, FastAPI
 from endpoints.ws import wsRouter
 from endpoints.api import apiRouter
+from auth.user_auth import auth_Router
 from core.db import database
 from endpoints.init import initRouter
 from endpoints.interface import interfaceRoute
@@ -15,6 +16,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(interfaceRoute, prefix="", tags=["interface"])
 app.include_router(wsRouter, prefix="/ws", tags=["ws"])
 app.include_router(apiRouter, prefix="/v1/api")
+app.include_router(auth_Router, prefix="/auth")
 app.include_router(initRouter, prefix="/init", tags=["init"])
 
 @app.on_event("startup")

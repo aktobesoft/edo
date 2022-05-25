@@ -139,7 +139,6 @@ async def post_purchase_requisition(purchaseRequisitionInstance : dict):
 
     purchaseRequisitionInstance["date"] = correct_datetime(purchaseRequisitionInstance["date"])
     max_number = await get_max_purchase_requisition_number(purchaseRequisitionInstance["entity_iin"])
-    print(max_number)
     query = insert(PurchaseRequisition).values(
                 guid = purchaseRequisitionInstance["guid"], 
                 number = max_number, 

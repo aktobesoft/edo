@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, validator
-from sqlalchemy import Column, String, Integer, Boolean 
+from sqlalchemy import Column, ForeignKey, String, Integer, Boolean
+from sqlalchemy.orm import relationship 
 from core.db import Base, metadata
 
 class User(Base):
@@ -7,7 +8,7 @@ class User(Base):
 
     id = Column(Integer, primary_key = True, autoincrement = True)
     email = Column(String, unique=True, index = True)
-    name =Column(String(150), nullable=True)
+    name = Column(String(150), nullable=True)
     hashed_password = Column(String)
     is_company = Column(Boolean, default=True)
     is_active = Column(Boolean, default=True)
