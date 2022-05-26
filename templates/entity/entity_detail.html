@@ -193,7 +193,7 @@
         }
         let response = await axios.get("{{url_for('get_user_list')}}?optional=true", get_config())
         console.log(response.data)
-        this.userList = response.data
+        this.userList = response.data['result']
       },
       getEntity: async function () {
         console.log(this.entity_iin)

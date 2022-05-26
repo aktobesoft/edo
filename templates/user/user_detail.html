@@ -1,0 +1,215 @@
+{% extends 'index.html' %}
+{% block form_content %}
+<form method="POST" action='{{ request.path }}' novalidate>
+  <div id="vue">
+    <template>
+      <div class="row">
+        <div class="card mt-2">
+          <div class="card-header">
+            [[ user.name ]] ([[user.email]])
+          </div>
+          <div class="card-body table-responsive p-0 ">
+            <div class="col-12 ">
+              <button v-on:click="goToUserList()" class="btn btn-primary mt-2 " type="button" data-toggle="tooltip"
+                data-placement="top">
+                Перейти к списку пользователей
+              </button>
+              <div class="mt-2 ml-1 row">
+                <label for="item_position" class="col-sm-2 col-form-label">ID</label>
+                <div class="col-sm-10 mt-2">
+                  <input type="number" class="form-control" placeholder="ID" readonly readonly
+                    v-model.number="user.id">
+                </div>
+
+                <label for="item_position" class="col-sm-2 col-form-label">Наименование</label>
+                <div class="col-sm-10 mt-2">
+                  <input type="text" class="form-control" placeholder="Наименование" v-model="user.name">
+                </div>
+
+                <label for="item_position" class="col-sm-2 col-form-label">Email</label>
+                <div class="col-sm-10 mt-2">
+                  <input type="text" class="form-control" placeholder="Email" v-model="user.email">
+                </div>
+
+                <label for="item_level" class="col-sm-2 col-form-label">Это компания</label>
+                <div class="col-sm-10 mt-2">
+                  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" v-model="user.is_company">
+                  </div>
+                </div>
+
+                <label for="item_level" class="col-sm-2 col-form-label">Активный</label>
+                <div class="col-sm-10 mt-2">
+                  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" v-model="user.is_active">
+                  </div>
+                </div>
+
+
+                <label for="item_position" class="col-sm-2 col-form-label">Количество привязанных компаний</label>
+                <div class="col-sm-10 mt-2">
+                  <input type="number" class="form-control" placeholder="ID" readonly v-model.number="user.entity_count">
+                </div>
+
+                <label for="item_position" class="col-sm-2 col-form-label">Количество привязанных пользователей</label>
+                <div class="col-sm-10 mt-2">
+                  <input type="number" class="form-control" placeholder="ID" readonly v-model.number="user.employee_count">
+                </div>
+
+                <label for="item_position" class="col-sm-2 col-form-label">Новый пароль</label>
+                <div class="col-sm-10 mt-2">
+                  <input type="password" class="form-control" placeholder="Установить новый пароль" v-model="user.hashed_password">
+                </div>
+
+              </div>
+              <div class="pt-3 row">
+                <div class="col mb-3 ml-2">
+                  <button type="button" v-on:click="sendData()"
+                    class="btn btn-primary toastrDefaultSuccess">Сохранить</button>
+                  <button type="button" class="btn btn-primary btn-danger" data-toggle="modal"
+                    data-target="#deleteUserModal">
+                    Удалить
+                  </button>
+                </div>
+              </div>
+
+              <!-- Modal -->
+              <div class="modal fade" id="deleteUserModal">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="deleteUserModalLabel">Подтвердите действие</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      Вы действительно хотите удалить запись?
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                        data-dismiss="modal">Отмена</button>
+                      <button v-on:click="deleteUser()" type="button" class="btn btn-primary btn-danger"
+                        data-dismiss="modal" data-dismiss="modal">Удалить</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+</form>
+<script>
+  new Vue({
+    delimiters: ['[[', ']]'],
+    el: '#vue',
+    data: {
+      businessTypeList: [],
+      userList: [],
+      user: {
+        "id": 0,
+        "name": "",
+        "email": "",
+        "employee_count": 0,
+        "entity_count": 0,
+        "is_company": true,
+        "is_active": true,
+        "hashed_password": ""
+      },
+      user_id: "{{ user_id }}",
+      entityList: [],
+    },
+    async mounted() {
+      is_authorized()
+      if (this.user_id != 'new') {
+        await this.getUser()
+      }
+    },
+    methods: {
+      getUser: async function () {
+        console.log(this.user_id)
+        let response = await axios.get("{{url_for('get_user_list')}}" + this.user_id.toString(), get_config())
+        console.log(response.data)
+        this.user = response.data
+      },
+      deleteUser: async function () {
+        let response = await axios.delete("{{url_for('get_user_list')}}" + this.user_id.toString(), get_config())
+        if (response != null && (response.status == 200 || response.status == 201)) {
+          this.goToUserList()
+        }
+      },
+      goToUserList: function () {
+        window.location.href = "{{url_for('user_list')}}"
+      },
+      putUser: async function () {
+        user_data = this.collectData()
+        console.log("before send post")
+        console.log(JSON.stringify(user_data))
+        try {
+          let response = await axios.put("{{url_for('get_user_list')}}" + this.user_id.toString() + "?nested=true", user_data, get_config());
+          console.log(response.data)
+          this.user = response.data
+          return response
+        } catch (err) {
+          console.log(err)
+          return null
+        }
+      },
+      postUser: async function () {
+        user_data = this.collectData()
+        console.log("before send post")
+        console.log(JSON.stringify(user_data))
+        try {
+          let response = await axios.post("{{url_for('get_user_list')}}?nested=true", user_data, get_config());
+          console.log(response.data)
+          this.user = response.data
+          this.user_id = this.user['id']
+          return response
+        } catch (err) {
+          console.log(err)
+          return null
+        }
+      },
+      collectData: function () {
+        user_data = {
+          "id": this.user.id,
+          "name": this.user.name,
+          "email": this.user.email,
+          "is_company": this.user.is_company,
+          "is_active": this.user.is_active,
+          "hashed_password": this.user.hashed_password,
+        }
+        return user_data
+      },
+      sendData: async function () {
+        console.log(this.user_id)
+        user_data = this.collectData()
+        console.log("before send post")
+        console.log(JSON.stringify(user_data))
+        if (this.user_id == 'new') {
+          let response = await this.postUser()
+          if (response != null && (response.status == 200 || response.status == 201)) {
+            await this.getUser()
+          }
+        } else {
+          let response = await this.putUser()
+          if (response != null && (response.status == 200 || response.status == 201)) {
+            await this.getUser()
+          }
+        }
+      },
+      dateToStr: function (valueDate) {
+        var date = new Date(valueDate);
+        return date.toISOString().substring(0, 10);
+      },
+      strToDate: function (valueDate) {
+        //var date = new Date(valueDate);
+        //date.setUTCHours(0,0,0,0);
+        //return date.toISOString();
+        return valueDate + "T18:00:00+00:00"
+      }
+    }
+  })
+</script>
+{% endblock %}

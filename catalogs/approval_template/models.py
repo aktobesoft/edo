@@ -12,10 +12,10 @@ class ApprovalTemplate(Base):
     __tablename__ = "approval_template"
 
     id = Column(Integer, primary_key = True, autoincrement = True)
-    document_type_id = Column(Integer, ForeignKey('document_type.id', ondelete = "CASCADE"), nullable = False)
+    document_type_id = Column(Integer, ForeignKey('document_type.id'), nullable = False)
     document_type = relationship("DocumentType")
     name = Column(String(150))
-    entity_iin = Column(String, ForeignKey('entity.iin', ondelete = "CASCADE"), nullable = False, index = True)
+    entity_iin = Column(String, ForeignKey('entity.iin'), nullable = False, index = True)
     entity = relationship("Entity")
 
     def __repr__(self) -> str:

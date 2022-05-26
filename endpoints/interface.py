@@ -39,6 +39,16 @@ async def create_new_employee(request: Request, itemId: str):
     return templates.TemplateResponse("employee/employee_detail.html", context={'request': request, 'employee_id': itemId})
 
 # ----------------------------------------------
+# user
+@interfaceRoute.get("/user/", response_class=HTMLResponse)
+async def user_list(request: Request, query_param: dict = Depends(qp_select_list)):
+    return templates.TemplateResponse("user/user_list.html", context={'request': request, 'page': query_param['page']})
+
+@interfaceRoute.get('/user/{itemId}', response_class=HTMLResponse)
+async def create_new_user(request: Request, itemId: str):
+    return templates.TemplateResponse("user/user_detail.html", context={'request': request, 'user_id': itemId})
+
+# ----------------------------------------------
 # counterparty
 @interfaceRoute.get("/counterparty/", response_class=HTMLResponse)
 async def counterparty_list(request: Request, query_param: dict = Depends(qp_select_list)):
@@ -57,7 +67,7 @@ async def approval_template_list(request: Request):
 
 @interfaceRoute.get("/approval_template/{itemId}", response_class=HTMLResponse)
 async def approval_template_detail(request: Request, itemId: str):
-    return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, 'itemId': int(itemId)})
+    return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, 'itemId': itemId})
 
 # ----------------------------------------------
 # purchase_requisition
@@ -68,7 +78,7 @@ async def purchase_requisition_list(request: Request):
 
 @interfaceRoute.get("/purchase_requisition/{itemId}", response_class=HTMLResponse)
 async def purchase_requisition_detail(request: Request, itemId: str):
-    return templates.TemplateResponse("purchase_requisition/purchase_requisition_detail.html", context={'request': request, 'itemId': int(itemId)})
+    return templates.TemplateResponse("purchase_requisition/purchase_requisition_detail.html", context={'request': request, 'itemId': itemId})
 
 # ----------------------------------------------
 # approval_process

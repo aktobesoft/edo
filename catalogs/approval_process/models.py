@@ -12,14 +12,14 @@ class ApprovalProcess(Base):
     id = Column(Integer, primary_key = True, autoincrement = True)
     is_active = Column(Boolean, default=True)
     document_id = Column(Integer, nullable = False, index = True)
-    document_type_id= Column(Integer, ForeignKey('document_type.id', ondelete = "CASCADE"), nullable = False)
-    entity_iin = Column(String, ForeignKey('entity.iin', ondelete = "CASCADE"), nullable = False, index = True)
+    document_type_id= Column(Integer, ForeignKey('document_type.id'), nullable = False)
+    entity_iin = Column(String, ForeignKey('entity.iin'), nullable = False, index = True)
     entity = relationship("Entity")
     start_date = Column(Date, nullable = True, default=datetime.utcnow)
     end_date = Column(Date, nullable = True)
-    approval_template_id = Column(Integer, ForeignKey('approval_template.id', ondelete = "CASCADE"), nullable = False, index = True)
+    approval_template_id = Column(Integer, ForeignKey('approval_template.id'), nullable = False, index = True)
     approval_template = relationship("ApprovalTemplate")
-    status = Column(String, ForeignKey('process_status_type.name', ondelete = "CASCADE"), nullable = True)
+    status = Column(String, ForeignKey('process_status_type.name'), nullable = True)
     process_status_type = relationship("ProcessStatusType")
 
 
@@ -69,7 +69,6 @@ class ApprovalProcessRoutOut(BaseModel):
     
     class Config:
         orm_mode = True
-        
 class ApprovalProcessRoutNestedOut(BaseModel):
     
     id: int

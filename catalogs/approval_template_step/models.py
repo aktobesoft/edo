@@ -14,11 +14,11 @@ class ApprovalTemplateStep(Base):
 
     id = Column(Integer, primary_key = True, autoincrement = True)
     level = Column(Integer, nullable = False)
-    type = Column(String, ForeignKey('step_type.name', ondelete = "CASCADE"), nullable = True)
+    type = Column(String, ForeignKey('step_type.name'), nullable = True)
     step_type = relationship("StepType")
-    employee_id = Column(Integer, ForeignKey('employee.id', ondelete = "CASCADE"), nullable = False, index = True)
+    employee_id = Column(Integer, ForeignKey('employee.id'), nullable = False, index = True)
     employee = relationship("Employee")
-    approval_template_id = Column(Integer, ForeignKey('approval_template.id', ondelete = "CASCADE"), nullable = False, index = True)
+    approval_template_id = Column(Integer, ForeignKey('approval_template.id'), nullable = False, index = True)
     approval_template = relationship("ApprovalTemplate")
     hash = Column(String, index = True)
 

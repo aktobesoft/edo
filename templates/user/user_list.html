@@ -7,40 +7,40 @@
       <div class="card mt-2">
         <div class="card ">
           <div class="card-header">
-            Список сотрудников
+            Список пользователей
             <template v-if="page_count > 1">
               <div class="card-tools">
                 <ul class="pagination pagination-sm float-right">
                   <template v-if="page > 3">
                     <li class="page-item"><button type="button" class="page-link"
-                        v-on:click="getEmployeeList(1)">1</button></li>
+                        v-on:click="getUserList(1)">1</button></li>
                   </template>
 
                   <template v-if="page-3 > 1">
                     <li class="page-item"><button type="button" class="page-link "
-                        v-on:click="getEmployeeList(page-3)"><i class="fas fa-angle-double-left"></i></button></li>
+                        v-on:click="getUserList(page-3)"><i class="fas fa-angle-double-left"></i></button></li>
                   </template>
 
                   <template v-if="page > 1">
                     <li class="page-item"><button type="button" class="page-link"
-                        v-on:click="getEmployeeList(page-1)">[[page-1]]</button></li>
+                        v-on:click="getUserList(page-1)">[[page-1]]</button></li>
                   </template>
 
                   <li class="page-item active"><button type="button" class="page-link">[[page]]</button></li>
 
                   <template v-if="page < page_count">
                     <li class="page-item"><button type="button" class="page-link"
-                        v-on:click="getEmployeeList(page+1)">[[page+1]]</button></li>
+                        v-on:click="getUserList(page+1)">[[page+1]]</button></li>
                   </template>
 
                   <template v-if="page+3 < page_count">
                     <li class="page-item"><button type="button" class="page-link"
-                        v-on:click="getEmployeeList(page+3)"><i class="fas fa-angle-double-right"></i></button></li>
+                        v-on:click="getUserList(page+3)"><i class="fas fa-angle-double-right"></i></button></li>
                   </template>
 
                   <template v-if="page < page_count-2">
                     <li class="page-item"><button type="button" class="page-link"
-                        v-on:click="getEmployeeList(page_count)">[[page_count]]</button></li>
+                        v-on:click="getUserList(page_count)">[[page_count]]</button></li>
                   </template>
 
                 </ul>
@@ -53,29 +53,45 @@
               <table class="table table-bordered table-hover">
                 <thead class="table-dark">
                   <tr>
-                    <th scope="col">ИД</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Наименование</th>
-                    <th scope="col">Организация</th>
-                    <th scope="col">Дата рождение</th>
-                    <th scope="col">Пользователь</th>
-                    <th scope="col">Операции</th>
+                    <th scope="col" width="5%">ИД</th>
+                    <th scope="col" width="25%">Email</th>
+                    <th scope="col" width="25%">Наименование</th>
+                    <th scope="col" width="5%">Это компания</th>
+                    <th scope="col" width="5%">Активный</th>
+                    <th scope="col" width="10%">Кол-во компаний</th>
+                    <th scope="col" width="10%">Кол-во сотрудников</th>
+                    <th scope="col" width="15%">Операции</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="employee in listEmployee" :key="employee.id">
-                    <th scope="row">[[ employee.id ]]</th>
-                    <td>[[ employee.email ]]</td>
-                    <td>[[ employee.name ]]</a></td>
-                    <td>[[ employee.entity.name ]] </td>
-                    <td>[[ employee.date_of_birth ]]</td>
-                    <td>[[ employee.user.name ]] ([[employee.user.email]])</td>
+                  <tr v-for="user in listUser" :key="user.id">
+                    <th scope="row">[[ user.id ]]</th>
+                    <td>[[ user.email ]]</td>
+                    <td>[[ user.name ]]</a></td>
                     <td>
-                      <button v-on:click="openEmployee(employee)" class="btn btn-success btn-sm rounded-3" type="button"
+                      <div v-if="user.is_company === true">
+                        <i class="fas fa-check"></i>
+                      </div>
+                      <div v-else>
+                        
+                      </div>
+                    </td>
+                    <td>
+                      <div v-if="user.is_active === true">
+                        <i class="fas fa-check"></i>
+                      </div>
+                      <div v-else>
+                        
+                      </div>
+                    </td>
+                    <td>[[ user.entity_count ]]</td>
+                    <td>[[ user.employee_count ]]</td>
+                    <td>
+                      <button v-on:click="openUser(user)" class="btn btn-success btn-sm rounded-3" type="button"
                         data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
                         <i class="fas fa-edit"></i>
                       </button>
-                      <button v-on:click="setCurrentItem(employee)" class="btn btn-danger btn-sm rounded-3"
+                      <button v-on:click="setCurrentItem(user)" class="btn btn-danger btn-sm rounded-3"
                         type="button" data-toggle="modal" data-target="#deleteElementModal">
                         <i class="fas fa-trash"></i>
                       </button>
@@ -104,7 +120,7 @@
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
                   <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal"
-                    v-on:click="deleteEmployee()">
+                    v-on:click="deleteUser()">
                     Удалить
                   </button>
                 </div>
@@ -122,23 +138,23 @@
     el: '#vue',
     delimiters: ['[[', ']]'],
     data: {
-      //listEmployee: {{ listOfValue|safe }},
-      listEmployee: [],
+      //listUser: {{ listOfValue|safe }},
+      listUser: [],
       currentItemIndex: 0,
       page: 1,
       page_count: 1,
     },
     async mounted() {
       is_authorized()
-      await this.getEmployeeList(this.page)
+      await this.getUserList(this.page)
     },
     methods: {
-      getEmployeeList: async function (page) {
-        console.log("{{url_for('get_employee_list')}}?nested=true&limit=100&page=" + page);
+      getUserList: async function (page) {
+        console.log("{{url_for('get_user_list')}}?nested=true&limit=100&page=" + page);
         try {
-          let response = await axios.get("{{url_for('get_employee_list')}}?nested=true&limit=100&page=" + page, get_config())
+          let response = await axios.get("{{url_for('get_user_list')}}?nested=true&limit=100&page=" + page, get_config())
           console.log(response.data['result'])
-          this.listEmployee = response.data['result']
+          this.listUser = response.data['result']
           this.page_count = response.data['info']['pages']
           if (page > 0) {
             this.page = page
@@ -149,22 +165,22 @@
         }
 
       },
-      openEmployee: function (item) {
+      openUser: function (item) {
         window.location.href = "{{ request.path }}" + item.id
       },
-      deleteEmployee: async function () {
+      deleteUser: async function () {
         try {
-          let id = this.listEmployee[this.currentItemIndex].id
-          let response = await axios.delete("{{url_for('get_employee_list')}}" + id, get_config());
+          let id = this.listUser[this.currentItemIndex].id
+          let response = await axios.delete("{{url_for('get_user_list')}}" + id, get_config());
           if (response != null && (response.status == 200 || response.status == 201)) {
-            this.listEmployee.splice(this.currentItemIndex, 1);
+            this.listUser.splice(this.currentItemIndex, 1);
           }
         } catch (err) {
           console.log(err)
         }
       },
       setCurrentItem: function (item) {
-        this.currentItemIndex = this.listEmployee.indexOf(item)
+        this.currentItemIndex = this.listUser.indexOf(item)
       },
     }
   })

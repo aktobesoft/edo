@@ -2,8 +2,8 @@ import email
 from typing import List
 from unicodedata import name
 from fastapi import APIRouter
-from catalogs.counterparty.models import Counterparty, CounterpartyNestedOut, CounterpartyOut
-from catalogs.entity.models import Entity, EntityNestedOut, EntityOut
+from catalogs.counterparty.models import Counterparty, CounterpartyOut
+from catalogs.entity.models import Entity, EntityNestedOut
 from catalogs.business_type.models import BusinessType
 from catalogs.document_type.models import DocumentType
 from catalogs.enum_types.models import ProcessStatusType, RouteStatusType, StepType

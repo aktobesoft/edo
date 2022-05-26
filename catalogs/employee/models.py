@@ -16,9 +16,9 @@ class Employee(Base):
     date_of_birth = Column(Date, nullable=True)
     name = Column(String(150), nullable = False)
     description = Column(String(350), nullable=True)
-    entity_iin = Column(String, ForeignKey('entity.iin', ondelete = "CASCADE"), nullable = False)
+    entity_iin = Column(String, ForeignKey('entity.iin'), nullable = False)
     entity = relationship("Entity")
-    user_id = Column(Integer, ForeignKey('users.id', ondelete = "CASCADE"))
+    user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("User")
 
     def __repr__(self) -> str:

@@ -1,14 +1,8 @@
-from turtle import end_fill
 from typing import List
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, websockets, Request
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from requests import request
-from core.db import engine, SessionLocal
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import insert
-from datetime import datetime
 
 templates = Jinja2Templates(directory="templates")
 
