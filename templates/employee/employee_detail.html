@@ -124,6 +124,7 @@
       entityList: [],
     },
     async mounted() {
+      is_authorized()
       if (this.employee_id != 'new') {
         await this.getEmployee()
       }
@@ -137,7 +138,7 @@
           return
         }
         try {
-          let response = await axios.get("{{url_for('get_entity_list')}}?skip=0&limit=300&nested=false&optional=false")
+          let response = await axios.get("{{url_for('get_entity_list')}}?skip=0&limit=300&nested=false&optional=false", get_config())
           console.log(response.data['result'])
           this.entityList = response.data['result']
         } catch (err) {
@@ -148,7 +149,7 @@
         if (this.businessTypeList.length > 0) {
           return
         }
-        let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true")
+        let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true", get_config())
         console.log(response.data)
         this.businessTypeList = response.data
       },
@@ -156,18 +157,18 @@
         if (this.userList.length > 0) {
           return
         }
-        let response = await axios.get("{{url_for('get_user_list')}}?optional=true")
+        let response = await axios.get("{{url_for('get_user_list')}}?optional=true", get_config())
         console.log(response.data)
         this.userList = response.data
       },
       getEmployee: async function () {
         console.log(this.employee_id)
-        let response = await axios.get("{{url_for('get_employee_list')}}" + this.employee_id.toString())
+        let response = await axios.get("{{url_for('get_employee_list')}}" + this.employee_id.toString(), get_config())
         console.log(response.data)
         this.employee = response.data
       },
       deleteEmployee: async function () {
-        let response = await axios.delete("{{url_for('get_employee_list')}}" + this.employee_id.toString())
+        let response = await axios.delete("{{url_for('get_employee_list')}}" + this.employee_id.toString(), get_config())
         if (response != null && (response.status == 200 || response.status == 201)) {
           this.goToEmployeeList()
         }
@@ -180,7 +181,7 @@
         console.log("before send post")
         console.log(JSON.stringify(employee_data))
         try {
-          let response = await axios.put("{{url_for('get_employee_list')}}" + this.employee_id.toString() + "?nested=true", employee_data);
+          let response = await axios.put("{{url_for('get_employee_list')}}" + this.employee_id.toString() + "?nested=true", employee_data, get_config());
           console.log(response.data)
           this.employee = response.data
           return response
@@ -194,7 +195,7 @@
         console.log("before send post")
         console.log(JSON.stringify(employee_data))
         try {
-          let response = await axios.post("{{url_for('get_employee_list')}}?nested=true", employee_data);
+          let response = await axios.post("{{url_for('get_employee_list')}}?nested=true", employee_data, get_config());
           console.log(response.data)
           this.employee = response.data
           this.employee_id = this.employee['id']

@@ -2,6 +2,10 @@
 
 {% block form_content %}
 
+<script>
+  is_authorized()
+</script>
+
 <form method="POST" action='{{ request.path }}' novalidate >
   <h1>
    Это главная страница

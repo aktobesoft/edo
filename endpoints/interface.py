@@ -1,19 +1,9 @@
-from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi import APIRouter, Depends, HTTPException, Request, Form
-from common_module.urls_module import paginator, paginator_execute, qp_select_list, qp_select_one
+from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Depends, Request
+from common_module.urls_module import qp_select_list
 from fastapi.templating import Jinja2Templates
-from documents.purchase_requisition.views import get_purchase_requisition_by_id, get_purchase_requisition_list
-from catalogs.approval_process.urls import get_approval_process_list
-from catalogs.approval_template.models import ApprovalTemplate
-from catalogs.counterparty.models import Counterparty
-from catalogs.employee.models import Employee
-from catalogs.employee import views as employeeService
-from catalogs.entity import views as entityService
-from catalogs.counterparty import views as counterpartyService
-from catalogs.approval_template.views import get_approval_template_by_id, get_approval_template_list
-from catalogs.entity.models import Entity
-from datetime import datetime
-from starlette.status import HTTP_302_FOUND
+from documents.purchase_requisition.views import get_purchase_requisition_list
+from catalogs.approval_template.views import get_approval_template_list
 
 from catalogs.enum_types.models import StepType
 
@@ -24,8 +14,12 @@ interfaceRoute = APIRouter()
 async def index(request: Request):
     return templates.TemplateResponse("main_page.html", context={'request': request})
 
+@interfaceRoute.get("/auth", response_class=HTMLResponse)
+async def auth_page(request: Request):
+    return templates.TemplateResponse("auth_page.html", context={'request': request})
+
 # ----------------------------------------------
-# +++ ---------------- entity ------------------
+# entity
 @interfaceRoute.get("/entity/", response_class=HTMLResponse)
 async def entity_list(request: Request, query_param: dict = Depends(qp_select_list)):
     return templates.TemplateResponse("entity/entity_list.html", context={'request': request, 'page': query_param['page']})
@@ -63,12 +57,7 @@ async def approval_template_list(request: Request):
 
 @interfaceRoute.get("/approval_template/{itemId}", response_class=HTMLResponse)
 async def approval_template_detail(request: Request, itemId: str):
-    if(itemId=='new'):
-        approval_template = ApprovalTemplate().asdict()
-        return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, 'approval_template': approval_template, 'itemId': itemId})    
-    parametrs = {'nested': True}
-    approval_template = await get_approval_template_by_id(int(itemId), **parametrs)
-    return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, 'approval_template': approval_template, 'itemId': int(itemId)})
+    return templates.TemplateResponse("approval_template/approval_template_detail.html", context={'request': request, 'itemId': int(itemId)})
 
 # ----------------------------------------------
 # purchase_requisition
@@ -79,12 +68,7 @@ async def purchase_requisition_list(request: Request):
 
 @interfaceRoute.get("/purchase_requisition/{itemId}", response_class=HTMLResponse)
 async def purchase_requisition_detail(request: Request, itemId: str):
-    if(itemId=='new'):
-        purchase_requisition = ApprovalTemplate().asdict()
-        return templates.TemplateResponse("purchase_requisition/purchase_requisition_detail.html", context={'request': request, 'purchase_requisition': purchase_requisition, 'itemId': itemId})    
-    parametrs = {'nested': True}
-    purchase_requisition = await get_purchase_requisition_by_id(int(itemId), **parametrs)
-    return templates.TemplateResponse("purchase_requisition/purchase_requisition_detail.html", context={'request': request, 'purchase_requisition': purchase_requisition, 'itemId': int(itemId)})
+    return templates.TemplateResponse("purchase_requisition/purchase_requisition_detail.html", context={'request': request, 'itemId': int(itemId)})
 
 # ----------------------------------------------
 # approval_process

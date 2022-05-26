@@ -150,6 +150,7 @@
       selectedRows: [],
     },
     async mounted() {
+      is_authorized()
       await this.getPurchaseRequisitionList(this.page);
     },
     filters: {
@@ -166,7 +167,7 @@
           item = this.selectedRows[index]
           try {
             let response = await axios.get("{{url_for('get_approval_process_list')}}start?document_id=" +
-              item.id + "&document_type_id=" + item.document_type_id + "&entity_iin=" + item.entity_iin)
+              item.id + "&document_type_id=" + item.document_type_id + "&entity_iin=" + item.entity_iin, get_config())
             console.log(response.data)
             result = response.data
           } catch (err) {
@@ -181,7 +182,7 @@
           item = this.selectedRows[index]
           try {
             let response = await axios.get("{{url_for('get_approval_process_list')}}cancel?document_id=" +
-              item.id + "&document_type_id=" + item.document_type_id + "&entity_iin=" + item.entity_iin)
+              item.id + "&document_type_id=" + item.document_type_id + "&entity_iin=" + item.entity_iin, get_config())
             console.log(response.data)
             result = response.data
           } catch (err) {
@@ -208,7 +209,7 @@
       getPurchaseRequisitionList: async function (page) {
         if (true) {
           try {
-            let response = await axios.get("{{url_for('get_purchase_requisition_list')}}?limit=100&nested=true&page=" + page)
+            let response = await axios.get("{{url_for('get_purchase_requisition_list')}}?limit=100&nested=true&page=" + page, get_config())
             console.log(response.data['result'])
             this.purchaseRequisitionList = response.data['result']
             this.page_count = response.data['info']['pages']
@@ -228,7 +229,7 @@
       deletePurchaseRequisition: async function () {
         try {
           let id = this.purchaseRequisitionList[this.currentItemIndex].id
-          let response = await axios.delete("{{url_for('get_purchase_requisition_list')}}" + id);
+          let response = await axios.delete("{{url_for('get_purchase_requisition_list')}}" + id, get_config());
           if (response != null && (response.status == 200 || response.status == 201)) {
             this.purchaseRequisitionList.splice(this.currentItemIndex, 1);
           }

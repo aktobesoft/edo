@@ -242,6 +242,7 @@
       step_position: 0,
     },
     async mounted() {
+      is_authorized()
       if (this.approval_template_id != 'new') {
         await this.getAproovalTemplate()
 
@@ -255,7 +256,7 @@
       getAproovalTemplate: async function () {
         console.log(Vue.version);
         try {
-          let response = await axios.get("{{url_for('get_approval_template_list')}}" + this.approval_template_id + "?nested=true");
+          let response = await axios.get("{{url_for('get_approval_template_list')}}" + this.approval_template_id + "?nested=true", get_config());
           console.log(response.data)
           this.approval_template = response.data
           return response
@@ -291,7 +292,7 @@
         approval_template_dict = this.collectData()
         console.log(Vue.version);
         try {
-          let response = await axios.post("{{url_for('get_approval_template_list')}}", approval_template_dict);
+          let response = await axios.post("{{url_for('get_approval_template_list')}}", approval_template_dict, get_config());
           console.log(response.data)
           this.approval_template = response.data
           this.approval_template_id = this.approval_template['id']
@@ -307,7 +308,7 @@
         console.log("before send")
         console.log(approval_template_dict);
         try {
-          let response = await axios.put("{{url_for('get_approval_template_list')}}" + this.approval_template_id, approval_template_dict);
+          let response = await axios.put("{{url_for('get_approval_template_list')}}" + this.approval_template_id, approval_template_dict, get_config());
           console.log(response.data)
           return response
         } catch (err) {
@@ -316,7 +317,7 @@
       },
       deleteAproovalTemplate: async function () {
         try {
-          let response = await axios.delete("{{url_for('get_approval_template_list')}}" + this.approval_template_id);
+          let response = await axios.delete("{{url_for('get_approval_template_list')}}" + this.approval_template_id, get_config());
           if (response != null && (response.status == 200 || response.status == 201)) {
             this.goToAproovalTemplateList()
           }
@@ -378,7 +379,7 @@
           return
         }
         try {
-          let response = await axios.get("{{url_for('get_document_type_list')}}?skip=0&limit=100&")
+          let response = await axios.get("{{url_for('get_document_type_list')}}?skip=0&limit=100&", get_config())
           console.log("getDocumentTypeList")
           console.log(response.data)
           this.documentType = response.data['result']
@@ -391,7 +392,7 @@
           return
         }
         try {
-          let response = await axios.get("{{url_for('get_employee_list')}}?skip=0&limit=100&")
+          let response = await axios.get("{{url_for('get_employee_list')}}?skip=0&limit=100&", get_config())
           console.log(response.data)
           this.emloyeeList = response.data['result']
         } catch (err) {
@@ -403,7 +404,7 @@
           return
         }
         try {
-          let response = await axios.get("{{url_for('get_entity_list')}}?skip=0&limit=100&nested=false&optional=false")
+          let response = await axios.get("{{url_for('get_entity_list')}}?skip=0&limit=100&nested=false&optional=false", get_config())
           console.log(response.data)
           this.entityList = response.data['result']
         } catch (err) {

@@ -102,6 +102,7 @@
       currentItemIndex: 0,
     },
     async mounted() {
+      is_authorized()
       await this.getApprovalProcessList()
     },
     methods: {
@@ -110,7 +111,7 @@
         if (this.listOfApprovalProcess.length == 0) {
           try {
 
-            let response = await axios.get("{{url_for('get_approval_process_list')}}?nested=true")
+            let response = await axios.get("{{url_for('get_approval_process_list')}}?nested=true", get_config())
             console.log(response.data)
             this.listOfApprovalProcess = response.data
           } catch (err) {
@@ -125,7 +126,7 @@
       deleteApprovalProcess: async function () {
         try {
           let id = this.listOfApprovalProcess[this.currentItemIndex].id
-          let response = await axios.delete("{{url_for('get_approval_process_list')}}" + id);
+          let response = await axios.delete("{{url_for('get_approval_process_list')}}" + id, get_config());
           if (response != null && (response.status == 200 || response.status == 201)) {
             this.listOfApprovalProcess.splice(this.currentItemIndex, 1);
           }

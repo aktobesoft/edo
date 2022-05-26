@@ -312,6 +312,7 @@
       item_position: 0,
     },
     async mounted() {
+      is_authorized()
       if (this.purchase_requisition_id != 'new') {
         await this.getPurchaseRequisition()
 
@@ -325,7 +326,7 @@
       getPurchaseRequisition: async function () {
         console.log(Vue.version);
         try {
-          let response = await axios.get("{{url_for('get_purchase_requisition_list')}}" + this.purchase_requisition_id + "?nested=true");
+          let response = await axios.get("{{url_for('get_purchase_requisition_list')}}" + this.purchase_requisition_id + "?nested=true", get_config());
           console.log(response.data)
           this.purchase_requisition = response.data
           this.purchase_requisition.date = this.dateToStr(this.purchase_requisition.date)
@@ -383,7 +384,7 @@
         console.log("before send post")
         console.log(JSON.stringify(purchase_requisition_dict))
         try {
-          let response = await axios.post("{{url_for('get_purchase_requisition_list')}}?nested=true", purchase_requisition_dict);
+          let response = await axios.post("{{url_for('get_purchase_requisition_list')}}?nested=true", purchase_requisition_dict, get_config());
           console.log(response.data)
           this.purchase_requisition = response.data
           this.purchase_requisition_id = this.purchase_requisition['id']
@@ -399,7 +400,7 @@
         console.log("before send put")
         console.log(JSON.stringify(purchase_requisition_dict))
         try {
-          let response = await axios.put("{{url_for('get_purchase_requisition_list')}}" + this.purchase_requisition_id + "?nested=true", purchase_requisition_dict);
+          let response = await axios.put("{{url_for('get_purchase_requisition_list')}}" + this.purchase_requisition_id + "?nested=true", purchase_requisition_dict, get_config());
           console.log(response.data)
           return response
         } catch (err) {
@@ -408,7 +409,7 @@
       },
       deletePurchaseRequisition: async function () {
         try {
-          let response = await axios.delete("{{url_for('get_purchase_requisition_list')}}" + this.purchase_requisition_id);
+          let response = await axios.delete("{{url_for('get_purchase_requisition_list')}}" + this.purchase_requisition_id, get_config());
           if (response != null && (response.status == 200 || response.status == 201)) {
             this.goToPurchaseRequisitionLit()
           }
@@ -471,7 +472,7 @@
           return
         }
         try {
-          let response = await axios.get("{{url_for('get_document_type_list')}}?skip=0&limit=3000")
+          let response = await axios.get("{{url_for('get_document_type_list')}}?skip=0&limit=3000", get_config())
           console.log(response.data)
           this.documentTypeList = response.data['result']
         } catch (err) {
@@ -483,7 +484,7 @@
           return
         }
         try {
-          let response = await axios.get("{{url_for('get_entity_list')}}?skip=0&limit=300&nested=false&optional=false")
+          let response = await axios.get("{{url_for('get_entity_list')}}?skip=0&limit=300&nested=false&optional=false", get_config())
           console.log(response.data['result'])
           this.entityList = response.data['result']
         } catch (err) {
@@ -495,7 +496,7 @@
           return
         }
         try {
-          let response = await axios.get("{{url_for('get_counterparty_list')}}?skip=0&limit=300&nested=false&optional=false")
+          let response = await axios.get("{{url_for('get_counterparty_list')}}?skip=0&limit=300&nested=false&optional=false", get_config())
           console.log(response.data)
           this.counterpartyList = response.data['result']
         } catch (err) {
@@ -519,7 +520,7 @@
       startApprovalProcess: async function(){
         try {
           let response = await axios.get("{{url_for('get_approval_process_list')}}start?document_id="+
-                                      this.purchase_requisition_id+"&document_type_id="+this.purchase_requisition.document_type_id+"&entity_iin="+this.purchase_requisition.entity_iin)
+                                      this.purchase_requisition_id+"&document_type_id="+this.purchase_requisition.document_type_id+"&entity_iin="+this.purchase_requisition.entity_iin, get_config())
           console.log(response.data)
           result = response.data
         } catch (err) {

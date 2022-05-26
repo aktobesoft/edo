@@ -86,6 +86,7 @@
       currentItemIndex: 0,
     },
     async mounted() {
+      is_authorized()
       await this.getApprovalTemplateList()
     },
     methods: {
@@ -94,7 +95,7 @@
         if (this.listOfApprovalTemplate.length == 0) {
           try {
 
-            let response = await axios.get("{{url_for('get_approval_template_list')}}?nested=true")
+            let response = await axios.get("{{url_for('get_approval_template_list')}}?nested=true", get_config())
             console.log(response.data)
             this.listOfApprovalTemplate = response.data
           } catch (err) {
@@ -109,7 +110,7 @@
       deleteAproovalTemplate: async function () {
         try {
           let id = this.listOfApprovalTemplate[this.currentItemIndex].id
-          let response = await axios.delete("{{url_for('get_approval_template_list')}}" + id);
+          let response = await axios.delete("{{url_for('get_approval_template_list')}}" + id, get_config());
           if (response != null && (response.status == 200 || response.status == 201)) {
             this.listOfApprovalTemplate.splice(this.currentItemIndex, 1);
           }

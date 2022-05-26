@@ -126,6 +126,7 @@
       page_count: 1,
     },
     async mounted() {
+      is_authorized()
       await this.getCounterpartyList(this.page)
     },
     methods: {
@@ -134,7 +135,7 @@
         //if (this.listCounterparty.length == 0) {
         if (true) {
           try {
-            let response = await axios.get("{{url_for('get_counterparty_list')}}?nested=true&limit=100&page=" + page)
+            let response = await axios.get("{{url_for('get_counterparty_list')}}?nested=true&limit=100&page=" + page, get_config())
             console.log(response.data['result'])
             this.listCounterparty = response.data['result']
             this.page_count = response.data['info']['pages']
@@ -153,7 +154,7 @@
       deleteCounterparty: async function () {
         try {
           let iin = this.listCounterparty[this.currentItemIndex].iin
-          let response = await axios.delete("{{url_for('get_counterparty_list')}}" + iin);
+          let response = await axios.delete("{{url_for('get_counterparty_list')}}" + iin, get_config());
           if (response != null && (response.status == 200 || response.status == 201)) {
             this.listCounterparty.splice(this.currentItemIndex, 1);
           }

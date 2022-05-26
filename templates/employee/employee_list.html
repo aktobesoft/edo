@@ -129,26 +129,25 @@
       page_count: 1,
     },
     async mounted() {
+      is_authorized()
       await this.getEmployeeList(this.page)
     },
     methods: {
       getEmployeeList: async function (page) {
         console.log("{{url_for('get_employee_list')}}?nested=true&limit=100&page=" + page);
-        //if (this.listEmployee.length == 0) {
-        if (true) {
-          try {
-            let response = await axios.get("{{url_for('get_employee_list')}}?nested=true&limit=100&page=" + page)
-            console.log(response.data['result'])
-            this.listEmployee = response.data['result']
-            this.page_count = response.data['info']['pages']
-            if (page > 0) {
-              this.page = page
-            }
+        try {
+          let response = await axios.get("{{url_for('get_employee_list')}}?nested=true&limit=100&page=" + page, get_config())
+          console.log(response.data['result'])
+          this.listEmployee = response.data['result']
+          this.page_count = response.data['info']['pages']
+          if (page > 0) {
+            this.page = page
           }
-          catch (err) {
-            console.log(err)
-          }
-        };
+        }
+        catch (err) {
+          console.log(err)
+        }
+
       },
       openEmployee: function (item) {
         window.location.href = "{{ request.path }}" + item.id

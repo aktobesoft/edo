@@ -127,6 +127,7 @@
       page_count: 1,
     },
     async mounted() {
+      is_authorized()
       await this.getEntityList(this.page)
     },
     methods: {
@@ -135,7 +136,7 @@
         //if (this.listEntity.length == 0) {
         if (true) {
           try {
-            let response = await axios.get("{{url_for('get_entity_list')}}?nested=true&limit=100&page=" + page)
+            let response = await axios.get("{{url_for('get_entity_list')}}?nested=true&limit=100&page=" + page, get_config())
             console.log(response.data['result'])
             this.listEntity = response.data['result']
             this.page_count = response.data['info']['pages']
@@ -154,7 +155,7 @@
       deleteEntity: async function () {
         try {
           let iin = this.listEntity[this.currentItemIndex].iin
-          let response = await axios.delete("{{url_for('get_entity_list')}}" + iin);
+          let response = await axios.delete("{{url_for('get_entity_list')}}" + iin, get_config());
           if (response != null && (response.status == 200 || response.status == 201)) {
             this.listEntity.splice(this.currentItemIndex, 1);
           }

@@ -171,6 +171,7 @@
       entity_iin: "{{ entity_iin }}",
     },
     async mounted() {
+      is_authorized()
       if (this.entity_iin != 'new') {
         await this.getEntity()
       }
@@ -182,7 +183,7 @@
         if (this.businessTypeList.length > 0) {
           return
         }
-        let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true")
+        let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true", get_config())
         console.log(response.data)
         this.businessTypeList = response.data
       },
@@ -190,18 +191,18 @@
         if (this.userList.length > 0) {
           return
         }
-        let response = await axios.get("{{url_for('get_user_list')}}?optional=true")
+        let response = await axios.get("{{url_for('get_user_list')}}?optional=true", get_config())
         console.log(response.data)
         this.userList = response.data
       },
       getEntity: async function () {
         console.log(this.entity_iin)
-        let response = await axios.get("{{url_for('get_entity_list')}}" + this.entity_iin.toString())
+        let response = await axios.get("{{url_for('get_entity_list')}}" + this.entity_iin.toString(), get_config())
         console.log(response.data)
         this.entity = response.data
       },
       deleteEntity: async function () {
-        let response = await axios.delete("{{url_for('get_entity_list')}}" + this.entity_iin.toString())
+        let response = await axios.delete("{{url_for('get_entity_list')}}" + this.entity_iin.toString(), get_config())
         if (response != null && (response.status == 200 || response.status == 201)) {
           this.goToEntityList()
         }
@@ -214,7 +215,7 @@
         console.log("before send post")
         console.log(JSON.stringify(entity_data))
         try {
-          let response = await axios.put("{{url_for('get_entity_list')}}" + this.entity_iin.toString() + "?nested=true", entity_data);
+          let response = await axios.put("{{url_for('get_entity_list')}}" + this.entity_iin.toString() + "?nested=true", entity_data, get_config());
           console.log(response.data)
           this.entity = response.data
           return response
@@ -228,7 +229,7 @@
         console.log("before send post")
         console.log(JSON.stringify(entity_data))
         try {
-          let response = await axios.post("{{url_for('get_entity_list')}}?nested=true", entity_data);
+          let response = await axios.post("{{url_for('get_entity_list')}}?nested=true", entity_data, get_config());
           console.log(response.data)
           this.entity = response.data
           this.entity_iin = this.entity['iin']
