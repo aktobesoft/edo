@@ -233,7 +233,7 @@ async def start_approval_process(parametrs):
     }
 
     responseMap['ApprovalProcess'] = await post_approval_process(apInstance)
-    responseMap['ApprovalProcessStatus'] = ProcessStatusType.in_process
+    responseMap['ApprovalProcessStatus'] = "в работе"
     responseMap['Text'] = 'Процесс согласования запущен'
     responseMap['ApprovalRoute'] =  await get_approval_route_by_aproval_process_id(responseMap['ApprovalProcess']['id'])
 

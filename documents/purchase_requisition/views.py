@@ -33,7 +33,10 @@ async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **
                 Counterparty.id.label("counterparty_id"),
                 Counterparty.name.label("counterparty_name"),
                 DocumentType.name.label("document_type_name"),
+                ApprovalProcess.status.label("status"),
                 DocumentType.description.label("document_type_description")).\
+                    join(ApprovalProcess, (PurchaseRequisition.id == ApprovalProcess.document_id) & 
+                        (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id) & (ApprovalProcess.is_active), isouter=True).\
                     join(Entity, PurchaseRequisition.entity_iin == Entity.iin, isouter=True).\
                     join(Counterparty, PurchaseRequisition.counterparty_iin == Counterparty.iin, isouter=True).\
                     join(DocumentType, PurchaseRequisition.document_type_id == DocumentType.id, isouter=True).\

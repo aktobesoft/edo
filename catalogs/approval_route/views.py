@@ -24,8 +24,7 @@ async def get_approval_route_by_aproval_process_id(aproval_process_id: int):
             ApprovalStatus.date.label('status_date'),
             ApprovalStatus.status.label('status'),
             ApprovalStatus.comment.label('status_comment')).\
-            join(ApprovalStatus, ApprovalRoute.id == ApprovalStatus.id, isouter=True\
-                & (ApprovalStatus.is_active)).\
+            join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.id) & (ApprovalStatus.is_active), isouter=True).\
                 where(ApprovalRoute.approval_process_id == aproval_process_id).order_by(ApprovalRoute.id)
     
     records = await database.fetch_all(query)
