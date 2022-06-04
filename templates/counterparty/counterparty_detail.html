@@ -183,7 +183,8 @@
           this.counterparty = response.data
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
           return null
         }
       },
@@ -198,7 +199,8 @@
           this.counterparty_iin = this.counterparty['iin']
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
           return null
         }
       },

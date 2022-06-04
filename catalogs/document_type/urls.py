@@ -10,12 +10,12 @@ document_typeRouter = APIRouter()
 
 
 @document_typeRouter.get('/', response_model = DocumentTypeListOut)
-async def get_document_type_list(query_param: dict = Depends(qp_select_list), current_user: UserModel = Depends(get_current_active_user)):
-    parametrs = await paginator_execute(query_param, await views.get_document_type_count())
-    return {'info': parametrs, 'result': await views.get_document_type_list(**parametrs)}
+async def get_document_type_list(parameters: dict = Depends(qp_select_list), current_user: UserModel = Depends(get_current_active_user)):
+    await paginator_execute(parameters, await views.get_document_type_count())
+    return {'info': parameters, 'result': await views.get_document_type_list(**parameters)}
 
 @document_typeRouter.get('/{document_type_iin}', response_model=DocumentTypeOut)
-async def get_document_type_by_iin(document_type_iin: str, qp_select_one: dict = Depends(qp_select_one), current_user: UserModel = Depends(get_current_active_user)):
+async def get_document_type_by_iin(document_type_iin: str, parameters: dict = Depends(qp_select_one), current_user: UserModel = Depends(get_current_active_user)):
     return await views.get_document_type_by_iin(document_type_iin)
 
 @document_typeRouter.post('/', response_model = DocumentTypeOut)

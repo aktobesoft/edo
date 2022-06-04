@@ -161,7 +161,8 @@
           }
         }
         catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
 
       },
@@ -176,7 +177,8 @@
             this.listUser.splice(this.currentItemIndex, 1);
           }
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       setCurrentItem: function (item) {

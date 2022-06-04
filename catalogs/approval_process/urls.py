@@ -16,19 +16,19 @@ async def ap_select_list(document_id: list = [], document_type_id: int = 0, enti
 approval_processRouter = APIRouter()
 
 @approval_processRouter.get('/start')#, response_model = ResponseMapStart)
-async def start_approval_process(parametrs: dict = Depends(ap_select), current_user: UserModel = Depends(get_current_active_user)):
-    result = await views.start_approval_process(parametrs)
+async def start_approval_process(parameters: dict = Depends(ap_select), current_user: UserModel = Depends(get_current_active_user)):
+    result = await views.start_approval_process(parameters)
     return result
 
 @approval_processRouter.get('/cancel')
-async def cancel_approval_process(parametrs: dict = Depends(ap_select), current_user: UserModel = Depends(get_current_active_user)):
-    result = await views.cancel_approval_process(parametrs)
+async def cancel_approval_process(parameters: dict = Depends(ap_select), current_user: UserModel = Depends(get_current_active_user)):
+    result = await views.cancel_approval_process(parameters)
     return result
 
 @approval_processRouter.post('/check')
 async def check_many_approval_processes(approvalProcessCheck: ApprovalProcessCheck, current_user: UserModel = Depends(get_current_active_user)):
-    parametrs = dict(approvalProcessCheck)
-    result = await views.check_approval_processes(parametrs)
+    parameters = dict(approvalProcessCheck)
+    result = await views.check_approval_processes(parameters)
     return result
 
 @approval_processRouter.get('/', response_model = Union[list[ApprovalProcessNestedOut], list[ApprovalProcessOut]])
@@ -37,8 +37,8 @@ async def get_approval_process_list(commons: dict = Depends(qp_select_list), cur
     return records
 
 @approval_processRouter.get('/{approval_process_id}',  response_model = Union[ApprovalProcessRoutNestedOut, ApprovalProcessRoutOut])
-async def get_approval_process_by_id(approval_process_id : int, qp_select_one: dict = Depends(qp_select_one), current_user: UserModel = Depends(get_current_active_user)):
-    result = await views.get_approval_process_by_id(approval_process_id, **qp_select_one)
+async def get_approval_process_by_id(approval_process_id : int, parameters: dict = Depends(qp_select_one), current_user: UserModel = Depends(get_current_active_user)):
+    result = await views.get_approval_process_by_id(approval_process_id, **parameters)
     return result
 
 @approval_processRouter.post('/', response_model = ApprovalProcessOut)

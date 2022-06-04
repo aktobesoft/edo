@@ -261,7 +261,8 @@
           this.approval_template = response.data
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
           return null
         }
       },
@@ -298,7 +299,8 @@
           this.approval_template_id = this.approval_template['id']
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
           return null
         }
       },
@@ -312,7 +314,8 @@
           console.log(response.data)
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       deleteAproovalTemplate: async function () {
@@ -322,7 +325,8 @@
             this.goToAproovalTemplateList()
           }
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       goToAproovalTemplateList: function () {
@@ -384,7 +388,8 @@
           console.log(response.data)
           this.documentType = response.data['result']
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       getEmployeeList: async function () {
@@ -396,7 +401,8 @@
           console.log(response.data)
           this.emloyeeList = response.data['result']
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       getEntityList: async function () {
@@ -408,7 +414,8 @@
           console.log(response.data)
           this.entityList = response.data['result']
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       sendData: async function () {

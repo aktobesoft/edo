@@ -10,8 +10,8 @@ from catalogs.approval_template_step import views
 approval_template_stepRouter = APIRouter()
 
 @approval_template_stepRouter.get('/', response_model = list[_ApprovalTemplateStepOut])
-async def get_approval_template_step_list(approval_template_id : int, qp_select_one: dict = Depends(qp_select_one), current_user: UserModel = Depends(get_current_active_user)):
-    records = await views.get_approval_template_step_list(approval_template_id, **qp_select_one)
+async def get_approval_template_step_list(approval_template_id : int, parameters: dict = Depends(qp_select_one), current_user: UserModel = Depends(get_current_active_user)):
+    records = await views.get_approval_template_step_list(approval_template_id, **parameters)
     return records
 
 @approval_template_stepRouter.get('/{approval_template_step_id}')

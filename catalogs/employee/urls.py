@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
-from auth.user_auth import UserModel, get_current_active_user
-from common_module.urls_module import paginator_execute, qp_select_list
+from auth.user_auth import UserModel, add_entity_filter, get_current_active_user, is_entity_allowed
+from common_module.urls_module import paginator_execute, qp_select_list, qp_select_one
 from catalogs.employee import views
 from catalogs.employee.models import EmployeeListNestedOut, EmployeeListOut, EmployeeOut, EmployeeIn
 from typing import List, Union
@@ -9,16 +9,19 @@ from documents.base_document.models import OptionsStructure
 employeeRouter = APIRouter()
 
 @employeeRouter.get('/', response_model = Union[EmployeeListNestedOut, EmployeeListOut])
-async def get_employee_list(query_param: dict = Depends(qp_select_list), current_user: UserModel = Depends(get_current_active_user)):
-    parametrs = await paginator_execute(query_param, await views.get_employee_count())
-    return {'info': parametrs, 'result': await views.get_employee_list(**parametrs)}
+async def get_employee_list(parameters: dict = Depends(qp_select_list), current_user: UserModel = Depends(get_current_active_user)):
+    await paginator_execute(parameters, await views.get_employee_count())
+    await add_entity_filter(current_user, parameters)
+    return {'info': parameters, 'result': await views.get_employee_list(**parameters)}
 
 @employeeRouter.get('/{employee_id}', response_model=EmployeeOut)
-async def get_employee_by_id(employee_id: int, current_user: UserModel = Depends(get_current_active_user)):
+async def get_employee_by_id(employee_id: int, parameters: dict = Depends(qp_select_one), current_user: UserModel = Depends(get_current_active_user)):
+    await add_entity_filter(current_user, qp_select_one)
     return await views.get_employee_by_id(employee_id)
 
 @employeeRouter.post('/', response_model = EmployeeOut)
 async def post_employee(newEmployeeIn : EmployeeIn, current_user: UserModel = Depends(get_current_active_user)):
+    await add_entity_filter(current_user, qp_select_one)
     result = await views.post_employee(newEmployeeIn.dict())
     return result
 

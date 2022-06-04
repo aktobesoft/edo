@@ -220,7 +220,8 @@
           this.entity = response.data
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
           return null
         }
       },
@@ -235,7 +236,8 @@
           this.entity_iin = this.entity['iin']
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
           return null
         }
       },

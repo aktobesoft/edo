@@ -16,8 +16,8 @@ async def get_approval_template_list(commons: dict = Depends(qp_select_list), cu
     return records
 
 @approval_templateRouter.get('/{approval_template_id}', response_model = Union[ApprovalTemplateStepsNestedOut, ApprovalTemplateNestedOut, ApprovalTemplateStepOut, ApprovalTemplateOut])
-async def get_approval_template_by_id(approval_template_id : int, qp_select_one: dict = Depends(qp_select_one), current_user: UserModel = Depends(get_current_active_user)):
-    result = await views.get_approval_template_by_id(approval_template_id, **qp_select_one)
+async def get_approval_template_by_id(approval_template_id : int, parameters: dict = Depends(qp_select_one), current_user: UserModel = Depends(get_current_active_user)):
+    result = await views.get_approval_template_by_id(approval_template_id, **parameters)
     return result
 
 @approval_templateRouter.post('/', response_model = ApprovalTemplateOut)

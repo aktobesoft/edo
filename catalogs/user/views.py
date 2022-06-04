@@ -59,7 +59,6 @@ async def get_user_list(limit: int = 100, skip: int = 0, **kwargs):
 
 async def delete_user_by_id(user_id: int):
     queryUser = delete(User).where(User.id == user_id)
-    print(queryUser)
     resultUser = await database.execute(queryUser)
     return resultUser
 

@@ -14,6 +14,7 @@ class User(Base):
     hashed_password = Column(String)
     is_company = Column(Boolean, default=True)
     is_active = Column(Boolean, default=True)
+    is_admin = Column(Boolean, default=False)
 
     def __repr__(self) -> str:
         return '<{0} ({1})>'.format(self.name, self.email)

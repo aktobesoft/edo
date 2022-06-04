@@ -142,7 +142,8 @@
           console.log(response.data['result'])
           this.entityList = response.data['result']
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       getBusinessTypeList: async function () {
@@ -186,7 +187,8 @@
           this.employee = response.data
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
           return null
         }
       },
@@ -201,7 +203,8 @@
           this.employee_id = this.employee['id']
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
           return null
         }
       },

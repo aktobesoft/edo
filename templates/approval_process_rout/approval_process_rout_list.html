@@ -115,7 +115,8 @@
             console.log(response.data)
             this.listOfApprovalProcess = response.data
           } catch (err) {
-            console.log(err)
+            console.log(err); 
+            check_status(err)
           }
         };
       },
@@ -131,7 +132,8 @@
             this.listOfApprovalProcess.splice(this.currentItemIndex, 1);
           }
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       setCurrentItem: function (item) {

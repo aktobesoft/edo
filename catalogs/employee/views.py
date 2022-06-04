@@ -8,8 +8,10 @@ from catalogs.user.models import User, user_fillDataFromDict
 from catalogs.entity.models import Entity, entity_fillDataFromDict
 from catalogs.employee.models import Employee, EmployeeIn, EmployeeOut
 
-async def get_employee_by_id(employee_id: int):
+async def get_employee_by_id(employee_id: int, **kwargs):
     query = select(Employee).where(Employee.id == employee_id)
+    if('entity_iin' in kwargs and kwargs['entity_iin'] != ''):
+        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin']))
     result = await database.fetch_one(query)
     return result
 
@@ -38,6 +40,9 @@ async def get_employee_list(limit: int = 100, skip: int = 0, **kwargs)->list[Emp
                 Employee.user_id).\
                     order_by(
                     Employee.id).limit(limit).offset(skip)
+
+    if('entity_iin' in kwargs and kwargs['entity_iin'] != ''):
+        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin']))
    
     records = await database.fetch_all(query)
     listValue = []
@@ -64,6 +69,9 @@ async def get_employee_nested_list(limit: int = 100, skip: int = 0, **kwargs):
                     join(Entity, Employee.entity_iin == Entity.iin, isouter=True).\
                     join(User, Employee.user_id == User.id, isouter=True).\
                     order_by(Employee.id).limit(limit).offset(skip)
+
+    if('entity_iin' in kwargs and kwargs['entity_iin'] != ''):
+        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin']))
    
     records = await database.fetch_all(query)
     listValue = []

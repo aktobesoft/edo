@@ -171,7 +171,8 @@
             console.log(response.data)
             result = response.data
           } catch (err) {
-            console.log(err)
+            console.log(err); 
+          check_status(err)
           }
         }
         this.selectedRows = []
@@ -186,7 +187,8 @@
             console.log(response.data)
             result = response.data
           } catch (err) {
-            console.log(err)
+            console.log(err); 
+          check_status(err)
           }
         }
         this.selectedRows = []
@@ -218,7 +220,8 @@
             }
           }
           catch (err) {
-            console.log(err)
+            console.log(err); 
+          check_status(err)
           }
         }
       },
@@ -234,7 +237,8 @@
             this.purchaseRequisitionList.splice(this.currentItemIndex, 1);
           }
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       subString: function (strData) {

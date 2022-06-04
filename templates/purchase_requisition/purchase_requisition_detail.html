@@ -333,7 +333,8 @@
           console.log(response.data)
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
           return null
         }
       },
@@ -390,7 +391,8 @@
           this.purchase_requisition_id = this.purchase_requisition['id']
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
           return null
         }
       },
@@ -404,7 +406,8 @@
           console.log(response.data)
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       deletePurchaseRequisition: async function () {
@@ -414,7 +417,8 @@
             this.goToPurchaseRequisitionLit()
           }
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       goToPurchaseRequisitionLit: function () {
@@ -476,7 +480,8 @@
           console.log(response.data)
           this.documentTypeList = response.data['result']
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       getEntityList: async function () {
@@ -488,7 +493,8 @@
           console.log(response.data['result'])
           this.entityList = response.data['result']
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       getCounterpartyList: async function () {
@@ -500,7 +506,8 @@
           console.log(response.data)
           this.counterpartyList = response.data['result']
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }
       },
       sendData: async function () {
@@ -524,7 +531,8 @@
           console.log(response.data)
           result = response.data
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
         }  
       },
     }

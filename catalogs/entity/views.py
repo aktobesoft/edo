@@ -17,13 +17,34 @@ async def get_entity_by_id(entity_id: int):
 
 async def get_entity_by_iin(entity_iin: str, **kwargs):
     if kwargs['nested']:
-        kwargs['iin'] = entity_iin
-        result = await get_entity_nested_list(limit=1, skip=1, **kwargs)
-        if result!= []:
-            return result[0]
-        else:
-            raise HTTPException(status_code=404, detail="Item not found")
+        queryEntity = select(Entity.id, 
+                Entity.name, 
+                Entity.full_name,
+                Entity.iin, 
+                Entity.address, 
+                Entity.comment, 
+                Entity.director, 
+                Entity.director_phone, 
+                Entity.administrator, 
+                Entity.administrator_phone, 
+                Entity.token, 
+                Entity.start_date, 
+                Entity.type_name, 
+                Entity.end_date, 
+                Entity.user_id.label("user_id"),
+                BusinessType.id.label("business_type_id"), 
+                BusinessType.name.label("business_type_name"),
+                BusinessType.full_name.label("business_type_full_name"),
+                User.email.label("user_email"), 
+                User.name.label("user_name"),
+                User.is_active.label("user_is_active"),
+                User.is_company.label("user_is_company")).\
+                    join(BusinessType, Entity.type_name == BusinessType.name, isouter=True).\
+                    join(User, Entity.user_id == User.id, isouter=True).\
+                    where(Entity.iin == entity_iin)
+
     queryEntity = select(Entity).where(Entity.iin == entity_iin)
+
     result = await database.fetch_one(queryEntity)
     if result==None:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -34,8 +55,11 @@ async def delete_entity_by_iin(entity_iin: str):
     resultEntity = await database.execute(queryEntity)
     return resultEntity
 
-async def get_entity_count()->list[Entity]:
+async def get_entity_count(**kwargs)->list[Entity]:
     query = select(func.count(Entity.id))
+    if('entity_iin' in kwargs and kwargs['entity_iin'] != ''):
+        query = query.where(Entity.iin.in_(kwargs['entity_iin']))
+    print(query) 
     return await database.execute(query)
 
 async def get_entity_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entity]:
@@ -60,6 +84,10 @@ async def get_entity_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entit
                 Entity.type_name, 
                 Entity.end_date, 
                 Entity.user_id).limit(limit).offset(skip).order_by(Entity.name)
+
+    if('entity_iin' in kwargs and kwargs['entity_iin'] != ''):
+        query = query.where(Entity.iin.in_(kwargs['entity_iin']))  
+          
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -92,12 +120,11 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs):
                 User.is_active.label("user_is_active"),
                 User.is_company.label("user_is_company")).\
                     join(BusinessType, Entity.type_name == BusinessType.name, isouter=True).\
-                    join(User, Entity.user_id == User.id, isouter=True)
-    if('iin' in kwargs and kwargs['iin']):
-        query = query.where(Entity.iin == kwargs['iin'])
-    else:
-        query = query.limit(limit).offset(skip).order_by(Entity.name)
-
+                    join(User, Entity.user_id == User.id, isouter=True).limit(limit).offset(skip)
+    
+    if('entity_iin' in kwargs and kwargs['entity_iin'] != ''):
+        query = query.where(Entity.iin.in_(kwargs['entity_iin'])) 
+    print(kwargs)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -154,8 +181,7 @@ async def update_entity(entityInstance: dict, entity_iin: str):
                 start_date = entityInstance["start_date"], 
                 end_date = entityInstance["end_date"] , 
                 type_name = entityInstance["type_name"], 
-                user_id = int(entityInstance["user_id"]),
-                token = entityInstance["token"]).where(
+                user_id = int(entityInstance["user_id"])).where(
                     Entity.iin == entity_iin)
 
     result = await database.execute(query)

@@ -6,6 +6,9 @@ import math
 async def qp_select_list(q: Optional[str] = None, page: int = 1, limit: int = 100, nested: bool = False, entity_iin: str = ''):
     return {"q": q, "page": page, "limit": limit, 'nested': nested, 'entity_iin': entity_iin}
 
+async def parameters(q: Optional[str] = None):
+    return {"q": q}
+
 async def paginator(page: int = 1, limit: int = 100):
     return {"page": page, "limit": limit}
 
@@ -39,23 +42,22 @@ def correct_datetime(date_value):
     else:
         return date_value
 
-async def paginator_execute(qp_select_list: dict, items_count: int):
-    # количество запрошенный элементов - qp_select_list['limit']
-    # запрашеваемая страница - qp_select_list['page']
+async def paginator_execute(parameters: dict, items_count: int):
+    # количество запрошенный элементов - parameters['limit']
+    # запрашеваемая страница - parameters['page']
     # общее количество записей в базе - items_count
-    qp_select_list['pages'] = math.ceil(items_count/qp_select_list['limit'])
+    parameters['pages'] = math.ceil(items_count/parameters['limit'])
 
-    if qp_select_list['page'] < 1:
-        qp_select_list['page'] = 1
+    if parameters['page'] < 1:
+        parameters['page'] = 1
 
-    if(qp_select_list['page'] > qp_select_list['pages']):
-        qp_select_list['page'] = qp_select_list['pages']
+    if(parameters['page'] > parameters['pages']):
+        parameters['page'] = parameters['pages']
 
-    qp_select_list['has_previous'] = False if qp_select_list['page']==1 else True
-    qp_select_list['has_next'] = False if qp_select_list['page']==qp_select_list['pages'] else True
-    qp_select_list['skip'] = (qp_select_list['page']-1) * qp_select_list['limit']
+    parameters['has_previous'] = False if parameters['page']==1 else True
+    parameters['has_next'] = False if parameters['page']==parameters['pages'] else True
+    parameters['skip'] = (parameters['page']-1) * parameters['limit']
 
-    return qp_select_list
             
         
     

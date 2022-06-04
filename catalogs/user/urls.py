@@ -12,9 +12,9 @@ import catalogs.user.views as userService
 userRouter = APIRouter()
 
 @userRouter.get('/', response_model = UserListOut)
-async def get_user_list(query_param: dict = Depends(qp_select_list), current_user: UserModel = Depends(get_current_active_user)):
-    parametrs = await paginator_execute(query_param, await userService.get_user_count())
-    return {'info': parametrs, 'result': await userService.get_user_list(**parametrs)}
+async def get_user_list(parameters: dict = Depends(qp_select_list), current_user: UserModel = Depends(get_current_active_user)):
+    await paginator_execute(parameters, await userService.get_user_count())
+    return {'info': parameters, 'result': await userService.get_user_list(**parameters)}
 
 @userRouter.get('/{user_id}', response_model = Union[UserOut, OptionsStructure])
 async def get_user_by_id(user_id: int, current_user: UserModel = Depends(get_current_active_user)):

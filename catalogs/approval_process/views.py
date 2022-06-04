@@ -130,7 +130,7 @@ async def update_approval_process(approval_process_id: int, apInstance: dict):
     routesResult = await update_approval_routes_by_approval_process_id(await collectRoutes(apInstance['routes'], approval_process_id), approval_process_id)
     return apInstance
 
-async def start_approval_process(parametrs):
+async def start_approval_process(parameters):
     
     responseMap = {
         'Error': False,
@@ -142,16 +142,16 @@ async def start_approval_process(parametrs):
         'ApprovalRouteCurrentStep':[]
         }
 
-    parametrs['is_active'] = True
-    resultMap = await check_approval_processes(parametrs)
-    process_started = parametrs['document_id'] in resultMap
+    parameters['is_active'] = True
+    resultMap = await check_approval_processes(parameters)
+    process_started = parameters['document_id'] in resultMap
 
     if process_started:
-        approval_processes = resultMap[parametrs['document_id']]
+        approval_processes = resultMap[parameters['document_id']]
         if(str(approval_processes['status']).lower() == "подписан" or str(approval_processes['status']).lower() == "в работе"):
             responseMap['Error'] = True
-            responseMap['Text'] = 'Документу {0} уже согласован и подписан'.format(parametrs['document_id']) if str(approval_processes['status']).lower() == "подписан" else \
-                                    'По документу "{0}" найден актуальный запущенный процесс со статусом "{1}"'.format(parametrs['document_id'], approval_processes['status'])
+            responseMap['Text'] = 'Документу {0} уже согласован и подписан'.format(parameters['document_id']) if str(approval_processes['status']).lower() == "подписан" else \
+                                    'По документу "{0}" найден актуальный запущенный процесс со статусом "{1}"'.format(parameters['document_id'], approval_processes['status'])
             responseMap['ApprovalProcess'] = {
                                         'is_active': approval_processes['is_active'],
                                         'document_id': approval_processes['document_id'],
@@ -173,7 +173,7 @@ async def start_approval_process(parametrs):
     else:
         # Ищем шаблон если нет актуального процесса
         query = select(ApprovalTemplate.id, ApprovalTemplate.name).\
-                where((ApprovalTemplate.entity_iin == parametrs['entity_iin']) & (ApprovalTemplate.document_type_id == parametrs['document_type_id'])).limit(1)
+                where((ApprovalTemplate.entity_iin == parameters['entity_iin']) & (ApprovalTemplate.document_type_id == parameters['document_type_id'])).limit(1)
     
     approval_template = await database.fetch_one(query)
     if approval_template == None:
@@ -209,9 +209,9 @@ async def start_approval_process(parametrs):
             'is_active': True,
             'level': item['level'],
             'type': item['type'],
-            'document_id': parametrs['document_id'],
-            'document_type_id': parametrs['document_type_id'],
-            'entity_iin': parametrs['entity_iin'],
+            'document_id': parameters['document_id'],
+            'document_type_id': parameters['document_type_id'],
+            'entity_iin': parameters['entity_iin'],
             'employee_id': item['employee_id'],
             'approval_template_id': approval_template['id'],
             'approval_process_id': 0,
@@ -222,9 +222,9 @@ async def start_approval_process(parametrs):
     # если все норм то создаем сам процесс
     apInstance = {
         'is_active': True,
-        'document_id': parametrs['document_id'],
-        'document_type_id': parametrs['document_type_id'],
-        'entity_iin': parametrs['entity_iin'],
+        'document_id': parameters['document_id'],
+        'document_type_id': parameters['document_type_id'],
+        'entity_iin': parameters['entity_iin'],
         'approval_template_id': approval_template['id'],
         'status': 'в работе',
         'start_date': date.today(),
@@ -244,9 +244,9 @@ async def start_approval_process(parametrs):
     #         'is_active': True,
     #         'level': item['level'],
     #         'type': item['type'],
-    #         'document_id': parametrs['document_id'],
-    #         'document_type_id': parametrs['document_type_id'],
-    #         'entity_iin': parametrs['entity_iin'],
+    #         'document_id': parameters['document_id'],
+    #         'document_type_id': parameters['document_type_id'],
+    #         'entity_iin': parameters['entity_iin'],
     #         'employee_id': item['employee_id'],
     #         'approval_template_id': approval_template['id'],
     #         'approval_process_id': responseMap['ApprovalProcess']['id'],
@@ -258,15 +258,15 @@ async def start_approval_process(parametrs):
     # responseMap['ApprovalRoute'] =  await get_approval_route_by_aproval_process_id(responseMap['ApprovalProcess']['id'])
     return responseMap
 
-async def check_approval_processes(parametrs):
+async def check_approval_processes(parameters):
     
     responseMap = {}
 
     # Делаем массив
-    if type(parametrs['document_id']) is int:
-        listId = [parametrs['document_id']]
+    if type(parameters['document_id']) is int:
+        listId = [parameters['document_id']]
     else: 
-        listId = parametrs['document_id'] 
+        listId = parameters['document_id'] 
 
     query = select( 
             ApprovalProcess.is_active,
@@ -279,10 +279,10 @@ async def check_approval_processes(parametrs):
             ApprovalProcess.end_date, 
             func.max(ApprovalProcess.id).label('id')).\
                 where(
-                    (ApprovalProcess.entity_iin == parametrs['entity_iin']) & 
-                    (ApprovalProcess.is_active == parametrs['is_active']) & 
+                    (ApprovalProcess.entity_iin == parameters['entity_iin']) & 
+                    (ApprovalProcess.is_active == parameters['is_active']) & 
                     (ApprovalProcess.document_id.in_(listId)) & 
-                    (ApprovalProcess.document_type_id == parametrs['document_type_id'])).\
+                    (ApprovalProcess.document_type_id == parameters['document_type_id'])).\
                 group_by(ApprovalProcess.entity_iin, 
                         ApprovalProcess.document_type_id,
                         ApprovalProcess.approval_template_id, 
@@ -301,13 +301,13 @@ async def check_approval_processes(parametrs):
     
     return responseMap
 
-async def cancel_approval_process(parametrs):
+async def cancel_approval_process(parameters):
     
     apInstance = {
         'is_active': False,
-        'document_id': parametrs['document_id'],
-        'document_type_id': parametrs['document_type_id'],
-        'entity_iin': parametrs['entity_iin']
+        'document_id': parameters['document_id'],
+        'document_type_id': parameters['document_type_id'],
+        'entity_iin': parameters['entity_iin']
         }
 
     query = update(ApprovalProcess).values(
@@ -315,9 +315,9 @@ async def cancel_approval_process(parametrs):
                     status = "отменен",
                     end_date = date.today()).\
                 where(
-                    (ApprovalProcess.document_id == int(parametrs['document_id'])) &
-                    (ApprovalProcess.document_type_id == int(parametrs['document_type_id'])) &
-                    (ApprovalProcess.entity_iin == parametrs['entity_iin']))
+                    (ApprovalProcess.document_id == int(parameters['document_id'])) &
+                    (ApprovalProcess.document_type_id == int(parameters['document_type_id'])) &
+                    (ApprovalProcess.entity_iin == parameters['entity_iin']))
 
     result = await database.execute(query)
     return apInstance

@@ -23,7 +23,7 @@ async function log_in(username, password) {
     }
     catch (err) {
         if ("detail" in err.response.data)
-        return { 'authorized': false, 'detail': err.response.data['detail'] }
+            return { 'authorized': false, 'detail': err.response.data['detail'] }
     }
 }
 
@@ -44,4 +44,10 @@ function get_config() {
 function log_out() {
     localStorage.clear()
     window.location.href = "http://127.0.0.1:8000/auth";
+}
+
+function check_status(error) {
+    if ('response' in error && error.response.status == 401) {
+        log_out()
+    }
 }

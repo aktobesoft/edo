@@ -5,7 +5,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import func, select
+from catalogs.entity.models import Entity
 from catalogs.user.models import User
 from core.db import database
 
@@ -13,7 +14,7 @@ auth_Router = APIRouter()
 
 SECRET_KEY = "uYE4XB2Sex8S754LTtLPKIcNhoLgcRzwKVmPyT1tNKQbJYNP3iSGkP1hXe5QKFww"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1440
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440 # 1 day
 
 class Token(BaseModel):
     access_token: str
@@ -28,6 +29,7 @@ class UserModel(BaseModel):
     username: Union[str, None] = None
     email: Union[str, None] = None
     is_active: Union[bool, None] = None
+    is_admin: Union[bool, None] = None
 
 class UserInDB(UserModel):
     hashed_password: str
@@ -53,7 +55,7 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     return encoded_jwt
 
 async def get_user(email: str)->UserModel:
-    query = select(User.email, User.name.label('username'), User.is_active.label('is_active'), User.id, User.hashed_password).where((User.email == email) | (User.name == email))
+    query = select(User.email, User.name.label('username'), User.is_active.label('is_active'), User.id, User.hashed_password, User.is_admin.label('is_admin')).where((User.email == email) | (User.name == email))
     result = await database.fetch_one(query)
     if result == None:
         return result
@@ -108,3 +110,32 @@ async def authenticate_user(email: str, password: str):
     if not verify_password(password, user['hashed_password']):
         return False
     return user
+
+async def add_entity_filter(current_user: UserModel, parameters: dict):
+    
+    if current_user['is_admin']:
+        return
+
+    queryUser = select(Entity.iin).\
+                where(Entity.user_id == current_user['id'])
+    records = await database.fetch_all(queryUser)
+    
+    listValue = []
+    for rec in records:
+        listValue.append(rec['iin'])
+    parameters['entity_iin'] = listValue
+
+async def is_entity_allowed(current_user: UserModel, entity_iin: str):
+    
+    if current_user['is_admin']:
+        return
+
+    queryUser = select(func.count(Entity.iin).label("entity_count")).\
+                where((Entity.iin == entity_iin) & (Entity.user_id == current_user['id']))
+    records = await database.fetch_one(queryUser)
+    print(records, current_user, entity_iin)
+    print(records.entity_count)
+    
+    if records == None or len(records) == 0 or records.entity_count == 0:
+        raise HTTPException(status_code=403, detail="Forbidden")
+        

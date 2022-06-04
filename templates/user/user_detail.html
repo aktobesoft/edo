@@ -152,7 +152,8 @@
           this.user = response.data
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
           return null
         }
       },
@@ -167,7 +168,8 @@
           this.user_id = this.user['id']
           return response
         } catch (err) {
-          console.log(err)
+          console.log(err); 
+          check_status(err)
           return null
         }
       },

@@ -94,12 +94,14 @@
         console.log(Vue.version);
         if (this.listOfApprovalTemplate.length == 0) {
           try {
-
             let response = await axios.get("{{url_for('get_approval_template_list')}}?nested=true", get_config())
             console.log(response.data)
             this.listOfApprovalTemplate = response.data
           } catch (err) {
-            console.log(err)
+            console.log(err); 
+          check_status(err)
+            check_status(err)
+            
           }
         };
       },
@@ -115,7 +117,9 @@
             this.listOfApprovalTemplate.splice(this.currentItemIndex, 1);
           }
         } catch (err) {
-          console.log(err)
+          check_status(response)
+          console.log(err); 
+          check_status(err)
         }
       },
       setCurrentItem: function (item) {

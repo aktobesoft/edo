@@ -21,8 +21,8 @@ async def auth_page(request: Request):
 # ----------------------------------------------
 # entity
 @interfaceRoute.get("/entity/", response_class=HTMLResponse)
-async def entity_list(request: Request, query_param: dict = Depends(qp_select_list)):
-    return templates.TemplateResponse("entity/entity_list.html", context={'request': request, 'page': query_param['page']})
+async def entity_list(request: Request, parameters: dict = Depends(qp_select_list)):
+    return templates.TemplateResponse("entity/entity_list.html", context={'request': request, 'page': parameters['page']})
 
 @interfaceRoute.get('/entity/{itemId}', response_class=HTMLResponse)
 async def create_new_entity(request: Request, itemId: str):
@@ -31,8 +31,8 @@ async def create_new_entity(request: Request, itemId: str):
 # ----------------------------------------------
 # employee
 @interfaceRoute.get("/employee/", response_class=HTMLResponse)
-async def employee_list(request: Request, query_param: dict = Depends(qp_select_list)):
-    return templates.TemplateResponse("employee/employee_list.html", context={'request': request, 'page': query_param['page']})
+async def employee_list(request: Request, parameters: dict = Depends(qp_select_list)):
+    return templates.TemplateResponse("employee/employee_list.html", context={'request': request, 'page': parameters['page']})
 
 @interfaceRoute.get('/employee/{itemId}', response_class=HTMLResponse)
 async def create_new_employee(request: Request, itemId: str):
@@ -41,8 +41,8 @@ async def create_new_employee(request: Request, itemId: str):
 # ----------------------------------------------
 # user
 @interfaceRoute.get("/user/", response_class=HTMLResponse)
-async def user_list(request: Request, query_param: dict = Depends(qp_select_list)):
-    return templates.TemplateResponse("user/user_list.html", context={'request': request, 'page': query_param['page']})
+async def user_list(request: Request, parameters: dict = Depends(qp_select_list)):
+    return templates.TemplateResponse("user/user_list.html", context={'request': request, 'page': parameters['page']})
 
 @interfaceRoute.get('/user/{itemId}', response_class=HTMLResponse)
 async def create_new_user(request: Request, itemId: str):
@@ -51,8 +51,8 @@ async def create_new_user(request: Request, itemId: str):
 # ----------------------------------------------
 # counterparty
 @interfaceRoute.get("/counterparty/", response_class=HTMLResponse)
-async def counterparty_list(request: Request, query_param: dict = Depends(qp_select_list)):
-    return templates.TemplateResponse("counterparty/counterparty_list.html", context={'request': request, 'page': query_param['page']})
+async def counterparty_list(request: Request, parameters: dict = Depends(qp_select_list)):
+    return templates.TemplateResponse("counterparty/counterparty_list.html", context={'request': request, 'page': parameters['page']})
 
 @interfaceRoute.get("/counterparty/{itemId}", response_class=HTMLResponse)
 async def counterparty_detail(request: Request, itemId: str):
