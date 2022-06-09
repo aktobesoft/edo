@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from auth.user_auth import UserModel, get_current_active_user
-from common_module.urls_module import qp_select_list, qp_select_one
+from common_module.urls_module import query_parameters_list, query_parameters
 from typing import List, Union
 
 from catalogs.approval_template_step.models import ApprovalTemplateStep, _ApprovalTemplateStepPUT, _ApprovalTemplateStepOut
@@ -10,7 +10,7 @@ from catalogs.approval_template_step import views
 approval_template_stepRouter = APIRouter()
 
 @approval_template_stepRouter.get('/', response_model = list[_ApprovalTemplateStepOut])
-async def get_approval_template_step_list(approval_template_id : int, parameters: dict = Depends(qp_select_one), current_user: UserModel = Depends(get_current_active_user)):
+async def get_approval_template_step_list(approval_template_id : int, parameters: dict = Depends(query_parameters), current_user: UserModel = Depends(get_current_active_user)):
     records = await views.get_approval_template_step_list(approval_template_id, **parameters)
     return records
 

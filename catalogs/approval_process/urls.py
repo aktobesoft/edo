@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from auth.user_auth import UserModel, get_current_active_user
-from common_module.urls_module import qp_select_list, qp_select_one
+from common_module.urls_module import query_parameters_list, query_parameters
 from typing import List, Optional, Union
 
 from catalogs.approval_process.models import ApprovalProcess, ApprovalProcessCheck, ApprovalProcessIn, ApprovalProcessNestedOut, ApprovalProcessOut, ApprovalProcessRoutNestedOut, ApprovalProcessRoutOut, ApprovalProcessRoutPOST, ApprovalProcessRoutPUT, ResponseMapStart
@@ -32,12 +32,12 @@ async def check_many_approval_processes(approvalProcessCheck: ApprovalProcessChe
     return result
 
 @approval_processRouter.get('/', response_model = Union[list[ApprovalProcessNestedOut], list[ApprovalProcessOut]])
-async def get_approval_process_list(commons: dict = Depends(qp_select_list), current_user: UserModel = Depends(get_current_active_user)):
-    records = await views.get_approval_process_list(**commons)
+async def get_approval_process_list(parameters: dict = Depends(query_parameters_list), current_user: UserModel = Depends(get_current_active_user)):
+    records = await views.get_approval_process_list(**parameters)
     return records
 
 @approval_processRouter.get('/{approval_process_id}',  response_model = Union[ApprovalProcessRoutNestedOut, ApprovalProcessRoutOut])
-async def get_approval_process_by_id(approval_process_id : int, parameters: dict = Depends(qp_select_one), current_user: UserModel = Depends(get_current_active_user)):
+async def get_approval_process_by_id(approval_process_id : int, parameters: dict = Depends(query_parameters), current_user: UserModel = Depends(get_current_active_user)):
     result = await views.get_approval_process_by_id(approval_process_id, **parameters)
     return result
 

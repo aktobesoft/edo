@@ -1,16 +1,10 @@
-from tkinter.tix import Tree
-from typing import List
-from datetime import date, datetime
-import databases
+from datetime import date
 from fastapi import HTTPException
 from sqlalchemy import false, func, select, insert, update, delete
-import asyncpg
-from common_module.mapping_module import list_object_to_list_dict
 from core.db import database
-from common_module.urls_module import correct_datetime, qp_select_list
 from documents.purchase_requisition.models import PurchaseRequisition
 
-from catalogs.approval_process.models import ApprovalProcess, ApprovalProcessIn
+from catalogs.approval_process.models import ApprovalProcess
 from catalogs.approval_template.models import ApprovalTemplate, approval_template_fillDataFromDict
 from catalogs.approval_template_step.models import ApprovalTemplateStep
 from catalogs.approval_template_step.views import get_approval_template_step_list
@@ -18,7 +12,6 @@ from catalogs.approval_route.views import delete_approval_routes_by_approval_pro
                  post_approval_routes_by_approval_process_id, get_approval_route_nested_by_aproval_process_id, update_approval_routes_by_approval_process_id
 from catalogs.document_type.models import DocumentType, document_type_fillDataFromDict
 from catalogs.entity.models import Entity, entity_fillDataFromDict
-from catalogs.enum_types.models import ProcessStatusType
 
 async def collectRoutes(list_of_object: list, approval_process_id):
     listDict = []

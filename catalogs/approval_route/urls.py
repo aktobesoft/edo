@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from auth.user_auth import UserModel, get_current_active_user
-from common_module.urls_module import qp_select_list
+from common_module.urls_module import query_parameters_list
 from typing import List, Union
 
 from catalogs.approval_route.models import ApprovalRoute, ApprovalRouteIn, ApprovalRouteOut
@@ -10,8 +10,8 @@ from catalogs.approval_route import views
 approval_routeRouter = APIRouter()
 
 @approval_routeRouter.get('/', response_model = list[ApprovalRouteOut])
-async def get_approval_route_list(commons: dict = Depends(qp_select_list), current_user: UserModel = Depends(get_current_active_user)):
-    records = await views.get_approval_route_list(**commons)
+async def get_approval_route_list(parameters: dict = Depends(query_parameters_list), current_user: UserModel = Depends(get_current_active_user)):
+    records = await views.get_approval_route_list(**parameters)
     return records
 
 @approval_routeRouter.get('/{approval_route_id}')

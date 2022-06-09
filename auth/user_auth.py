@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import false, func, select
 from catalogs.entity.models import Entity
 from catalogs.user.models import User
 from core.db import database
@@ -112,7 +112,8 @@ async def authenticate_user(email: str, password: str):
     return user
 
 async def add_entity_filter(current_user: UserModel, parameters: dict):
-    
+
+    parameters['current_user'] = current_user
     if current_user['is_admin']:
         return
 
@@ -138,4 +139,4 @@ async def is_entity_allowed(current_user: UserModel, entity_iin: str):
     
     if records == None or len(records) == 0 or records.entity_count == 0:
         raise HTTPException(status_code=403, detail="Forbidden")
-        
+

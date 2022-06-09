@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from auth.user_auth import UserModel, get_current_active_user
-from common_module.urls_module import paginator_execute, qp_select_list
+from common_module.urls_module import paginator_execute, query_parameters_list
 from documents.base_document.models import OptionsStructure
 from core.db import database
 from sqlalchemy import select
@@ -12,7 +12,7 @@ import catalogs.user.views as userService
 userRouter = APIRouter()
 
 @userRouter.get('/', response_model = UserListOut)
-async def get_user_list(parameters: dict = Depends(qp_select_list), current_user: UserModel = Depends(get_current_active_user)):
+async def get_user_list(parameters: dict = Depends(query_parameters_list), current_user: UserModel = Depends(get_current_active_user)):
     await paginator_execute(parameters, await userService.get_user_count())
     return {'info': parameters, 'result': await userService.get_user_list(**parameters)}
 
@@ -33,7 +33,7 @@ async def delete_user(user_id: int, current_user: UserModel = Depends(get_curren
     return result
 
 @userRouter.put('/{user_id}', response_model = UserPUT)
-async def update_user(user_id: int, newUser : UserPUT, current_user: UserModel = Depends(get_current_active_user)):#, qp_update: dict = Depends(qp_update)):
+async def update_user(user_id: int, newUser : UserPUT, current_user: UserModel = Depends(get_current_active_user)):
     newUser_ = dict(newUser)
     result = await userService.update_user(newUser_, user_id)
     return newUser_

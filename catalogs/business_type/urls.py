@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from auth.user_auth import UserModel, get_current_active_user
-from common_module.urls_module import qp_select_list
+from common_module.urls_module import query_parameters_list
 from typing import List, Union
 
 from catalogs.business_type.models import BusinessTypeOut, BusinessTypeIn
@@ -11,8 +11,8 @@ from documents.base_document.models import OptionsStructure, OptionsStructureStr
 business_typeRouter = APIRouter()
 
 @business_typeRouter.get('/', response_model = Union[List[BusinessTypeOut], List[OptionsStructureStr]])
-async def get_business_type_list(commons: dict = Depends(qp_select_list), current_user: UserModel = Depends(get_current_active_user)):
-    records = await views.get_business_type_list(**commons)
+async def get_business_type_list(parameters: dict = Depends(query_parameters_list), current_user: UserModel = Depends(get_current_active_user)):
+    records = await views.get_business_type_list(**parameters)
     return records
 
 @business_typeRouter.get('/{business_type_id}')

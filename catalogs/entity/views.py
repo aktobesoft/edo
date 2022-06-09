@@ -3,7 +3,7 @@ from sqlalchemy import func, select, insert, update, delete
 from core.db import database
 import asyncpg
 from datetime import date, datetime
-from common_module.urls_module import correct_datetime
+from common_module.urls_module import correct_datetime, is_item_need
 
 from catalogs.entity.models import Entity, EntityIn
 from catalogs.business_type.models import BusinessType, business_type_fillDataFromDict
@@ -56,8 +56,9 @@ async def delete_entity_by_iin(entity_iin: str):
     return resultEntity
 
 async def get_entity_count(**kwargs)->list[Entity]:
+    print(kwargs)
     query = select(func.count(Entity.id))
-    if('entity_iin' in kwargs and kwargs['entity_iin'] != ''):
+    if(is_item_need('entity_iin', kwargs)):
         query = query.where(Entity.iin.in_(kwargs['entity_iin']))
     print(query) 
     return await database.execute(query)
@@ -85,7 +86,7 @@ async def get_entity_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entit
                 Entity.end_date, 
                 Entity.user_id).limit(limit).offset(skip).order_by(Entity.name)
 
-    if('entity_iin' in kwargs and kwargs['entity_iin'] != ''):
+    if(is_item_need('entity_iin', kwargs)):
         query = query.where(Entity.iin.in_(kwargs['entity_iin']))  
           
     records = await database.fetch_all(query)
@@ -122,7 +123,7 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs):
                     join(BusinessType, Entity.type_name == BusinessType.name, isouter=True).\
                     join(User, Entity.user_id == User.id, isouter=True).limit(limit).offset(skip)
     
-    if('entity_iin' in kwargs and kwargs['entity_iin'] != ''):
+    if(is_item_need('entity_iin', kwargs)):
         query = query.where(Entity.iin.in_(kwargs['entity_iin'])) 
     print(kwargs)
     records = await database.fetch_all(query)

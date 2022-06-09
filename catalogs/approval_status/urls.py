@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from auth.user_auth import UserModel, get_current_active_user
-from common_module.urls_module import qp_select_list
+from common_module.urls_module import query_parameters_list
 
 from catalogs.approval_status.models import ApprovalStatusOut, ApprovalStatusPOST, ApprovalStatusPUT
 from catalogs.approval_status import views
@@ -9,8 +9,8 @@ from catalogs.approval_status import views
 approval_statusRouter = APIRouter()
 
 @approval_statusRouter.get('/', response_model = list[ApprovalStatusOut])
-async def get_approval_status_list(commons: dict = Depends(qp_select_list), current_user: UserModel = Depends(get_current_active_user)):
-    records = await views.get_approval_status_list(**commons)
+async def get_approval_status_list(parameters: dict = Depends(query_parameters_list), current_user: UserModel = Depends(get_current_active_user)):
+    records = await views.get_approval_status_list(**parameters)
     return records
 
 @approval_statusRouter.get('/{approval_status_id}')

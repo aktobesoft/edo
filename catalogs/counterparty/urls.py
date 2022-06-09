@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from auth.user_auth import UserModel, get_current_active_user
-from common_module.urls_module import paginator_execute, qp_select_list, qp_select_one
+from common_module.urls_module import paginator_execute, query_parameters_list, query_parameters
 import catalogs.counterparty.views as views
 from documents.base_document.models import OptionsStructure
 from catalogs.counterparty.models import CounterpartyListNestedOut, CounterpartyListOut, CounterpartyOut, CounterpartyIn, CounterpartyNestedOut
@@ -9,12 +9,12 @@ from typing import List, Union
 counterpartyRouter = APIRouter()
 
 @counterpartyRouter.get('/', response_model=Union[CounterpartyListNestedOut,CounterpartyListOut])
-async def get_counterparty_list(parameters: dict = Depends(qp_select_list), current_user: UserModel = Depends(get_current_active_user)):
+async def get_counterparty_list(parameters: dict = Depends(query_parameters_list), current_user: UserModel = Depends(get_current_active_user)):
     await paginator_execute(parameters, await views.get_employee_count())
     return {'info': parameters, 'result': await views.get_counterparty_list(**parameters)}
 
 @counterpartyRouter.get('/{counterparty_iin}', response_model=Union[CounterpartyNestedOut, CounterpartyOut])
-async def get_counterparty_by_iin(counterparty_iin: str, parameters: dict = Depends(qp_select_one), current_user: UserModel = Depends(get_current_active_user)):
+async def get_counterparty_by_iin(counterparty_iin: str, parameters: dict = Depends(query_parameters), current_user: UserModel = Depends(get_current_active_user)):
     return await views.get_counterparty_by_iin(counterparty_iin,**parameters)
 
 @counterpartyRouter.post('/', response_model = CounterpartyOut)
