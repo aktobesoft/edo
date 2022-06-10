@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from sqlalchemy import select, insert, update, delete
 import asyncpg
 from core.db import database
-from common_module.urls_module import correct_datetime
+from common_module.urls_module import correct_datetime, is_need_filter
 
 from catalogs.approval_template.models import ApprovalTemplate, ApprovalTemplateIn
 from catalogs.approval_template_step.views import get_approval_template_step_list, get_approval_template_step_nested_list,\
@@ -17,6 +17,9 @@ async def get_approval_template_by_id(approval_template_id: int, **kwargs):
     if(kwargs['nested']):
         return await get_approval_template_nested_by_id(approval_template_id, **kwargs)
     query = select(ApprovalTemplate).where(ApprovalTemplate.id == approval_template_id)
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(ApprovalTemplate.entity_iin.in_(kwargs['entity_iin_list']))
     result = await database.fetch_one(query)
     if result == None:
         raise HTTPException(status_code=404, detail="Item not found")     
@@ -35,14 +38,22 @@ async def get_approval_template_nested_by_id(approval_template_id: int, **kwargs
             where(ApprovalTemplate.id == approval_template_id).\
         join(Entity, ApprovalTemplate.entity_iin == Entity.iin, isouter=True).\
         join(DocumentType, ApprovalTemplate.document_type_id == DocumentType.id, isouter=True)
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(ApprovalTemplate.entity_iin.in_(kwargs['entity_iin_list']))
     result = await database.fetch_one(query)
+    if result == None:
+        raise HTTPException(status_code=404, detail="Item not found")
     recordDict = dict(result)
     recordDict['entity'] = entity_fillDataFromDict(recordDict)
     recordDict['document_type'] = document_type_fillDataFromDict(recordDict)
     return {**recordDict, 'steps': await get_approval_template_step_nested_list(approval_template_id, **kwargs)}
 
-async def delete_approval_template_by_id(approval_template_id: int):
+async def delete_approval_template_by_id(approval_template_id: int, **kwargs):
     query = delete(ApprovalTemplate).where(ApprovalTemplate.id == approval_template_id)
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(ApprovalTemplate.entity_iin.in_(kwargs['entity_iin_list']))
     result = await database.execute(query)
     return result
 
@@ -52,8 +63,9 @@ async def get_approval_template_list(limit: int = 100,skip: int = 0,**kwargs):
         return await get_approval_template_nested_list(limit, skip, **kwargs)
 
     query = select(ApprovalTemplate).limit(limit).offset(skip).order_by(ApprovalTemplate.id)
-    if(kwargs['entity_iin']!=''):
-        query = query.where(ApprovalTemplate.entity_iin == kwargs['entity_iin'])  
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(ApprovalTemplate.entity_iin.in_(kwargs['entity_iin_list']))  
     records = await database.fetch_all(query)
 
     listValue = []
@@ -73,8 +85,9 @@ async def get_approval_template_nested_list(limit: int = 100,skip: int = 0,**kwa
                 join(Entity, ApprovalTemplate.entity_iin == Entity.iin, isouter=True).\
                 join(DocumentType, ApprovalTemplate.document_type_id == DocumentType.id, isouter=True).\
                 limit(limit).offset(skip).order_by(ApprovalTemplate.id)
-    if(kwargs['entity_iin']):
-        query = query.where(ApprovalTemplate.entity_iin == kwargs['entity_iin'])    
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(ApprovalTemplate.entity_iin.in_(kwargs['entity_iin_list']))    
 
     records = await database.fetch_all(query)
     listValue = []
@@ -85,8 +98,11 @@ async def get_approval_template_nested_list(limit: int = 100,skip: int = 0,**kwa
         listValue.append(recordDict)
     return listValue
 
-async def post_approval_template(atInstance : dict):
-    
+async def post_approval_template(atInstance : dict, **kwargs):
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs) and atInstance["entity_iin"] not in kwargs['entity_iin_list']):
+        raise HTTPException(status_code=403, detail="Forbidden")
+
     query = insert(ApprovalTemplate).values(
                 document_type_id = int(atInstance["document_type_id"]), 
                 name = atInstance["name"],
@@ -96,13 +112,15 @@ async def post_approval_template(atInstance : dict):
         resultsteps = await post_approval_template_steps_by_approval_template_id(atInstance["steps"], result)
     return {**atInstance, 'id': result}
 
-async def update_approval_template(atInstance: dict, approval_template_id: int):
+async def update_approval_template(atInstance: dict, approval_template_id: int, **kwargs):
     query = update(ApprovalTemplate).values(
                 document_type_id = int(atInstance["document_type_id"]), 
                 name = atInstance["name"],
                 entity_iin = atInstance["entity_iin"]).\
                 where(ApprovalTemplate.id == int(approval_template_id))
-
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(ApprovalTemplate.entity_iin.in_(kwargs['entity_iin_list']))
     result = await database.execute(query)
     resultsteps = await update_approval_template_steps_by_approval_template_id(atInstance["steps"], approval_template_id)
     return atInstance

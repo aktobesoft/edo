@@ -1,8 +1,9 @@
+from fastapi import HTTPException
 from sqlalchemy import func, select, insert, update, delete
 from core.db import database
 import asyncpg
 from datetime import date, datetime
-from common_module.urls_module import correct_datetime, is_item_need
+from common_module.urls_module import correct_datetime, is_need_filter
 
 from catalogs.user.models import User, user_fillDataFromDict
 from catalogs.entity.models import Entity, entity_fillDataFromDict
@@ -10,22 +11,25 @@ from catalogs.employee.models import Employee, EmployeeIn, EmployeeOut
 
 async def get_employee_by_id(employee_id: int, **kwargs):
     query = select(Employee).where(Employee.id == employee_id)
-    if(is_item_need('entity_iin', kwargs)):
-        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin']))
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin_list']))
     result = await database.fetch_one(query)
     return result
 
 async def delete_employee_by_id(employee_id: int, **kwargs):
     query = delete(Employee).where(Employee.id == employee_id)
-    if(is_item_need('entity_iin', kwargs)):
-        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin']))
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin_list']))
     result = await database.execute(query)
     return result
 
 async def get_employee_count(**kwargs):
     query = select(func.count(Employee.id))
-    if(is_item_need('entity_iin', kwargs)):
-        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin']))
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin_list']))
     return await database.execute(query)
 
 async def get_employee_list(limit: int = 100, skip: int = 0, **kwargs)->list[Employee]:
@@ -44,9 +48,9 @@ async def get_employee_list(limit: int = 100, skip: int = 0, **kwargs)->list[Emp
                 Employee.user_id).\
                     order_by(
                     Employee.id).limit(limit).offset(skip)
-
-    if(is_item_need('entity_iin', kwargs)):
-        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin']))
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin_list']))
    
     records = await database.fetch_all(query)
     listValue = []
@@ -73,9 +77,9 @@ async def get_employee_nested_list(limit: int = 100, skip: int = 0, **kwargs):
                     join(Entity, Employee.entity_iin == Entity.iin, isouter=True).\
                     join(User, Employee.user_id == User.id, isouter=True).\
                     order_by(Employee.id).limit(limit).offset(skip)
-
-    if(is_item_need('entity_iin', kwargs)):
-        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin']))
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin_list']))
    
     records = await database.fetch_all(query)
     listValue = []
@@ -92,9 +96,9 @@ async def get_employee_options_list(limit: int = 100, skip: int = 0, **kwargs)->
                 Employee.name, 
                 Employee.email).order_by(
                     Employee.id).limit(limit).offset(skip)
-    
-    if(is_item_need('entity_iin', kwargs)):
-        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin']))
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin_list']))
    
     records = await database.fetch_all(query)
     listValue = []
@@ -106,6 +110,10 @@ async def get_employee_options_list(limit: int = 100, skip: int = 0, **kwargs)->
     return listValue
 
 async def post_employee(employeeInstance : dict, **kwargs):
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs) and employeeInstance["entity_iin"] not in kwargs['entity_iin_list']):
+        raise HTTPException(status_code=403, detail="Forbidden")
+
     employeeInstance["date_of_birth"] = correct_datetime(employeeInstance["date_of_birth"])
 
     query = insert(Employee).values(
@@ -132,9 +140,9 @@ async def update_employee(employeeInstance : dict, employee_id: int, **kwargs):
                 description = employeeInstance["description"], 
                 entity_iin = employeeInstance["entity_iin"],
                 user_id = int(employeeInstance["user_id"])).where(Employee.id == employee_id)
-
-    if(is_item_need('entity_iin', kwargs)):
-        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin']))
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(Employee.entity_iin.in_(kwargs['entity_iin_list']))
 
     result = await database.execute(query)
     return {**employeeInstance}

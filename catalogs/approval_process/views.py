@@ -1,6 +1,7 @@
 from datetime import date
 from fastapi import HTTPException
 from sqlalchemy import false, func, select, insert, update, delete
+from common_module.urls_module import is_need_filter
 from core.db import database
 from documents.purchase_requisition.models import PurchaseRequisition
 
@@ -36,11 +37,14 @@ async def get_approval_process_by_id(approval_process_id: int, **kwargs):
     else:
         raise HTTPException(status_code=404, detail="Item not found") 
 
-async def delete_approval_process_by_id(approval_process_id: int):
+async def delete_approval_process_by_id(approval_process_id: int, **kwargs):
+    
     resultDelete = await delete_approval_routes_by_approval_process_id(approval_process_id)
     query = delete(ApprovalProcess).where(ApprovalProcess.id == approval_process_id)
-    result = await database.execute(query)
-    return result
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
+    return await database.execute(query)
 
 async def get_approval_process_list(limit: int = 100,skip: int = 0,**kwargs):
 
@@ -48,9 +52,13 @@ async def get_approval_process_list(limit: int = 100,skip: int = 0,**kwargs):
         return await get_approval_process_nested_list(limit, skip, **kwargs)
 
     query = select(ApprovalProcess).limit(limit).offset(skip).\
-                where((ApprovalProcess.is_active))#&(ApprovalProcess.entity_iin.in_(kwargs['entity_iin'])))
+                where((ApprovalProcess.is_active))
     if('id' in kwargs and kwargs['id']):
         query = query.where(ApprovalProcess.id == int(kwargs['id']))
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
+
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -58,7 +66,7 @@ async def get_approval_process_list(limit: int = 100,skip: int = 0,**kwargs):
         listValue.append(recordDict)
     return listValue
 
-async def get_approval_process_nested_list(limit: int = 100,skip: int = 0,**kwargs):
+async def get_approval_process_nested_list(limit: int = 100,skip: int = 0, **kwargs):
     # Будем делать Union all, потому как левое соединение со всеми таблицами рождает нагрузку на субд
     query_AR = select(ApprovalProcess,
                     PurchaseRequisition.number.label('number'),
@@ -80,6 +88,11 @@ async def get_approval_process_nested_list(limit: int = 100,skip: int = 0,**kwar
         query_AR = query_AR.where(ApprovalProcess.id == int(kwargs['id']))
     # query = query_purchase_requisition.union_all(select2).alias('pr_list')
     query = query_AR
+
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
+
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -91,8 +104,12 @@ async def get_approval_process_nested_list(limit: int = 100,skip: int = 0,**kwar
         listValue.append(recordDict)
     return listValue
 
-async def post_approval_process(apInstance : dict):
-    
+async def post_approval_process(apInstance : dict, **kwargs):
+    print(kwargs)
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs) and apInstance["entity_iin"] not in kwargs['entity_iin_list']):
+        raise HTTPException(status_code=403, detail="Forbidden")
+
     query = insert(ApprovalProcess).values(
                 is_active = apInstance["is_active"], 
                 document_id = int(apInstance["document_id"]),
@@ -106,7 +123,7 @@ async def post_approval_process(apInstance : dict):
     routesResult = await post_approval_routes_by_approval_process_id(await collectRoutes(apInstance['routes'], result))
     return {**apInstance, 'id': result}
 
-async def update_approval_process(approval_process_id: int, apInstance: dict):
+async def update_approval_process(approval_process_id: int, apInstance: dict, **kwargs):
 
     query = update(ApprovalProcess).values(
                 is_active = apInstance["is_active"], 
@@ -118,12 +135,15 @@ async def update_approval_process(approval_process_id: int, apInstance: dict):
                 end_date = apInstance["end_date"],
                 status = apInstance["status"]).\
                     where(ApprovalProcess.id == approval_process_id)
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
 
     result = await database.execute(query)
     routesResult = await update_approval_routes_by_approval_process_id(await collectRoutes(apInstance['routes'], approval_process_id), approval_process_id)
     return apInstance
 
-async def start_approval_process(parameters):
+async def start_approval_process(parameters, **kwargs):
     
     responseMap = {
         'Error': False,
@@ -225,7 +245,7 @@ async def start_approval_process(parameters):
         'routes': listRoutes
     }
 
-    responseMap['ApprovalProcess'] = await post_approval_process(apInstance)
+    responseMap['ApprovalProcess'] = await post_approval_process(apInstance, **kwargs)
     responseMap['ApprovalProcessStatus'] = "в работе"
     responseMap['Text'] = 'Процесс согласования запущен'
     responseMap['ApprovalRoute'] =  await get_approval_route_by_aproval_process_id(responseMap['ApprovalProcess']['id'])
@@ -251,7 +271,7 @@ async def start_approval_process(parameters):
     # responseMap['ApprovalRoute'] =  await get_approval_route_by_aproval_process_id(responseMap['ApprovalProcess']['id'])
     return responseMap
 
-async def check_approval_processes(parameters):
+async def check_approval_processes(parameters, **kwargs):
     
     responseMap = {}
 
@@ -294,7 +314,7 @@ async def check_approval_processes(parameters):
     
     return responseMap
 
-async def cancel_approval_process(parameters):
+async def cancel_approval_process(parameters, **kwargs):
     
     apInstance = {
         'is_active': False,

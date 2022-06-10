@@ -3,8 +3,8 @@ from datetime import date, datetime, timezone
 import math
 
 #Other
-async def query_parameters_list(q: Optional[str] = None, page: int = 1, limit: int = 100, nested: bool = False, entity_iin: str = ''):
-    return {"q": q, "page": page, "limit": limit, 'nested': nested, 'entity_iin': entity_iin}
+async def query_parameters_list(q: Optional[str] = None, page: int = 1, limit: int = 100, nested: bool = False, entity_iin_list: list = []):
+    return {"q": q, "page": page, "limit": limit, 'nested': nested, 'entity_iin_list': entity_iin_list}
 
 async def paginator(page: int = 1, limit: int = 100):
     return {"page": page, "limit": limit}
@@ -49,10 +49,10 @@ async def paginator_execute(parameters: dict, items_count: int):
     parameters['has_next'] = False if parameters['page']==parameters['pages'] else True
     parameters['skip'] = (parameters['page']-1) * parameters['limit']
 
-def is_item_need(key: str = 'entity_iin', parameters: dict = {}):
+def is_need_filter(key: str = 'entity_iin', parameters: dict = {}):
     if ('current_user' in parameters and parameters['current_user']['is_admin']):
         return False
-    if (key in parameters and parameters[key] != ''):
+    if (key in parameters and (parameters[key] != '' and parameters[key] != [])):
         return True
     return True
 

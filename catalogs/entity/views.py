@@ -2,22 +2,28 @@ from fastapi import HTTPException
 from sqlalchemy import func, select, insert, update, delete
 from core.db import database
 import asyncpg
-from datetime import date, datetime
-from common_module.urls_module import correct_datetime, is_item_need
+from common_module.urls_module import correct_datetime, is_need_filter
 
-from catalogs.entity.models import Entity, EntityIn
+from catalogs.entity.models import Entity
 from catalogs.business_type.models import BusinessType, business_type_fillDataFromDict
 from catalogs.user.models import User, user_fillDataFromDict
 
 
-async def get_entity_by_id(entity_id: int):
-    queryEntity = select(Entity).where(Entity.id == entity_id)
-    resultEntity = await database.fetch_one(queryEntity)
+async def get_entity_by_id(entity_id: int, **kwargs):
+    query = select(Entity).where(Entity.id == entity_id)
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(Entity.iin.in_(kwargs['entity_iin_list']))
+    resultEntity = await database.fetch_one(query)
     return resultEntity
 
 async def get_entity_by_iin(entity_iin: str, **kwargs):
+    print(entity_iin)
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs) and entity_iin not in kwargs['entity_iin_list']):
+        raise HTTPException(status_code=404, detail="Item not found")
+
     if kwargs['nested']:
-        queryEntity = select(Entity.id, 
+        query = select(Entity.id, 
                 Entity.name, 
                 Entity.full_name,
                 Entity.iin, 
@@ -43,24 +49,26 @@ async def get_entity_by_iin(entity_iin: str, **kwargs):
                     join(User, Entity.user_id == User.id, isouter=True).\
                     where(Entity.iin == entity_iin)
 
-    queryEntity = select(Entity).where(Entity.iin == entity_iin)
-
-    result = await database.fetch_one(queryEntity)
+    query = select(Entity).where(Entity.iin == entity_iin)
+    result = await database.fetch_one(query)
     if result==None:
         raise HTTPException(status_code=404, detail="Item not found")
     return result
 
-async def delete_entity_by_iin(entity_iin: str):
-    queryEntity = delete(Entity).where(Entity.iin == entity_iin)
-    resultEntity = await database.execute(queryEntity)
+async def delete_entity_by_iin(entity_iin: str, **kwargs):
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs) and entity_iin not in kwargs['entity_iin_list']):
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    query = delete(Entity).where(Entity.iin == entity_iin)
+    resultEntity = await database.execute(query)
     return resultEntity
 
 async def get_entity_count(**kwargs)->list[Entity]:
-    print(kwargs)
     query = select(func.count(Entity.id))
-    if(is_item_need('entity_iin', kwargs)):
-        query = query.where(Entity.iin.in_(kwargs['entity_iin']))
-    print(query) 
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(Entity.iin.in_(kwargs['entity_iin_list']))
     return await database.execute(query)
 
 async def get_entity_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entity]:
@@ -85,9 +93,9 @@ async def get_entity_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entit
                 Entity.type_name, 
                 Entity.end_date, 
                 Entity.user_id).limit(limit).offset(skip).order_by(Entity.name)
-
-    if(is_item_need('entity_iin', kwargs)):
-        query = query.where(Entity.iin.in_(kwargs['entity_iin']))  
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(Entity.iin.in_(kwargs['entity_iin_list']))  
           
     records = await database.fetch_all(query)
     listValue = []
@@ -122,10 +130,10 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs):
                 User.is_company.label("user_is_company")).\
                     join(BusinessType, Entity.type_name == BusinessType.name, isouter=True).\
                     join(User, Entity.user_id == User.id, isouter=True).limit(limit).offset(skip)
-    
-    if(is_item_need('entity_iin', kwargs)):
-        query = query.where(Entity.iin.in_(kwargs['entity_iin'])) 
-    print(kwargs)
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(Entity.iin.in_(kwargs['entity_iin_list'])) 
+
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -135,7 +143,10 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs):
         listValue.append(recordDict)
     return listValue
 
-async def post_entity(entityInstance : dict):
+async def post_entity(entityInstance : dict, **kwargs):
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs) and entityInstance["iin"] not in kwargs['entity_iin_list']):
+        raise HTTPException(status_code=403, detail="Forbidden")
     
     entityInstance["start_date"] = correct_datetime(entityInstance["start_date"])
     entityInstance["end_date"] = correct_datetime(entityInstance["end_date"])
@@ -164,7 +175,10 @@ async def post_entity(entityInstance : dict):
 
 
 
-async def update_entity(entityInstance: dict, entity_iin: str):
+async def update_entity(entityInstance: dict, entity_iin: str, **kwargs):
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs) and entityInstance["iin"] not in kwargs['entity_iin_list']):
+        raise HTTPException(status_code=403, detail="Forbidden")
 
     entityInstance["start_date"] = correct_datetime(entityInstance["start_date"])
     entityInstance["end_date"] = correct_datetime(entityInstance["end_date"])
@@ -190,6 +204,9 @@ async def update_entity(entityInstance: dict, entity_iin: str):
 
 async def get_entity_options_list(limit: int = 100, skip: int = 0, **kwargs):
     query = select(Entity.iin.label('value'), Entity.name.label('text')).limit(limit).offset(skip)
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query = query.where(Entity.iin.in_(kwargs['entity_iin_list']))
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:

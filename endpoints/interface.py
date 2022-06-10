@@ -62,8 +62,7 @@ async def counterparty_detail(request: Request, itemId: str):
 # approval_template
 @interfaceRoute.get("/approval_template/", response_class=HTMLResponse)
 async def approval_template_list(request: Request):
-    listOfValue = await get_approval_template_list(nested = True, entity_iin = '') 
-    return templates.TemplateResponse("approval_template/approval_template_list.html", context={'request': request, 'listOfValue': listOfValue})
+    return templates.TemplateResponse("approval_template/approval_template_list.html", context={'request': request})
 
 @interfaceRoute.get("/approval_template/{itemId}", response_class=HTMLResponse)
 async def approval_template_detail(request: Request, itemId: str):
@@ -73,8 +72,7 @@ async def approval_template_detail(request: Request, itemId: str):
 # purchase_requisition
 @interfaceRoute.get("/purchase_requisition/", response_class=HTMLResponse)
 async def purchase_requisition_list(request: Request):
-    listOfValue = await get_purchase_requisition_list(nested = True, entity_iin = '') 
-    return templates.TemplateResponse("purchase_requisition/purchase_requisition_list.html", context={'request': request, 'listOfValue': listOfValue})
+    return templates.TemplateResponse("purchase_requisition/purchase_requisition_list.html", context={'request': request})
 
 @interfaceRoute.get("/purchase_requisition/{itemId}", response_class=HTMLResponse)
 async def purchase_requisition_detail(request: Request, itemId: str):

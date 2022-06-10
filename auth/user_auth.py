@@ -124,7 +124,7 @@ async def add_entity_filter(current_user: UserModel, parameters: dict):
     listValue = []
     for rec in records:
         listValue.append(rec['iin'])
-    parameters['entity_iin'] = listValue
+    parameters['entity_iin_list'] = listValue
 
 async def is_entity_allowed(current_user: UserModel, entity_iin: str):
     
