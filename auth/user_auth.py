@@ -19,6 +19,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 1440 # 1 day
 class Token(BaseModel):
     access_token: str
     token_type: str
+    id: int
+    username: str
+    useremail: str
 
 class TokenData(BaseModel):
     email: Union[str, None] = None
@@ -101,7 +104,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     access_token = create_access_token(
         data={"username": user['username'], "email": user['email']}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}#, "username": user['username'], "email": user['email']}
+    return {"access_token": access_token, "token_type": "bearer", "username": user['username'], "useremail": user['email'], "id": user['id'],}
 
 async def authenticate_user(email: str, password: str):
     user = await get_user(email)

@@ -47,7 +47,8 @@ async def paginator_execute(parameters: dict, items_count: int):
 
     parameters['has_previous'] = False if parameters['page']==1 else True
     parameters['has_next'] = False if parameters['page']==parameters['pages'] else True
-    parameters['skip'] = (parameters['page']-1) * parameters['limit']
+    parameters['skip'] = (parameters['page']-1) * parameters['limit'] if parameters['page'] > 1 else 0
+    print(parameters)
 
 def is_need_filter(key: str = 'entity_iin', parameters: dict = {}):
     if ('current_user' in parameters and parameters['current_user']['is_admin']):

@@ -15,6 +15,7 @@ purchase_requisitionRouter = APIRouter()
 async def get_purchase_requisition_list(parameters: dict = Depends(query_parameters_list), current_user: UserModel = Depends(get_current_active_user)):
     await add_entity_filter(current_user, parameters)
     await paginator_execute(parameters, await views.get_purchase_requisition_count(**parameters))
+    print(parameters)
     return {'info': parameters, 'result': await views.get_purchase_requisition_list(**parameters)}
 
 @purchase_requisitionRouter.get('/{purchase_requisition_id}',response_model = Union[PurchaseRequisitionNestedItemsOut, PurchaseRequisitionItemsOut])

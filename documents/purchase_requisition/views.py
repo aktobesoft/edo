@@ -131,8 +131,8 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
                 ApprovalProcess, (PurchaseRequisition.id == ApprovalProcess.document_id) & 
                     (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id) & (ApprovalProcess.is_active), isouter=True).\
                     order_by(
-                PurchaseRequisition.id).\
-                    limit(limit).offset(skip)
+                PurchaseRequisition.id)
+    print(limit, skip)
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
         query = query.where(PurchaseRequisition.entity_iin.in_(kwargs['entity_iin_list']))
