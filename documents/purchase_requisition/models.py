@@ -1,3 +1,4 @@
+from concurrent.futures import process
 from datetime import datetime
 from typing import Union
 
@@ -30,6 +31,7 @@ class PurchaseRequisitionOut(BaseModel):
     document_type_id: int
     entity_iin: str
     status: Union[str, None]
+    process_id: Union[int, None]
     
     class Config:
         orm_mode = True
@@ -46,6 +48,7 @@ class PurchaseRequisitionItemsOut(BaseModel):
     document_type_id: int
     entity_iin: str
     status: Union[str, None]
+    process_id: Union[int, None]
     items: list[_PurchaseRequisitionItemsOut]
     
     class Config:
@@ -65,6 +68,7 @@ class PurchaseRequisitionNestedOut(BaseModel):
     counterparty: CounterpartySmallOut
     document_type: DocumentTypeOut
     status: Union[str, None]
+    process_id: Union[int, None]
     entity: EntitySmallOut
     
     class Config:
@@ -85,6 +89,7 @@ class PurchaseRequisitionNestedItemsOut(BaseModel):
     document_type: DocumentTypeOut
     entity: EntitySmallOut
     status: Union[str, None]
+    process_id: Union[int, None]
     items: list[_PurchaseRequisitionItemsOutWithLine]
     
     class Config:

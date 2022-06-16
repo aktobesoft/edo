@@ -1,5 +1,9 @@
+from certifi import where
 from fastapi import HTTPException
-from sqlalchemy import func, null, select, insert, update, delete
+from sqlalchemy import String, func, null, select, insert, tuple_, update, delete
+from catalogs.approval_route.models import ApprovalRoute
+from catalogs.approval_status.models import ApprovalStatus
+from catalogs.document_type.views import get_document_type_id_by_metadata_name
 from core.db import database
 from common_module.urls_module import correct_datetime, correct_datetime, is_need_filter
 
@@ -21,6 +25,8 @@ async def get_purchase_requisition_by_id(purchase_requisition_id: int, **kwargs)
         query = query.where(PurchaseRequisition.entity_iin.in_(kwargs['entity_iin_list']))
 
     result = await database.fetch_one(query)
+    if result == None:
+        raise HTTPException(status_code=404, detail="Item not found") 
     resultPurchaseRequisition = dict(result)
     resultPurchaseRequisition['items'] = await get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id, **kwargs)
     return resultPurchaseRequisition
@@ -86,7 +92,8 @@ async def get_purchase_requisition_list(limit: int = 100, skip: int = 0, **kwarg
                 PurchaseRequisition.counterparty_iin, 
                 PurchaseRequisition.document_type_id, 
                 PurchaseRequisition.entity_iin,
-                ApprovalProcess.status).\
+                ApprovalProcess.status,
+                ApprovalProcess.id.label("process_id")).\
                     join(
                 ApprovalProcess, (PurchaseRequisition.id == ApprovalProcess.document_id) & 
                     (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id) & (ApprovalProcess.is_active), isouter=True).\
@@ -120,7 +127,8 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
                 Counterparty.name.label("counterparty_name"),
                 DocumentType.name.label("document_type_name"),
                 DocumentType.description.label("document_type_description"),
-                ApprovalProcess.status).\
+                ApprovalProcess.status,
+                ApprovalProcess.id.label("process_id")).\
                     join(
                 Entity, PurchaseRequisition.entity_iin == Entity.iin, isouter=True).\
                     join(
@@ -144,6 +152,67 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
         recordDict['entity'] = entity_fillDataFromDict(rec)
         recordDict['document_type'] = document_type_fillDataFromDict(rec)
         recordDict['counterparty'] = counterparty_fillDataFromDict(rec)
+        listValue.append(recordDict)
+    return listValue
+
+async def get_purchase_requisition_nested_list_with_routs(**kwargs):
+    purchase_requisition_document_type_id = await get_document_type_id_by_metadata_name("purchase_requisition")
+    query_min = select(func.min(ApprovalRoute.level).label("min_level"),
+                        ApprovalProcess.id.label("approval_process_id")).\
+                    join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id), isouter=True).\
+                    join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalRoute.is_active) & (ApprovalStatus.status == None), isouter=True).\
+                    where(ApprovalProcess.is_active).\
+                    group_by(ApprovalProcess.id)
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query_min = query_min.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
+
+    query_current_approval_route = select(
+            func.lower("current_approval_route", type_=String).label('list_type'), 
+            ApprovalRoute.employee_id,
+            ApprovalRoute.level,
+            ApprovalRoute.type,
+            ApprovalProcess.id.label('approval_process_id'),
+            ApprovalRoute.id.label('route_id'),
+            ApprovalStatus.status.label('route_status'),
+            ApprovalStatus.comment.label('route_comment'),
+            ApprovalStatus.date.label('route_date')).\
+            join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id), isouter=True).\
+            join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalRoute.is_active) & (ApprovalStatus.status == None), isouter=True).\
+            where(ApprovalProcess.is_active).\
+            where(tuple_(ApprovalRoute.level, ApprovalRoute.approval_process_id).in_(query_min)).\
+            order_by(ApprovalProcess.id, ApprovalRoute.level, ApprovalRoute.type)
+    
+
+    query_all_approval_route = select(
+            func.lower("all_approval_route", type_=String).label('list_type'), 
+            ApprovalRoute.employee_id,
+            ApprovalRoute.level,
+            ApprovalRoute.type,
+            ApprovalProcess.id.label('approval_process_id'),
+            ApprovalRoute.id.label('route_id'),
+            ApprovalStatus.status.label('route_status'),
+            ApprovalStatus.comment.label('route_comment'),
+            ApprovalStatus.date.label('route_date')).\
+            join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id), isouter=True).\
+            join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalRoute.is_active) & (ApprovalStatus.status == None), isouter=True).\
+            where(ApprovalProcess.is_active).\
+            order_by(ApprovalProcess.id, ApprovalRoute.level, ApprovalRoute.type)
+            # where(ApprovalRoute.approval_process_id).in_(kwargs['approval_process_id_list'])
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query_all_approval_route = query_all_approval_route.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
+
+    query = query_current_approval_route.union_all(query_all_approval_route).alias('approval_route_list')           
+    
+    print(query)
+    records = await database.fetch_all(query)
+    listValue = []
+    for rec in records:
+        recordDict = dict(rec)
+        # recordDict['entity'] = entity_fillDataFromDict(rec)
+        # recordDict['document_type'] = document_type_fillDataFromDict(rec)
+        # recordDict['counterparty'] = counterparty_fillDataFromDict(rec)
         listValue.append(recordDict)
     return listValue
     

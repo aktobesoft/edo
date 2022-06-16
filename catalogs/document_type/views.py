@@ -10,6 +10,11 @@ async def get_document_type_by_id(document_type_id: int):
     result = await database.fetch_one(query)
     return result
 
+async def get_document_type_id_by_metadata_name(metadata_name: str):
+    query = select(DocumentType).where(DocumentType.metadata_name == metadata_name)
+    result = await database.fetch_one(query)
+    return result
+
 async def delete_document_type_by_id(document_type_id: int):
     query = delete(DocumentType).where(DocumentType.id == document_type_id)
     result = await database.execute(query)

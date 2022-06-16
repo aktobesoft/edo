@@ -15,8 +15,15 @@ purchase_requisitionRouter = APIRouter()
 async def get_purchase_requisition_list(parameters: dict = Depends(query_parameters_list), current_user: UserModel = Depends(get_current_active_user)):
     await add_entity_filter(current_user, parameters)
     await paginator_execute(parameters, await views.get_purchase_requisition_count(**parameters))
-    print(parameters)
     return {'info': parameters, 'result': await views.get_purchase_requisition_list(**parameters)}
+
+@purchase_requisitionRouter.get('/route/{employee_id}')
+async def get_purchase_requisition_list_with_route(employee_id: int, parameters: dict = Depends(query_parameters_list), current_user: UserModel = Depends(get_current_active_user)):
+    await add_entity_filter(current_user, parameters)
+    parameters['employee_id'] = employee_id
+    #await paginator_execute(parameters, await views.get_purchase_requisition_count(**parameters))
+    #return {'info': parameters, 'result': await views.get_purchase_requisition_nested_list_with_routs(**parameters)}
+    return await views.get_purchase_requisition_nested_list_with_routs(**parameters)
 
 @purchase_requisitionRouter.get('/{purchase_requisition_id}',response_model = Union[PurchaseRequisitionNestedItemsOut, PurchaseRequisitionItemsOut])
 async def get_purchase_requisition_by_id(purchase_requisition_id : int, parameters: dict = Depends(query_parameters), current_user: UserModel = Depends(get_current_active_user)):
