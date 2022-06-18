@@ -74,6 +74,28 @@ class PurchaseRequisitionNestedOut(BaseModel):
     class Config:
         orm_mode = True
 
+class PurchaseRequisitionNestedOutWithRoutes(BaseModel):
+    
+    id: int
+    guid: str
+    number: str
+    date: datetime
+    comment: str
+    sum: float
+    counterparty_iin: str
+    document_type_id: int
+    entity_iin: str
+    counterparty: CounterpartySmallOut
+    document_type: DocumentTypeOut
+    status: Union[str, None]
+    process_id: Union[int, None]
+    entity: EntitySmallOut
+    current_approval_routes: list
+    all_approval_routes: list
+    
+    class Config:
+        orm_mode = True
+
 class PurchaseRequisitionNestedItemsOut(BaseModel):
     
     id: int

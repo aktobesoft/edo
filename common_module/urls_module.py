@@ -3,13 +3,13 @@ from datetime import date, datetime, timezone
 import math
 
 #Other
-async def query_parameters_list(q: Optional[str] = None, page: int = 1, limit: int = 100, nested: bool = False, entity_iin_list: list = []):
+async def query_parameters_list(q: Optional[str] = '', page: int = 1, limit: int = 100, nested: bool = False, entity_iin_list: str = ''):
     return {"q": q, "page": page, "limit": limit, 'nested': nested, 'entity_iin_list': entity_iin_list}
 
 async def paginator(page: int = 1, limit: int = 100):
     return {"page": page, "limit": limit}
 
-async def query_parameters(q: Optional[str] = None, nested: bool = False):
+async def query_parameters(q: Optional[str] = '', nested: bool = False):
     return {"q": q, 'nested': nested}
 
 def correct_date(date_value):

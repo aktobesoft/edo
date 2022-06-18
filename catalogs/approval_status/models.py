@@ -48,7 +48,7 @@ class ApprovalStatusPUT(BaseModel):
     
     id: int
     is_active: bool
-    status: Literal['согласован', 'отменен']
+    status: Literal['согласован', 'отклонен']
     document_id: int
     document_type_id: int
     entity_iin: str
@@ -62,7 +62,7 @@ class ApprovalStatusPUT(BaseModel):
 class ApprovalStatusPOST(BaseModel):
     
     is_active: bool
-    status: Literal['согласован', 'отменен']
+    status: Literal['согласован', 'отклонен']
     document_id: int
     document_type_id: int
     entity_iin: str
