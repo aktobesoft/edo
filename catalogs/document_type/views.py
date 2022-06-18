@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy import func, select, insert, update, delete
 import asyncpg
 from core.db import database
@@ -11,9 +12,11 @@ async def get_document_type_by_id(document_type_id: int):
     return result
 
 async def get_document_type_id_by_metadata_name(metadata_name: str):
-    query = select(DocumentType).where(DocumentType.metadata_name == metadata_name)
+    query = select(DocumentType.id).where(DocumentType.metadata_name == metadata_name)
     result = await database.fetch_one(query)
-    return result
+    if result == None:
+        raise HTTPException(status_code=404, detail="Item not found") 
+    return result['id']
 
 async def delete_document_type_by_id(document_type_id: int):
     query = delete(DocumentType).where(DocumentType.id == document_type_id)
@@ -31,7 +34,7 @@ async def get_document_type_list(limit: int = 100,skip: int = 0,**kwargs):
     if('optional' in kwargs and kwargs['optional']):
         return await get_document_type_options_list(limit, skip, **kwargs)
 
-    query = select(DocumentType.id, DocumentType.name, DocumentType.description).limit(limit).offset(skip)
+    query = select(DocumentType.id, DocumentType.name, DocumentType.description).limit(limit).offset(skip).order_by(DocumentType.name)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:

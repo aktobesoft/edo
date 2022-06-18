@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from auth.user_auth import UserModel, add_entity_filter, get_current_active_user, is_entity_allowed
+from auth.user_auth import UserModel, add_entity_filter, get_current_active_user
 from common_module.urls_module import paginator_execute, query_parameters_list, query_parameters
 from catalogs.employee import views
 from catalogs.employee.models import EmployeeListNestedOut, EmployeeListOut, EmployeeOut, EmployeeIn

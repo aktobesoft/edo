@@ -1,6 +1,7 @@
 from datetime import date
 from fastapi import HTTPException
-from sqlalchemy import false, func, select, insert, update, delete
+from sqlalchemy import Table, false, func, select, insert, update, delete, event, table
+from catalogs.approval_status.models import ApprovalStatus
 from common_module.urls_module import is_need_filter
 from core.db import database
 from documents.purchase_requisition.models import PurchaseRequisition
@@ -105,7 +106,6 @@ async def get_approval_process_nested_list(limit: int = 100,skip: int = 0, **kwa
     return listValue
 
 async def post_approval_process(apInstance : dict, **kwargs):
-    print(kwargs)
     # RLS
     if(is_need_filter('entity_iin_list', kwargs) and apInstance["entity_iin"] not in kwargs['entity_iin_list']):
         raise HTTPException(status_code=403, detail="Forbidden")
@@ -197,7 +197,7 @@ async def start_approval_process(parameters, **kwargs):
     responseMap['ApprovalTemplate'] = {'id': approval_template['id'], 'name': approval_template['name']}
 
     # Дальше ищем его шаги
-    query = select(ApprovalTemplateStep.employee_id, ApprovalTemplateStep.level, ApprovalTemplateStep.type).\
+    query = select(ApprovalTemplateStep.user_id, ApprovalTemplateStep.level, ApprovalTemplateStep.type).\
             where(ApprovalTemplateStep.approval_template_id == approval_template['id']).order_by(ApprovalTemplateStep.level, ApprovalTemplateStep.type)
     _qp_select_list = {'nested': false}
     approval_template_steps = await get_approval_template_step_list(approval_template['id'], **_qp_select_list)
@@ -225,7 +225,7 @@ async def start_approval_process(parameters, **kwargs):
             'document_id': parameters['document_id'],
             'document_type_id': parameters['document_type_id'],
             'entity_iin': parameters['entity_iin'],
-            'employee_id': item['employee_id'],
+            'user_id': item['user_id'],
             'approval_template_id': approval_template['id'],
             'approval_process_id': 0,
             'hash': '',
@@ -260,7 +260,7 @@ async def start_approval_process(parameters, **kwargs):
     #         'document_id': parameters['document_id'],
     #         'document_type_id': parameters['document_type_id'],
     #         'entity_iin': parameters['entity_iin'],
-    #         'employee_id': item['employee_id'],
+    #         'user_id': item['user_id'],
     #         'approval_template_id': approval_template['id'],
     #         'approval_process_id': responseMap['ApprovalProcess']['id'],
     #         'hash': '',
@@ -335,5 +335,24 @@ async def cancel_approval_process(parameters, **kwargs):
     result = await database.execute(query)
     return apInstance
 
+async def reject_approval_process(parameters, **kwargs):
+    
+    apInstance = {
+        'is_active': True,
+        'document_id': parameters['document_id'],
+        'document_type_id': parameters['document_type_id'],
+        'entity_iin': parameters['entity_iin']
+        }
+    print(parameters)
 
+    query = update(ApprovalProcess).values(
+                    is_active = True, 
+                    status = "отклонен",
+                    end_date = date.today()).\
+                where(
+                    (ApprovalProcess.document_id == int(parameters['document_id'])) &
+                    (ApprovalProcess.document_type_id == int(parameters['document_type_id'])) &
+                    (ApprovalProcess.entity_iin == parameters['entity_iin']))
 
+    result = await database.execute(query)
+    return apInstance

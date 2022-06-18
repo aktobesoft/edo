@@ -4,7 +4,7 @@ from sqlalchemy import Column, ForeignKey, Index, String, Integer, Boolean, Enum
 from core.db import Base
 from sqlalchemy.orm import relationship
 import enum
-from catalogs.employee.models import EmployeeSmallOut
+from catalogs.user.models import UserSmallOut
 from catalogs.entity.models import EntitySmallOut
 from catalogs.enum_types.models import StepType
 
@@ -16,8 +16,8 @@ class ApprovalTemplateStep(Base):
     level = Column(Integer, nullable = False)
     type = Column(String, ForeignKey('step_type.name'), nullable = True)
     step_type = relationship("StepType")
-    employee_id = Column(Integer, ForeignKey('employee.id'), nullable = False, index = True)
-    employee = relationship("Employee")
+    user_id = Column(Integer, ForeignKey('user.id'), nullable = False, index = True)
+    user = relationship("User")
     approval_template_id = Column(Integer, ForeignKey('approval_template.id'), nullable = False, index = True)
     approval_template = relationship("ApprovalTemplate")
     hash = Column(String, index = True)
@@ -31,7 +31,7 @@ class _ApprovalTemplateStepOut(BaseModel):
     id: int = 0
     level: int = 0
     type: Union[str, None] = ''
-    employee_id: int = 0
+    user_id: int = 0
     approval_template_id: int = 0
     hash: Union[str, None] = ''
     
@@ -43,8 +43,8 @@ class _ApprovalTemplateStepNestedOut(BaseModel):
     id: int = 0
     level: int = 0
     type: Union[str, None] = ''
-    employee_id: int = 0
-    employee: EmployeeSmallOut
+    user_id: int = 0
+    user: UserSmallOut
     hash: Union[str, None] = ''
     
     class Config:
@@ -55,7 +55,7 @@ class _ApprovalTemplateStepPUT(BaseModel):
     id: int = 0
     level: int = 0
     type: Union[str, None] = ''
-    employee_id: int = 0
+    user_id: int = 0
     hash: Union[str, None] = ''
 
     class Config:
@@ -65,7 +65,7 @@ class _ApprovalTemplateStepPOST(BaseModel):
     
     level: int = 0
     type: Union[str, None] = ''
-    employee_id: int = 0
+    user_id: int = 0
     hash: Union[str, None] = ''
 
     class Config:

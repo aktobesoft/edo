@@ -18,8 +18,6 @@ class Employee(Base):
     description = Column(String(350), nullable=True)
     entity_iin = Column(String, ForeignKey('entity.iin'), nullable = False)
     entity = relationship("Entity")
-    user_id = Column(Integer, ForeignKey('users.id'))
-    user = relationship("User")
 
     def __repr__(self) -> str:
         return '<{0} ({1})>'.format(self.name, self.email)
@@ -29,7 +27,6 @@ class EmployeeOut(BaseModel):
     name: str
     email: str
     entity_iin: str
-    user_id: int
     description: str
     date_of_birth: date
     
@@ -46,8 +43,6 @@ class EmployeeNestedOut(BaseModel):
     name: str
     email: str
     entity_iin: str
-    user_id: int
-    user: UserOut
     entity: EntitySmallOut
     description: str
     date_of_birth: date
@@ -60,7 +55,6 @@ class EmployeeIn(BaseModel):
     name: str
     email: str
     entity_iin: str
-    user_id: int
     description: str
     date_of_birth: date
     

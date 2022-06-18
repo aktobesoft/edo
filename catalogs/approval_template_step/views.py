@@ -9,7 +9,7 @@ from core.db import database
 from common_module.urls_module import correct_datetime
 
 from catalogs.approval_template_step.models import ApprovalTemplateStep, _ApprovalTemplateStepPUT
-from catalogs.employee.models import Employee, employee_fillDataFromDict
+from catalogs.user.models import User, user_fillDataFromDict
 from catalogs.enum_types.models import StepType
 
 async def get_approval_template_step_by_id(approval_template_step_id: int):
@@ -34,17 +34,17 @@ async def get_approval_template_step_list(approval_template_id: int, **kwargs):
 
 async def get_approval_template_step_nested_list(approval_template_id: int, **kwargs):
     query = select(ApprovalTemplateStep, 
-                    Employee.id.label('employee_id'),
-                    Employee.email.label('employee_email'),
-                    Employee.name.label('employee_name')).\
-                join(Employee, ApprovalTemplateStep.employee_id == Employee.id, isouter=True).\
+                    User.id.label('user_id'),
+                    User.email.label('user_email'),
+                    User.name.label('user_name')).\
+                join(User, ApprovalTemplateStep.user_id == User.id, isouter=True).\
                 where(ApprovalTemplateStep.approval_template_id == int(approval_template_id)).\
                 order_by(ApprovalTemplateStep.id)
     result = await database.fetch_all(query)
     listValue = []
     for record in result:
         recordDict = dict(record)
-        recordDict['employee'] = employee_fillDataFromDict(recordDict)
+        recordDict['user'] = user_fillDataFromDict(recordDict)
         listValue.append(recordDict)
     return listValue
 
@@ -60,7 +60,7 @@ async def post_approval_template_step(atStepeInstance : dict):
                 level = int(atStepeInstance["level"]), 
                 type = atStepeInstance["type"],
                 hash = atStepeInstance["hash"],
-                employee_id = int(atStepeInstance["employee_id"]),
+                user_id = int(atStepeInstance["user_id"]),
                 approval_template_id = int(atStepeInstance["approval_template_id"]))
     result = await database.execute(query)
     
@@ -72,7 +72,7 @@ async def update_approval_template_step(atStepeInstance: dict):
                 level = int(atStepeInstance["level"]), 
                 type = atStepeInstance["type"],
                 hash = atStepeInstance["hash"],
-                employee_id = int(atStepeInstance["employee_id"]),
+                user_id = int(atStepeInstance["user_id"]),
                 approval_template_id = int(atStepeInstance["approval_template_id"])).\
                     where(ApprovalTemplateStep.id == int(atStepeInstance['id']))
 
@@ -151,7 +151,7 @@ async def update_approval_template_steps_by_approval_template_id(at_steps : list
             values(level = bindparam('level'), 
                 type = bindparam('type'), 
                 hash = bindparam('hash'),
-                employee_id = bindparam('employee_id'),
+                user_id = bindparam('user_id'),
                 approval_template_id = bindparam('approval_template_id')).\
             where(ApprovalTemplateStep.id == bindparam('id'))
         result = await database.execute_many(str(update_query), newList)
@@ -180,7 +180,7 @@ async def post_approval_template_steps_by_approval_template_id(at_steps : list, 
             values(level = bindparam('level'), 
             type = bindparam('type'), 
             hash = bindparam('hash'),
-            employee_id = bindparam('employee_id'),
+            user_id = bindparam('user_id'),
             approval_template_id = bindparam('approval_template_id'))
     result = await database.execute_many(query, newList) 
 

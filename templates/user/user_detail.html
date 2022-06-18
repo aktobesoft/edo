@@ -46,14 +46,26 @@
                 </div>
 
 
-                <label for="item_position" class="col-sm-2 col-form-label">Количество привязанных компаний</label>
+                <label for="item_position" class="col-sm-2 col-form-label">Пользователь организации</label>
                 <div class="col-sm-10 mt-2">
-                  <input type="number" class="form-control" placeholder="ID" readonly v-model.number="user.entity_count">
+                  <select v-on:click="getEntityList()" v-model="user.entity_iin" class="form-control"
+                    aria-label="Организация">
+                    <option value="0">---------</option>
+                    <option v-for="item in entityList" v-bind:value="item.iin">
+                      [[ item.name ]] ([[ item.iin ]])
+                    </option>
+                  </select>
                 </div>
 
-                <label for="item_position" class="col-sm-2 col-form-label">Количество привязанных пользователей</label>
+                <label for="item_position" class="col-sm-2 col-form-label">Пользователь как сотрудник</label>
                 <div class="col-sm-10 mt-2">
-                  <input type="number" class="form-control" placeholder="ID" readonly v-model.number="user.employee_count">
+                  <select v-on:click="getEmployeeList()" v-model="user.employee_id" class="form-control"
+                    aria-label="Cотрудник">
+                    <option value="0">---------</option>
+                    <option v-for="item in employeeList" v-bind:value="item.id">
+                      [[ item.name ]] ([[ item.id ]])
+                    </option>
+                  </select>
                 </div>
 
                 <label for="item_position" class="col-sm-2 col-form-label">Новый пароль</label>
@@ -107,6 +119,8 @@
     data: {
       businessTypeList: [],
       userList: [],
+      employeeList: [],
+      entityList: [],
       user: {
         "id": 0,
         "name": "",
@@ -115,6 +129,8 @@
         "entity_count": 0,
         "is_company": true,
         "is_active": true,
+        "employee_id": 0,
+        "entity_iin": 0,
         "hashed_password": ""
       },
       user_id: "{{ user_id }}",
@@ -125,6 +141,8 @@
       if (this.user_id != 'new') {
         await this.getUser()
       }
+      await this.getEmployeeList();
+      await this.getEntityList();
     },
     methods: {
       getUser: async function () {
@@ -132,6 +150,32 @@
         let response = await axios.get("{{url_for('get_user_list')}}" + this.user_id.toString(), get_config())
         console.log(response.data)
         this.user = response.data
+      },
+      getEntityList: async function () {
+        if (this.entityList.length > 0) {
+          return
+        }
+        try {
+          let response = await axios.get("{{url_for('get_entity_list')}}?skip=0&limit=100&nested=false&optional=false", get_config())
+          console.log(response.data)
+          this.entityList = response.data['result']
+        } catch (err) {
+          console.log(err); 
+          check_status(err)
+        }
+      },
+      getEmployeeList: async function () {
+        if (this.employeeList.length > 0) {
+          return
+        }
+        try {
+          let response = await axios.get("{{url_for('get_employee_list')}}?skip=0&limit=100&", get_config())
+          console.log(response.data)
+          this.employeeList = response.data['result']
+        } catch (err) {
+          console.log(err); 
+          check_status(err)
+        }
       },
       deleteUser: async function () {
         let response = await axios.delete("{{url_for('get_user_list')}}" + this.user_id.toString(), get_config())
@@ -179,6 +223,8 @@
           "name": this.user.name,
           "email": this.user.email,
           "is_company": this.user.is_company,
+          "employee_id": this.user.employee_id,
+          "entity_iin": this.user.entity_iin,
           "is_active": this.user.is_active,
           "hashed_password": this.user.hashed_password,
         }

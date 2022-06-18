@@ -20,8 +20,8 @@ class ApprovalRoute(Base):
     document_type_id= Column(Integer, ForeignKey('document_type.id'), nullable = False)
     entity_iin = Column(String, ForeignKey('entity.iin'), nullable = False, index = True)
     entity = relationship("Entity")
-    employee_id = Column(Integer, ForeignKey('employee.id'), nullable = False, index = True)
-    employee = relationship("Employee")
+    user_id = Column(Integer, ForeignKey('user.id'), nullable = False, index = True)
+    user = relationship("User")
     approval_template_id = Column(Integer, ForeignKey('approval_template.id'), nullable = False, index = True)
     approval_template = relationship("ApprovalTemplate")
     approval_process_id = Column(Integer, ForeignKey('approval_process.id'), nullable = False, index = True)
@@ -42,7 +42,7 @@ class ApprovalRouteOut(BaseModel):
     document_id: int
     document_type_id: int
     entity_iin: str
-    employee_id: int
+    user_id: int
     approval_template_id: int
     approval_process_id: int
     status_id: Union[int, None]
@@ -63,7 +63,7 @@ class ApprovalRoutePUT(BaseModel):
     document_id: int
     document_type_id: int
     entity_iin: str
-    employee_id: int
+    user_id: int
     approval_template_id: int
     approval_process_id: int
     hash: Union[str, None] = ''
@@ -79,7 +79,7 @@ class ApprovalRoutePOST(BaseModel):
     document_id: int
     document_type_id: int
     entity_iin: str
-    employee_id: int
+    user_id: int
     approval_template_id: int
     approval_process_id: int
     hash: Union[str, None] = ''
@@ -96,8 +96,8 @@ class ApprovalRouteNestedOut(BaseModel):
     document_id: int
     document_type_id: int
     entity_iin: str
-    employee_id: int
-    employee: dict
+    user_id: int
+    user: dict
     approval_template_id: int
     approval_process_id: int
     status_id: Union[int, None]
@@ -117,7 +117,7 @@ class ApprovalRouteIn(BaseModel):
     document_id: int
     document_type_id: int
     entity_iin: str
-    employee_id: int
+    user_id: int
     approval_template_id: int
     approval_process_id: int
     hash: Union[str, None] = ''

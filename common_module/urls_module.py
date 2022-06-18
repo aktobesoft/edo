@@ -3,11 +3,14 @@ from datetime import date, datetime, timezone
 import math
 
 #Other
-async def query_parameters_list(q: Optional[str] = '', page: int = 1, limit: int = 100, nested: bool = False, entity_iin_list: str = ''):
-    return {"q": q, "page": page, "limit": limit, 'nested': nested, 'entity_iin_list': entity_iin_list}
+async def query_parameters_list(q: Optional[str] = '', page: int = 1, limit: int = 100, nested: bool = False):
+    return {"q": q, "page": page, "limit": limit, 'nested': nested}
 
 async def paginator(page: int = 1, limit: int = 100):
     return {"page": page, "limit": limit}
+
+async def approval_parameters(include_approve_route: bool = False):
+    return {"include_approve_route": include_approve_route}
 
 async def query_parameters(q: Optional[str] = '', nested: bool = False):
     return {"q": q, 'nested': nested}
@@ -48,7 +51,6 @@ async def paginator_execute(parameters: dict, items_count: int):
     parameters['has_previous'] = False if parameters['page']==1 else True
     parameters['has_next'] = False if parameters['page']==parameters['pages'] else True
     parameters['skip'] = (parameters['page']-1) * parameters['limit'] if parameters['page'] > 1 else 0
-    print(parameters)
 
 def is_need_filter(key: str = 'entity_iin', parameters: dict = {}):
     if ('current_user' in parameters and parameters['current_user']['is_admin']):

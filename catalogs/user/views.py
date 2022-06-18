@@ -12,14 +12,18 @@ async def post_user(newUser : dict):
     if 'hashed_password' in newUser and newUser['hashed_password'] != '' and newUser['hashed_password'] != None:
         query = insert(User).values(
                         name = newUser['name'], 
-                        email = newUser['email'], 
+                        email = newUser['email'],
+                        entity_iin = newUser['entity_iin'], 
+                        employee_id = newUser['employee_id'], 
                         is_active = newUser['is_active'],
                         is_company = newUser['is_company'],
                         hashed_password = get_password_hash(newUser['hashed_password']))
     else:
         query = insert(User).values(
                         name = newUser['name'], 
-                        email = newUser['email'], 
+                        email = newUser['email'],
+                        entity_iin = newUser['entity_iin'], 
+                        employee_id = newUser['employee_id'], 
                         is_active = newUser['is_active'],
                         is_company = newUser['is_company'])
 
@@ -30,25 +34,35 @@ async def get_user_count():
     return await database.execute(query)
 
 async def get_user_by_id(user_id: int):
-    query = select(User.id, User.name, User.email, User.is_active, User.is_company,
-                    func.count(Employee.id).label('employee_count'),
-                    func.count(Entity.id).label('entity_count'),).\
-                    join(Employee, User.id == Employee.user_id, isouter=True).\
-                    join(Entity, User.id == Entity.user_id, isouter=True).\
-                    where(User.is_active).order_by(User.id).where(User.id == user_id).\
-                        group_by(User.id, User.name, User.email, User.is_active, User.is_company)
+    query = select(User.id, 
+                    User.name, 
+                    User.email, 
+                    User.is_active, 
+                    User.is_company,
+                    User.employee_id,
+                    User.entity_iin,
+                    Employee.name.label('employee_name'),
+                    Entity.name.label('entity_name')).\
+                    join(Employee, User.employee_id == Employee.id, isouter=True).\
+                    join(Entity, User.entity_iin == Entity.iin, isouter=True).\
+                    where(User.id == user_id)
     resultUser = await database.fetch_one(query)
     return resultUser 
     
 async def get_user_list(limit: int = 100, skip: int = 0, **kwargs):
 
-    query = select(User.id, User.name, User.email, User.is_active, User.is_company,
-                func.count(Employee.id).label('employee_count'),
-                func.count(Entity.id).label('entity_count'),).\
-                join(Employee, User.id == Employee.user_id, isouter=True).\
-                join(Entity, User.id == Entity.user_id, isouter=True).\
-                where(User.is_active).order_by(User.id).limit(limit).offset(skip).\
-                    group_by(User.id, User.name, User.email, User.is_active, User.is_company)
+    query = select(User.id, 
+                    User.name, 
+                    User.email, 
+                    User.is_active, 
+                    User.is_company,
+                    User.employee_id,
+                    User.entity_iin,
+                    Employee.name.label('employee_name'),
+                    Entity.name.label('entity_name')).\
+                    join(Employee, User.employee_id == Employee.id, isouter=True).\
+                    join(Entity, User.entity_iin == Entity.iin, isouter=True).\
+                    where(User.is_active)
 
     records = await database.fetch_all(query)
     listValue = []
@@ -68,6 +82,8 @@ async def update_user(newUser : dict, user_id: int):
         query = update(User).values(
                     name = newUser['name'], 
                     email = newUser['email'], 
+                    entity_iin = newUser['entity_iin'], 
+                    employee_id = newUser['employee_id'],
                     is_active = newUser['is_active'],
                     hashed_password = get_password_hash(newUser['hashed_password']),
                     is_company = newUser['is_company']).\
@@ -75,7 +91,9 @@ async def update_user(newUser : dict, user_id: int):
     else:
         query = update(User).values(
                     name = newUser['name'], 
-                    email = newUser['email'], 
+                    email = newUser['email'],
+                    entity_iin = newUser['entity_iin'], 
+                    employee_id = newUser['employee_id'], 
                     is_active = newUser['is_active'],
                     is_company = newUser['is_company']).\
                         where(User.id == user_id)

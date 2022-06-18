@@ -56,7 +56,6 @@
                   <th scope="col">Тип организации</th>
                   <th scope="col">Дата начало</th>
                   <th scope="col">Дата конец</th>
-                  <th scope="col">Пользователь</th>
                   <th scope="col">Операции</th>
                 </tr>
               </thead>
@@ -68,7 +67,6 @@
                   <td>[[ entity.type.name ]]</td>
                   <td>[[ entity.start_date ]]</td>
                   <td>[[ entity.end_date ]]</td>
-                  <td>[[ entity.user.name ]] ([[entity.user.email]])</td>
                   <td>
                     <button v-on:click="openEntity(entity)" class="btn btn-success btn-sm rounded-3" type="button"
                       data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">

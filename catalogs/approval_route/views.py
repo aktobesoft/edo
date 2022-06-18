@@ -5,7 +5,7 @@ from core.db import database
 from common_module.urls_module import correct_datetime
 
 from catalogs.approval_route.models import ApprovalRoute, ApprovalRouteIn
-from catalogs.employee.models import Employee, employee_fillDataFromDict
+from catalogs.user.models import User, User, user_fillDataFromDict
 
 async def get_approval_route_by_id(approval_route_id: int):
     query = select(ApprovalRoute,
@@ -40,18 +40,18 @@ async def get_approval_route_nested_by_aproval_process_id(aproval_process_id: in
             ApprovalStatus.date.label('status_date'),
             ApprovalStatus.status.label('status'),
             ApprovalStatus.comment.label('status_comment'),
-            Employee.id.label('employee_id'),
-            Employee.email.label('employee_email'),
-            Employee.name.label('employee_name')).\
-            join(Employee, ApprovalRoute.employee_id == Employee.id, isouter=True).\
-            join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalRoute.employee_id == ApprovalStatus.employee_id)\
+            User.id.label('user_id'),
+            User.email.label('user_email'),
+            User.name.label('user_name')).\
+            join(User, ApprovalRoute.user_id == User.id, isouter=True).\
+            join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalRoute.user_id == ApprovalStatus.user_id)\
                 & (ApprovalStatus.is_active), isouter=True).\
                 where(ApprovalRoute.approval_process_id == aproval_process_id).order_by(ApprovalRoute.id)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['employee'] = employee_fillDataFromDict(recordDict)
+        recordDict['user'] = user_fillDataFromDict(recordDict)
         listValue.append(recordDict)
     return listValue
 
@@ -88,7 +88,7 @@ async def post_approval_route(arInstance : dict):
                 type = arInstance["type"],
                 document_id = int(arInstance["document_id"]),
                 entity_iin = arInstance["entity_iin"],
-                employee_id = int(arInstance["employee_id"]),
+                user_id = int(arInstance["user_id"]),
                 approval_template_id = int(arInstance["approval_template_id"]),
                 hash = arInstance["hash"],
                 approval_process_id = int(arInstance["approval_process_id"]))
@@ -103,7 +103,7 @@ async def post_approval_routes_by_approval_process_id(arList : list):
                 type = bindparam("type"),
                 document_id = bindparam("document_id"),
                 entity_iin = bindparam("entity_iin"),
-                employee_id = bindparam("employee_id"),
+                user_id = bindparam("user_id"),
                 approval_template_id = bindparam("approval_template_id"),
                 hash = bindparam("hash"),
                 approval_process_id = bindparam("approval_process_id"))
@@ -118,7 +118,7 @@ async def update_approval_route(arInstance: dict, approval_route_id: int):
                 type = arInstance["type"],
                 document_id = int(arInstance["document_id"]),
                 entity_iin = arInstance["entity_iin"],
-                employee_id = int(arInstance["employee_id"]),
+                user_id = int(arInstance["user_id"]),
                 approval_template_id = int(arInstance["approval_template_id"]),
                 hash = bindparam("hash"),
                 approval_process_id = int(arInstance["approval_process_id"])).\
@@ -204,7 +204,7 @@ async def update_approval_routes_by_approval_process_id(ap_routes : list, approv
                 document_type_id = (bindparam("document_type_id")),
                 entity_iin = bindparam("entity_iin"),
                 hash = bindparam("hash"), 
-                employee_id = bindparam("employee_id"),
+                user_id = bindparam("user_id"),
                 approval_template_id = bindparam("approval_template_id")).\
                      where((ApprovalRoute.approval_process_id == bindparam("approval_process_id")) & (ApprovalRoute.id == bindparam("id")))
         result = await database.execute_many(str(update_query), newList)

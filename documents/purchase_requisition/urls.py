@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
-from auth.user_auth import UserModel, add_entity_filter, get_current_active_user
-from common_module.urls_module import paginator_execute, query_parameters_list, query_parameters, query_parameters
+from auth.user_auth import UserModel, add_approval_filter, add_entity_filter, get_current_active_user
+from common_module.urls_module import approval_parameters, paginator_execute, query_parameters_list, query_parameters, query_parameters
 from typing import List, Union
 
 from documents.purchase_requisition.models import PurchaseRequisitionListNestedOut, PurchaseRequisitionListOut, PurchaseRequisitionNestedItemsOut, PurchaseRequisitionNestedOutWithRoutes, PurchaseRequisitionPUT,\
@@ -12,18 +12,12 @@ from documents.purchase_requisition_items.models import _PurchaseRequisitionItem
 purchase_requisitionRouter = APIRouter()
 
 @purchase_requisitionRouter.get('/')
-async def get_purchase_requisition_list(parameters: dict = Depends(query_parameters_list), current_user: UserModel = Depends(get_current_active_user)):
+async def get_purchase_requisition_list(parameters: dict = Depends(query_parameters_list), 
+                approvalParameters: dict = Depends(approval_parameters),current_user: UserModel = Depends(get_current_active_user)):
     await add_entity_filter(current_user, parameters)
+    await add_approval_filter(approvalParameters, parameters)
     await paginator_execute(parameters, await views.get_purchase_requisition_count(**parameters))
     return {'info': parameters, 'result': await views.get_purchase_requisition_list(**parameters)}
-
-@purchase_requisitionRouter.get('/route/{employee_id}')
-async def get_purchase_requisition_list_with_route(employee_id: int, parameters: dict = Depends(query_parameters_list), current_user: UserModel = Depends(get_current_active_user)):
-    await add_entity_filter(current_user, parameters)
-    parameters['employee_id'] = employee_id
-    #await paginator_execute(parameters, await views.get_purchase_requisition_count(**parameters))
-    #return {'info': parameters, 'result': await views.get_purchase_requisition_nested_list_with_routes(**parameters)}
-    return await views.get_purchase_requisition_nested_list_with_routes(**parameters)
 
 @purchase_requisitionRouter.get('/{purchase_requisition_id}',response_model = Union[PurchaseRequisitionNestedItemsOut, PurchaseRequisitionItemsOut])
 async def get_purchase_requisition_by_id(purchase_requisition_id : int, parameters: dict = Depends(query_parameters), current_user: UserModel = Depends(get_current_active_user)):
@@ -46,7 +40,7 @@ async def update_purchase_requisition(purchase_requisition_id: int, PurchaseRequ
                             , current_user: UserModel = Depends(get_current_active_user)):
     await add_entity_filter(current_user, parameters)
     purchaseRequisitionInsctance = dict(PurchaseRequisitionPUT)
-    result = await views.update_purchase_requisition(purchaseRequisitionInsctance, purchase_requisition_id)
+    result = await views.update_purchase_requisition(purchaseRequisitionInsctance, purchase_requisition_id, **parameters)
     if parameters['nested']:
         return await views.get_purchase_requisition_by_id(purchase_requisition_id, **parameters)
     return purchaseRequisitionInsctance

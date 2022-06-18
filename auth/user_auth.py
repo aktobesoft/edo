@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 from typing import Union
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
@@ -58,7 +59,11 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     return encoded_jwt
 
 async def get_user(email: str)->UserModel:
-    query = select(User.email, User.name.label('username'), User.is_active.label('is_active'), User.id, User.hashed_password, User.is_admin.label('is_admin')).where((User.email == email) | (User.name == email))
+    query = select(User.email, 
+                    User.name.label('username'), 
+                    User.is_active.label('is_active'), 
+                    User.id, User.hashed_password, 
+                    User.is_admin.label('is_admin')).where((User.email == email) | (User.name == email))
     result = await database.fetch_one(query)
     if result == None:
         return result
@@ -120,26 +125,17 @@ async def add_entity_filter(current_user: UserModel, parameters: dict):
     if current_user['is_admin']:
         return
 
-    queryUser = select(Entity.iin).\
-                where(Entity.user_id == current_user['id'])
+    queryUser = select(User.entity_iin).\
+                where(User.id == current_user['id'])
     records = await database.fetch_all(queryUser)
     
     listValue = []
     for rec in records:
-        listValue.append(rec['iin'])
+        listValue.append(rec['entity_iin'])
     parameters['entity_iin_list'] = listValue
 
-async def is_entity_allowed(current_user: UserModel, entity_iin: str):
-    
-    if current_user['is_admin']:
-        return
+async def add_approval_filter(approvalParameters: dict, parameters: dict):
+    for key in approvalParameters:
+        parameters[key] = approvalParameters[key]
 
-    queryUser = select(func.count(Entity.iin).label("entity_count")).\
-                where((Entity.iin == entity_iin) & (Entity.user_id == current_user['id']))
-    records = await database.fetch_one(queryUser)
-    print(records, current_user, entity_iin)
-    print(records.entity_count)
-    
-    if records == None or len(records) == 0 or records.entity_count == 0:
-        raise HTTPException(status_code=403, detail="Forbidden")
 

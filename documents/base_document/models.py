@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Float, String, Integer, Table, DateTime, Boolean, MetaData, ForeignKey, Date, event, false
+from sqlalchemy import Column, Float, String, Integer, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel
 from sqlalchemy.orm import declared_attr

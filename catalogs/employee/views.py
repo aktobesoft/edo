@@ -2,12 +2,10 @@ from fastapi import HTTPException
 from sqlalchemy import func, select, insert, update, delete
 from core.db import database
 import asyncpg
-from datetime import date, datetime
 from common_module.urls_module import correct_datetime, is_need_filter
 
-from catalogs.user.models import User, user_fillDataFromDict
 from catalogs.entity.models import Entity, entity_fillDataFromDict
-from catalogs.employee.models import Employee, EmployeeIn, EmployeeOut
+from catalogs.employee.models import Employee
 
 async def get_employee_by_id(employee_id: int, **kwargs):
     query = select(Employee).where(Employee.id == employee_id)
@@ -44,8 +42,7 @@ async def get_employee_list(limit: int = 100, skip: int = 0, **kwargs)->list[Emp
                 Employee.email, 
                 Employee.date_of_birth, 
                 Employee.description, 
-                Employee.entity_iin, 
-                Employee.user_id).\
+                Employee.entity_iin).\
                     order_by(
                     Employee.id).limit(limit).offset(skip)
     # RLS
@@ -67,15 +64,9 @@ async def get_employee_nested_list(limit: int = 100, skip: int = 0, **kwargs):
                 Employee.date_of_birth, 
                 Employee.description, 
                 Employee.entity_iin.label("entity_iin"), 
-                Employee.user_id,
-                User.email.label("user_email"), 
-                User.name.label("user_name"),
-                User.is_active.label("user_is_active"),
-                User.is_company.label("user_is_company"),
                 Entity.name.label("entity_name"),
                 Entity.id.label("entity_id")).\
                     join(Entity, Employee.entity_iin == Entity.iin, isouter=True).\
-                    join(User, Employee.user_id == User.id, isouter=True).\
                     order_by(Employee.id).limit(limit).offset(skip)
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
@@ -85,7 +76,6 @@ async def get_employee_nested_list(limit: int = 100, skip: int = 0, **kwargs):
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['user'] = user_fillDataFromDict(recordDict)
         recordDict['entity'] = entity_fillDataFromDict(recordDict)
         listValue.append(recordDict)
     return listValue
@@ -121,9 +111,7 @@ async def post_employee(employeeInstance : dict, **kwargs):
                 email = employeeInstance["email"], 
                 date_of_birth = employeeInstance["date_of_birth"],
                 description = employeeInstance["description"], 
-                entity_iin = employeeInstance["entity_iin"],
-                user_id = int(employeeInstance["user_id"])
-                )
+                entity_iin = employeeInstance["entity_iin"] )
     try:
         newEmloyeeId = await database.execute(query)
     except asyncpg.exceptions.ForeignKeyViolationError as e:
@@ -138,8 +126,8 @@ async def update_employee(employeeInstance : dict, employee_id: int, **kwargs):
                 email = employeeInstance["email"], 
                 date_of_birth = employeeInstance['date_of_birth'],
                 description = employeeInstance["description"], 
-                entity_iin = employeeInstance["entity_iin"],
-                user_id = int(employeeInstance["user_id"])).where(Employee.id == employee_id)
+                entity_iin = employeeInstance["entity_iin"]).\
+                where(Employee.id == employee_id)
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
         query = query.where(Employee.entity_iin.in_(kwargs['entity_iin_list']))

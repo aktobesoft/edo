@@ -6,7 +6,6 @@ from common_module.urls_module import correct_datetime, is_need_filter
 
 from catalogs.entity.models import Entity
 from catalogs.business_type.models import BusinessType, business_type_fillDataFromDict
-from catalogs.user.models import User, user_fillDataFromDict
 
 
 async def get_entity_by_id(entity_id: int, **kwargs):
@@ -17,7 +16,6 @@ async def get_entity_by_id(entity_id: int, **kwargs):
     return resultEntity
 
 async def get_entity_by_iin(entity_iin: str, **kwargs):
-    print(entity_iin)
     # RLS
     if(is_need_filter('entity_iin_list', kwargs) and entity_iin not in kwargs['entity_iin_list']):
         raise HTTPException(status_code=404, detail="Item not found")
@@ -37,16 +35,10 @@ async def get_entity_by_iin(entity_iin: str, **kwargs):
                 Entity.start_date, 
                 Entity.type_name, 
                 Entity.end_date, 
-                Entity.user_id.label("user_id"),
                 BusinessType.id.label("business_type_id"), 
                 BusinessType.name.label("business_type_name"),
-                BusinessType.full_name.label("business_type_full_name"),
-                User.email.label("user_email"), 
-                User.name.label("user_name"),
-                User.is_active.label("user_is_active"),
-                User.is_company.label("user_is_company")).\
+                BusinessType.full_name.label("business_type_full_name")).\
                     join(BusinessType, Entity.type_name == BusinessType.name, isouter=True).\
-                    join(User, Entity.user_id == User.id, isouter=True).\
                     where(Entity.iin == entity_iin)
 
     query = select(Entity).where(Entity.iin == entity_iin)
@@ -91,8 +83,7 @@ async def get_entity_list(limit: int = 100, skip: int = 0, **kwargs)->list[Entit
                 Entity.token, 
                 Entity.start_date, 
                 Entity.type_name, 
-                Entity.end_date, 
-                Entity.user_id).limit(limit).offset(skip).order_by(Entity.name)
+                Entity.end_date).limit(limit).offset(skip).order_by(Entity.name)
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
         query = query.where(Entity.iin.in_(kwargs['entity_iin_list']))  
@@ -120,16 +111,11 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs):
                 Entity.start_date, 
                 Entity.type_name, 
                 Entity.end_date, 
-                Entity.user_id.label("user_id"),
                 BusinessType.id.label("business_type_id"), 
                 BusinessType.name.label("business_type_name"),
-                BusinessType.full_name.label("business_type_full_name"),
-                User.email.label("user_email"), 
-                User.name.label("user_name"),
-                User.is_active.label("user_is_active"),
-                User.is_company.label("user_is_company")).\
+                BusinessType.full_name.label("business_type_full_name")).\
                     join(BusinessType, Entity.type_name == BusinessType.name, isouter=True).\
-                    join(User, Entity.user_id == User.id, isouter=True).limit(limit).offset(skip)
+                    limit(limit).offset(skip)
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
         query = query.where(Entity.iin.in_(kwargs['entity_iin_list'])) 
@@ -138,7 +124,6 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs):
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['user'] = user_fillDataFromDict(rec)
         recordDict['type'] = business_type_fillDataFromDict(rec)
         listValue.append(recordDict)
     return listValue
@@ -164,7 +149,6 @@ async def post_entity(entityInstance : dict, **kwargs):
                 start_date = entityInstance["start_date"], 
                 end_date = entityInstance["end_date"], 
                 type_name = entityInstance["type_name"], 
-                user_id = int(entityInstance["user_id"]), 
                 token = '')
 
     try:
@@ -195,8 +179,7 @@ async def update_entity(entityInstance: dict, entity_iin: str, **kwargs):
                 administrator_phone = entityInstance["administrator_phone"], 
                 start_date = entityInstance["start_date"], 
                 end_date = entityInstance["end_date"] , 
-                type_name = entityInstance["type_name"], 
-                user_id = int(entityInstance["user_id"])).where(
+                type_name = entityInstance["type_name"]).where(
                     Entity.iin == entity_iin)
 
     result = await database.execute(query)

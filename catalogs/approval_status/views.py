@@ -1,11 +1,12 @@
 from sqlalchemy import bindparam, func, select, insert, update, delete
 from datetime import datetime, timezone
+from catalogs.approval_process.views import reject_approval_process
 
 from core.db import database
 from common_module.urls_module import correct_datetime
 
 from catalogs.approval_status.models import ApprovalStatus
-from catalogs.employee.models import Employee, employee_fillDataFromDict
+from catalogs.user.models import User, user_fillDataFromDict
 
 async def get_approval_status_by_id(approval_status_id: int):
     query = select(ApprovalStatus).where(ApprovalStatus.id == approval_status_id)
@@ -14,16 +15,16 @@ async def get_approval_status_by_id(approval_status_id: int):
 
 async def get_approval_status_nested_by_id(aproval_status_id: int):
     query = select(ApprovalStatus,
-            Employee.id.label('employee_id'),
-            Employee.email.label('employee_email'),
-            Employee.name.label('employee_name')).\
-            join(Employee, ApprovalStatus.employee_id == Employee.id, isouter=True).\
+            User.id.label('user_id'),
+            User.email.label('user_email'),
+            User.name.label('user_name')).\
+            join(User, ApprovalStatus.user_id == User.id, isouter=True).\
             where(ApprovalStatus.id == aproval_status_id)
     records = await database.fetch_one(query)
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['employee'] = employee_fillDataFromDict(recordDict)
+        recordDict['user'] = user_fillDataFromDict(recordDict)
         listValue.append(recordDict)
     return listValue
 
@@ -50,7 +51,7 @@ async def post_approval_status(asInstance : dict):
                     where((ApprovalStatus.document_type_id == int(asInstance["document_type_id"])) & 
                             (ApprovalStatus.approval_route_id == int(asInstance["approval_route_id"])) &
                             (ApprovalStatus.entity_iin == asInstance["entity_iin"]) &
-                            (ApprovalStatus.employee_id == int(asInstance["employee_id"])))
+                            (ApprovalStatus.user_id == int(asInstance["user_id"])))
 
     result = await database.execute(query)
     
@@ -63,9 +64,13 @@ async def post_approval_status(asInstance : dict):
                 document_type_id = int(asInstance["document_type_id"]),
                 approval_route_id = int(asInstance["approval_route_id"]),
                 entity_iin = asInstance["entity_iin"],
-                employee_id = int(asInstance["employee_id"]))
+                user_id = int(asInstance["user_id"]))
 
     result = await database.execute(query)
+
+    if (asInstance["status"] == 'отклонен'):
+        await reject_approval_process(parameters = asInstance)
+
     return {**asInstance, 'id': result}
 
 
@@ -80,7 +85,7 @@ async def update_approval_status(asInstance: dict, approval_status_id: int):
                 document_type_id = int(asInstance["document_type_id"]),
                 approval_route_id = int(asInstance["approval_route_id"]),
                 entity_iin = asInstance["entity_iin"],
-                employee_id = int(asInstance["employee_id"])).\
+                user_id = int(asInstance["user_id"])).\
                     where(ApprovalStatus.id == approval_status_id)
 
     result = await database.execute(query)

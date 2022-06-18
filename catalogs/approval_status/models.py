@@ -18,15 +18,15 @@ class ApprovalStatus(Base):
     comment = Column(String(350), nullable = True,)
     entity_iin = Column(String, ForeignKey('entity.iin'), nullable = False, index = True)
     entity = relationship("Entity")
-    employee_id = Column(Integer, ForeignKey('employee.id'), nullable = False, index = True)
-    employee = relationship("Employee")
+    user_id = Column(Integer, ForeignKey('user.id'), nullable = False, index = True)
+    user = relationship("User")
     approval_route_id = Column(Integer, ForeignKey('approval_route.id'), nullable = False, index = True)
     approval_route = relationship("ApprovalRoute")
 
     def __repr__(self) -> str:
         return self.name
 
-Index('idx_as_approval_route_id_employee_id', ApprovalStatus.approval_route_id, ApprovalStatus.employee_id)
+Index('idx_as_approval_route_id_user_id', ApprovalStatus.approval_route_id, ApprovalStatus.user_id)
         
 
 class ApprovalStatusOut(BaseModel):
@@ -37,7 +37,7 @@ class ApprovalStatusOut(BaseModel):
     document_id: int
     document_type_id: int
     entity_iin: str
-    employee_id: int
+    user_id: int
     date: Union[datetime, None]
     approval_route_id: int
     
@@ -52,7 +52,7 @@ class ApprovalStatusPUT(BaseModel):
     document_id: int
     document_type_id: int
     entity_iin: str
-    employee_id: int
+    user_id: int
     approval_route_id: int
     comment: str
     
@@ -66,7 +66,7 @@ class ApprovalStatusPOST(BaseModel):
     document_id: int
     document_type_id: int
     entity_iin: str
-    employee_id: int
+    user_id: int
     approval_route_id: int
     comment: str
     

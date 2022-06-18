@@ -65,7 +65,7 @@
                           <th scope="col">ID</th>
                           <th scope="col">Уровень</th>
                           <th scope="col">Тип</th>
-                          <th scope="col">Сотрудник</th>
+                          <th scope="col">Пользователь</th>
                           <th scope="col">Операции</th>
                         </tr>
                       </thead>
@@ -75,7 +75,7 @@
                           <td>[[ step.id ]]</td>
                           <td>[[ step.level ]]</td>
                           <td>[[ step.type]]</td>
-                          <td>[[ step.employee.name ]] ([[ step.employee.email ]])</td>
+                          <td>[[ step.user.name ]] ([[ step.user.email ]])</td>
                           <td>
                             <button v-on:click="loadStep(step, index)" data-toggle="modal"
                               data-target="#newElementModal" class="btn btn-success btn-sm rounded-3" type="button"
@@ -147,12 +147,12 @@
                               </select>
                             </div>
 
-                            <label for="step_employee_id" class="col-sm-2 col-form-label">Сотрудник</label>
+                            <label for="step_user_id" class="col-sm-2 col-form-label">Пользователь</label>
                             <div class="col-sm-10 mt-2">
-                              <select v-on:click="getEmployeeList()" v-model="step_employee" class="form-control"
-                                aria-label="Сотрудник" id="step_employee">
+                              <select v-on:click="getUserList()" v-model="step_user" class="form-control"
+                                aria-label="Пользователь" id="step_user">
                                 <option value="0">---------</option>
-                                <option v-for="item in emloyeeList"
+                                <option v-for="item in userList"
                                   v-bind:value="{ id: item.id, name: item.name, email: item.email }">
                                   [[ item.name ]]
                                 </option>
@@ -232,10 +232,10 @@
         "steps": []
       },
       approval_template_id: "{{itemId}}",
-      emloyeeList: [],
+      userList: [],
       entityList: [],
       documentType: [],
-      step_employee: '',
+      step_user: '',
       StepType: '',
       step_level: 0,
       step_index: -1,
@@ -247,7 +247,7 @@
         await this.getAproovalTemplate()
 
       }
-      await this.getEmployeeList()
+      await this.getUserList()
       await this.getEntityList()
       await this.getDocumentTypeList()
 
@@ -274,7 +274,7 @@
             'id': parseInt(element.id),
             'level': element.level,
             'type': element.type,
-            'employee_id': element.employee_id,
+            'user_id': element.user_id,
             'hash': ''
           }
           approval_template_steps.push(stepDict)
@@ -333,7 +333,7 @@
         window.location.href = "{{url_for('approval_template_list')}}"
       },
       clearActiveStep: function () {
-        this.step_employee = '',
+        this.step_user = '',
           this.StepType = '',
           this.step_level = 1,
           this.step_index = -1
@@ -344,21 +344,21 @@
           "id": 0,
           "level": this.step_level,
           "type": this.StepType,
-          "employee_id": this.step_employee.id,
-          "employee": {
-            "id": this.step_employee.id,
-            "name": this.step_employee.name,
-            "email": this.step_employee.email
+          "user_id": this.step_user.id,
+          "user": {
+            "id": this.step_user.id,
+            "name": this.step_user.name,
+            "email": this.step_user.email
           }
         })
       },
       loadStep: function (step, index) {
         this.step_level = step.level;
         this.StepType = step.type;
-        this.step_employee.name = step.employee.name;
-        this.step_employee.id = step.employee_id;
-        this.step_employee.email = step.employee.email;
-        this.step_employee = step.employee
+        this.step_user.name = step.user.name;
+        this.step_user.id = step.user_id;
+        this.step_user.email = step.user.email;
+        this.step_user = step.user
         this.step_index = index;
         this.step_position = index + 1;
       },
@@ -370,10 +370,10 @@
         step = this.approval_template.steps[this.step_index]
         step.level = this.step_level;
         step.type = this.StepType;
-        step.employee_id = this.step_employee.id;
-        step.employee.name = this.step_employee.name;
-        step.employee.id = this.step_employee.id;
-        step.employee.email = this.step_employee.email;
+        step.user_id = this.step_user.id;
+        step.user.name = this.step_user.name;
+        step.user.id = this.step_user.id;
+        step.user.email = this.step_user.email;
       },
       deleteStep: function (step, index) {
         this.approval_template.steps.pop(index);
@@ -387,19 +387,20 @@
           console.log("getDocumentTypeList")
           console.log(response.data)
           this.documentType = response.data['result']
+          his.documentType.sort()
         } catch (err) {
           console.log(err); 
           check_status(err)
         }
       },
-      getEmployeeList: async function () {
-        if (this.emloyeeList.length > 0) {
+      getUserList: async function () {
+        if (this.userList.length > 0) {
           return
         }
         try {
-          let response = await axios.get("{{url_for('get_employee_list')}}?skip=0&limit=100&", get_config())
+          let response = await axios.get("{{url_for('get_user_list')}}?skip=0&limit=100&", get_config())
           console.log(response.data)
-          this.emloyeeList = response.data['result']
+          this.userList = response.data['result']
         } catch (err) {
           console.log(err); 
           check_status(err)

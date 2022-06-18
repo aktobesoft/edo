@@ -22,7 +22,7 @@ async def get_user_by_id(user_id: int, current_user: UserModel = Depends(get_cur
     return listValue
 
 @userRouter.post('/', response_model = UserOut)
-async def post_user(newUser : UserPOST, current_user: UserModel = Depends(get_current_active_user)):
+async def post_user(newUser : UserPOST):#, current_user: UserModel = Depends(get_current_active_user)):
     newUser = dict(newUser)
     newUser_id = await userService.post_user(newUser)
     return {**newUser, 'id': int(newUser_id)}

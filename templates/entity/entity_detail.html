@@ -95,17 +95,6 @@
                     </option>
                   </select>
                 </div>
-
-                <label for="item_position" class="col-sm-2 col-form-label">Пользователь</label>
-                <div class="col-sm-10 mt-2">
-                  <select v-on:click="getUserList()" v-model="entity.user_id" class="form-control"
-                    aria-label="Сотрудник">
-                    <option value="0">---------</option>
-                    <option v-for="item in userList" v-bind:value="item.id">
-                      [[ item.name ]] ([[ item.email ]])
-                    </option>
-                  </select>
-                </div>
               </div>
               <div class="pt-3 row">
                 <div class="col mb-3 ml-2">
@@ -150,7 +139,6 @@
     el: '#vue',
     data: {
       businessTypeList: [],
-      userList: [],
       entity: {
         "id": 0,
         "name": "",
@@ -166,7 +154,6 @@
         "start_date": "2022-01-01",
         "end_date": "2022-01-01",
         "type_name": 0,
-        "user_id": 0
       },
       entity_iin: "{{ entity_iin }}",
     },
@@ -186,14 +173,6 @@
         let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true", get_config())
         console.log(response.data)
         this.businessTypeList = response.data
-      },
-      getUserList: async function () {
-        if (this.userList.length > 0) {
-          return
-        }
-        let response = await axios.get("{{url_for('get_user_list')}}?optional=true", get_config())
-        console.log(response.data)
-        this.userList = response.data['result']
       },
       getEntity: async function () {
         console.log(this.entity_iin)
@@ -257,7 +236,6 @@
           "start_date": this.entity.start_date,
           "end_date": this.entity.end_date,
           "type_name": this.entity.type_name,
-          "user_id": this.entity.user_id
         }
         return entity_data
       },

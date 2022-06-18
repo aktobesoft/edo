@@ -11,7 +11,7 @@ class EmployeeActivity(Base):
     last_activity = Column(DateTime(timezone=True))
     employee_id = Column(Integer, ForeignKey('employee.id'))
     employee = relationship("Employee")
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship("User")
 
     def __repr__(self) -> str:

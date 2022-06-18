@@ -54,12 +54,12 @@
                 <thead class="table-dark">
                   <tr>
                     <th scope="col" width="5%">ИД</th>
-                    <th scope="col" width="25%">Email</th>
-                    <th scope="col" width="25%">Наименование</th>
+                    <th scope="col" width="20%">Email</th>
+                    <th scope="col" width="20%">Наименование</th>
                     <th scope="col" width="5%">Это компания</th>
                     <th scope="col" width="5%">Активный</th>
-                    <th scope="col" width="10%">Кол-во компаний</th>
-                    <th scope="col" width="10%">Кол-во сотрудников</th>
+                    <th scope="col" width="15%">Организация</th>
+                    <th scope="col" width="15%">Сотрудник</th>
                     <th scope="col" width="15%">Операции</th>
                   </tr>
                 </thead>
@@ -84,8 +84,8 @@
                         
                       </div>
                     </td>
-                    <td>[[ user.entity_count ]]</td>
-                    <td>[[ user.employee_count ]]</td>
+                    <td>[[ user.entity_name ]]</td>
+                    <td>[[ user.employee_name ]]</td>
                     <td>
                       <button v-on:click="openUser(user)" class="btn btn-success btn-sm rounded-3" type="button"
                         data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">

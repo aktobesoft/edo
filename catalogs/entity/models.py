@@ -1,14 +1,10 @@
-from enum import unique
-from sqlalchemy import Column, String, Integer, Table, DateTime, Boolean, MetaData, ForeignKey, Date, event
+from sqlalchemy import Column, String, Integer, ForeignKey, Date
 from sqlalchemy.orm import relationship
 from core.db import Base
-from datetime import date, datetime
+from datetime import date
 from pydantic import BaseModel, validator
 from documents.base_document.models import Paginator
-from catalogs.business_type.models import BusinessTypeOut, BusinessType
-from catalogs.document_type.models import DocumentType
-from catalogs.notes.models import Notes
-from catalogs.user.models import UserOut, User
+from catalogs.business_type.models import BusinessTypeOut
 
 class Entity(Base):
     __tablename__ = 'entity'
@@ -28,9 +24,7 @@ class Entity(Base):
     end_date = Column(Date, nullable=True)
     type_name = Column(String(50), ForeignKey('business_type.name'), nullable=True)
     type = relationship('BusinessType')
-    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=True)
-    user = relationship('User')
-
+    
     def __repr__(self) -> str:
         return '<{0} ({1})>'.format(self.name, self.iin)
 
@@ -49,13 +43,9 @@ class EntityNestedOut(BaseModel):
     start_date: date
     end_date: date
     type: BusinessTypeOut
-    user: UserOut
     
     class Config:
         orm_mode = True
-
-
-    
 
 class EntityOut(BaseModel):
     id: int
@@ -71,7 +61,6 @@ class EntityOut(BaseModel):
     start_date: date
     end_date: date
     type_name: str
-    user_id: int
     
     class Config:
         orm_mode = True
@@ -94,7 +83,6 @@ class EntityIn(BaseModel):
     start_date: date
     end_date: date
     type_name: str
-    user_id: int
 
     class Config:
         orm_mode = True
@@ -120,9 +108,6 @@ def entity_fillDataFromDict(queryResult : dict):
         'name': queryResult['entity_name']
         } 
 
-@event.listens_for(Table, 'before_insert')
-def do_stuff(mapper, connect, target):
-    # target is an instance of Table
-    target.value = ...
+
 
 

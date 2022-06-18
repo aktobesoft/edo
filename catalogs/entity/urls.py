@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from auth.user_auth import UserModel, get_current_active_user, add_entity_filter, is_entity_allowed
+from auth.user_auth import UserModel, get_current_active_user, add_entity_filter
 from common_module.urls_module import paginator_execute, query_parameters_list, query_parameters
 from documents.base_document.models import OptionsStructure
 import catalogs.entity.views as views
@@ -17,7 +17,6 @@ async def get_entity_list(parameters: dict = Depends(query_parameters_list), cur
 @entityRouter.get('/{entity_iin}', response_model=Union[EntityNestedOut,EntityOut])
 async def get_entity_by_iin(entity_iin: str, parameters: dict = Depends(query_parameters), current_user: UserModel = Depends(get_current_active_user)):
     await add_entity_filter(current_user, parameters)
-    print(entity_iin, parameters)
     return await views.get_entity_by_iin(entity_iin = entity_iin, **parameters)
 
 @entityRouter.post('/', response_model = EntityOut)

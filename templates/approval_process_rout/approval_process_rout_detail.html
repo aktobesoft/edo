@@ -86,7 +86,7 @@
                           <th scope="col">Уровень</th>
                           <th scope="col">Активный</th>
                           <th scope="col">Тип</th>
-                          <th scope="col">Сотрудник</th>
+                          <th scope="col">Пользователь</th>
                           <th scope="col">Статус</th>
                           <th scope="col">Комментарий</th>
                           <th scope="col">Операции</th>
@@ -104,7 +104,7 @@
                             <td>нет</td>
                           </template>
                           <td>[[ rout.type]]</td>
-                          <td>[[ rout.employee.name ]] ([[ rout.employee.email ]])</td>
+                          <td>[[ rout.user.name ]] ([[ rout.user.email ]])</td>
                           <td>
                             <template v-if="rout.status === 'согласован'">
                               <i class='fas fa-circle' style='color:#28a745'>&nbsp;</i> 
@@ -195,12 +195,12 @@
                               </select>
                             </div>
 
-                            <label for="rout_employee_id" class="col-sm-2 col-form-label">Сотрудник</label>
+                            <label for="rout_user_id" class="col-sm-2 col-form-label">Пользователь</label>
                             <div class="col-sm-10 mt-2">
-                              <select v-on:click="getEmployeeList()" v-model="rout_employee" class="form-control"
-                                aria-label="Сотрудник" id="rout_employee">
+                              <select v-on:click="getUserList()" v-model="rout_user" class="form-control"
+                                aria-label="Пользователь" id="rout_user">
                                 <option value="0">---------</option>
-                                <option v-for="item in emloyeeList"
+                                <option v-for="item in userList"
                                   v-bind:value="{id: item.id, name: item.name, email: item.email }">
                                   [[ item.name ]]
                                 </option>
@@ -290,11 +290,11 @@
         "routes": [],
       },
       approval_process_id: "{{itemId}}",
-      emloyeeList: [],
+      userList: [],
       entityList: [],
       documentType: [],
       statusList: ['в работе', 'подписан', 'отклонен', 'отменен', 'в работе', 'черновик'],
-      rout_employee: {},
+      rout_user: {},
       rout_type: '',
       rout_level: 0,
       rout_status: '',
@@ -309,7 +309,7 @@
         await this.getApprovalProcess()
 
       }
-      await this.getEmployeeList()
+      await this.getUserList()
       await this.getEntityList()
       await this.getDocumentTypeList()
 
@@ -340,7 +340,7 @@
             "document_id": this.approval_process.document_id,
             "document_type_id": this.approval_process.document_type_id,
             "entity_iin": this.approval_process.entity_iin,
-            'employee_id': element.employee_id,
+            'user_id': element.user_id,
             'approval_template_id': this.approval_process.approval_template_id,
             'approval_process_id': this.approval_process.id,
             'hash': ''
@@ -406,7 +406,7 @@
         window.location.href = "{{url_for('approval_process_list')}}"
       },
       clearActiveStep: function () {
-        this.rout_employee = {},
+        this.rout_user = {},
           this.rout_type = '',
           this.rout_level = 1,
           this.rout_is_active = true,
@@ -421,18 +421,18 @@
           "level": this.rout_level,
           "is_active": this.rout_is_active,
           "type": this.rout_type,
-          "employee_id": this.rout_employee.id,
-          "employee": {
-            "id": this.rout_employee.id,
-            "name": this.rout_employee.name,
-            "email": this.rout_employee.email
+          "user_id": this.rout_user.id,
+          "user": {
+            "id": this.rout_user.id,
+            "name": this.rout_user.name,
+            "email": this.rout_user.email
           }
         })
       },
       loadStep: function (rout, index) {
         this.rout_level = rout.level;
         this.rout_type = rout.type;
-        this.rout_employee = rout.employee
+        this.rout_user = rout.user
         this.rout_is_active = rout.is_active
         this.rout_index = index;
         this.rout_status = rout.status;
@@ -449,10 +449,10 @@
         rout.level = this.rout_level;
         rout.type = this.rout_type;
         rout.is_active = this.rout_is_active;
-        rout.employee_id = this.rout_employee.id;
+        rout.user_id = this.rout_user.id;
         rout.status = this.rout_status;
         rout.status_comment = this.rout_status_comment;
-        rout.employee = this.rout_employee;
+        rout.user = this.rout_user;
       },
       deleteStep: function (rout, index) {
         this.approval_process.routes.pop(index);
@@ -471,14 +471,14 @@
           check_status(err)
         }
       },
-      getEmployeeList: async function () {
-        if (this.emloyeeList.length > 0) {
+      getUserList: async function () {
+        if (this.userList.length > 0) {
           return
         }
         try {
-          let response = await axios.get("{{url_for('get_employee_list')}}?skip=0&limit=100&", get_config())
+          let response = await axios.get("{{url_for('get_user_list')}}?skip=0&limit=100&", get_config())
           console.log(response.data)
-          this.emloyeeList = response.data['result']
+          this.userList = response.data['result']
         } catch (err) {
           console.log(err); 
           check_status(err)

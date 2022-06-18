@@ -58,7 +58,6 @@
                     <th scope="col">Наименование</th>
                     <th scope="col">Организация</th>
                     <th scope="col">Дата рождение</th>
-                    <th scope="col">Пользователь</th>
                     <th scope="col">Операции</th>
                   </tr>
                 </thead>
@@ -69,7 +68,6 @@
                     <td>[[ employee.name ]]</a></td>
                     <td>[[ employee.entity.name ]] </td>
                     <td>[[ employee.date_of_birth ]]</td>
-                    <td>[[ employee.user.name ]] ([[employee.user.email]])</td>
                     <td>
                       <button v-on:click="openEmployee(employee)" class="btn btn-success btn-sm rounded-3" type="button"
                         data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
