@@ -1,6 +1,7 @@
 from datetime import date
 from fastapi import HTTPException
-from sqlalchemy import Table, false, func, select, insert, update, delete, event, table
+from sqlalchemy import String, Table, false, func, select, insert, update, delete, event, table
+from catalogs.approval_route.models import ApprovalRoute
 from catalogs.approval_status.models import ApprovalStatus
 from common_module.urls_module import is_need_filter
 from core.db import database
@@ -210,10 +211,20 @@ async def start_approval_process(parameters, **kwargs):
     # а то что уходиv только сейчас, выше нужно было создать информацию по шаблону согласования и шагаъ его
     if process_started and responseMap['Error']:
         return responseMap
+
+    # декативируем старые процессы
+    query = update(ApprovalProcess).values(
+                    is_active = False).\
+                where(
+                    (ApprovalProcess.is_active) &
+                    (ApprovalProcess.document_id == int(parameters['document_id'])) &
+                    (ApprovalProcess.document_type_id == int(parameters['document_type_id'])) &
+                    (ApprovalProcess.entity_iin == parameters['entity_iin']))
+
+    result = await database.execute(query)
    
     # ------------------------------ СОЗДАНИЕ ПРОЦЕССА -------------------------------
-    
-    
+        
 
     # Создаем шаги согласования
     listRoutes = []
@@ -282,28 +293,27 @@ async def check_approval_processes(parameters, **kwargs):
         listId = parameters['document_id'] 
 
     query = select( 
-            ApprovalProcess.is_active,
             ApprovalProcess.document_id,
             ApprovalProcess.document_type_id, 
             ApprovalProcess.entity_iin,
             ApprovalProcess.approval_template_id,
             ApprovalProcess.status,
+            ApprovalProcess.is_active,
             ApprovalProcess.start_date,
-            ApprovalProcess.end_date, 
+            ApprovalProcess.end_date,
             func.max(ApprovalProcess.id).label('id')).\
-                where(
+                where((ApprovalProcess.is_active) &
                     (ApprovalProcess.entity_iin == parameters['entity_iin']) & 
-                    (ApprovalProcess.is_active == parameters['is_active']) & 
                     (ApprovalProcess.document_id.in_(listId)) & 
                     (ApprovalProcess.document_type_id == parameters['document_type_id'])).\
                 group_by(ApprovalProcess.entity_iin, 
                         ApprovalProcess.document_type_id,
                         ApprovalProcess.approval_template_id, 
                         ApprovalProcess.status,
-                        ApprovalProcess.is_active,
                         ApprovalProcess.document_id,
+                        ApprovalProcess.is_active,
                         ApprovalProcess.start_date,
-                        ApprovalProcess.end_date)
+                        ApprovalProcess.end_date,)
 
     result = await database.fetch_all(query)
 
@@ -313,6 +323,67 @@ async def check_approval_processes(parameters, **kwargs):
 
     
     return responseMap
+
+async def is_approval_process_finished(parameters, **kwargs):
+
+    query_route = select( 
+                    ApprovalProcess.id.label("approval_process_id"),
+                    ApprovalProcess.status.label("approval_process_status"),
+                    func.count(ApprovalRoute.id).label("status_count"),
+                    func.lower("all_routes", type_= String).label("status"),).\
+                    join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id) & (ApprovalRoute.is_active), isouter=True).\
+                    where(
+                    (ApprovalProcess.is_active) &
+                    (ApprovalProcess.status == 'в работе') &
+                    (ApprovalProcess.document_id == int(parameters['document_id'])) &
+                    (ApprovalProcess.document_type_id == int(parameters['document_type_id'])) &
+                    (ApprovalProcess.entity_iin == parameters['entity_iin'])).\
+                    group_by(ApprovalProcess.id, ApprovalProcess.status)
+
+    query_status = select( 
+                    ApprovalProcess.id,
+                    ApprovalProcess.status,
+                    func.count(ApprovalStatus.status),
+                    ApprovalStatus.status).\
+                    join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id) & (ApprovalRoute.is_active), isouter=True).\
+                    join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalStatus.is_active), isouter=True).\
+                    where(
+                    (ApprovalProcess.is_active) &
+                    (ApprovalProcess.status == 'в работе') &
+                    (ApprovalProcess.document_id == int(parameters['document_id'])) &
+                    (ApprovalProcess.document_type_id == int(parameters['document_type_id'])) &
+                    (ApprovalProcess.entity_iin == parameters['entity_iin']) &
+                    (ApprovalStatus.status != None)).\
+                    group_by(ApprovalProcess.id, ApprovalProcess.status, ApprovalStatus.status)
+                    
+
+    query = query_route.union_all(query_status).alias('approval_route_list')
+    # print(query)
+    result = await database.fetch_all(query)
+    approved_procesess = {}
+    
+    for item in result:
+        item_row = dict(item)
+
+        if item_row['approval_process_id'] not in approved_procesess:
+            approved_procesess[item_row['approval_process_id']] = {'routes_count': 0, 'rejected_count': 0, 'approved_count': 0}
+
+        if approved_procesess[item_row['approval_process_id']]['rejected_count']>0:
+            continue
+
+        print(item_row)
+
+        if item_row['status'] == 'all_routes' and item_row['status_count']>0:
+            approved_procesess[item_row['approval_process_id']]['routes_count'] = item_row['status_count']
+        elif item_row['status'] == 'отклонен' and item_row['status_count']>0:
+            await set_approval_process_status(item_row['approval_process_id'], 'отклонен', **kwargs)
+            approved_procesess[item_row['approval_process_id']]['rejected_count'] = approved_procesess[item_row['approval_process_id']]['rejected_count']  + 1
+            continue
+        elif item_row['status'] == 'согласован' and item_row['status_count']>0:
+            if approved_procesess[item_row['approval_process_id']]['routes_count']>0 and \
+                approved_procesess[item_row['approval_process_id']]['routes_count'] == item_row['status_count']:
+                print(approved_procesess)
+                await set_approval_process_status(item_row['approval_process_id'], 'подписан', **kwargs)
 
 async def cancel_approval_process(parameters, **kwargs):
     
@@ -328,6 +399,7 @@ async def cancel_approval_process(parameters, **kwargs):
                     status = "отменен",
                     end_date = date.today()).\
                 where(
+                    (ApprovalProcess.is_active) &
                     (ApprovalProcess.document_id == int(parameters['document_id'])) &
                     (ApprovalProcess.document_type_id == int(parameters['document_type_id'])) &
                     (ApprovalProcess.entity_iin == parameters['entity_iin']))
@@ -335,24 +407,11 @@ async def cancel_approval_process(parameters, **kwargs):
     result = await database.execute(query)
     return apInstance
 
-async def reject_approval_process(parameters, **kwargs):
+async def set_approval_process_status(approval_process_id: int, approval_process_status: str, **kwargs):
     
-    apInstance = {
-        'is_active': True,
-        'document_id': parameters['document_id'],
-        'document_type_id': parameters['document_type_id'],
-        'entity_iin': parameters['entity_iin']
-        }
-    print(parameters)
-
     query = update(ApprovalProcess).values(
-                    is_active = True, 
-                    status = "отклонен",
+                    status = approval_process_status,
                     end_date = date.today()).\
-                where(
-                    (ApprovalProcess.document_id == int(parameters['document_id'])) &
-                    (ApprovalProcess.document_type_id == int(parameters['document_type_id'])) &
-                    (ApprovalProcess.entity_iin == parameters['entity_iin']))
+                where(ApprovalProcess.id == approval_process_id)
 
-    result = await database.execute(query)
-    return apInstance
+    return await database.execute(query)

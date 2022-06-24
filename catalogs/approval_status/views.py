@@ -1,6 +1,6 @@
 from sqlalchemy import bindparam, func, select, insert, update, delete
 from datetime import datetime, timezone
-from catalogs.approval_process.views import reject_approval_process
+from catalogs.approval_process.views import is_approval_process_finished
 
 from core.db import database
 from common_module.urls_module import correct_datetime
@@ -68,8 +68,7 @@ async def post_approval_status(asInstance : dict):
 
     result = await database.execute(query)
 
-    if (asInstance["status"] == 'отклонен'):
-        await reject_approval_process(parameters = asInstance)
+    await is_approval_process_finished(parameters = asInstance)
 
     return {**asInstance, 'id': result}
 

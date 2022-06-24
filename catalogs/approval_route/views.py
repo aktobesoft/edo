@@ -1,8 +1,10 @@
-from sqlalchemy import String, bindparam, func, select, insert, update, delete
+from sqlalchemy import String, bindparam, func, select, insert, tuple_, update, delete
 import asyncpg
+from catalogs.approval_process.models import ApprovalProcess
 from catalogs.approval_status.models import ApprovalStatus
+from catalogs.document_type.views import get_document_type_id_by_metadata_name
 from core.db import database
-from common_module.urls_module import correct_datetime
+from common_module.urls_module import correct_datetime, is_need_filter
 
 from catalogs.approval_route.models import ApprovalRoute, ApprovalRouteIn
 from catalogs.user.models import User, User, user_fillDataFromDict
@@ -79,6 +81,70 @@ async def get_approval_route_list(limit: int = 100,skip: int = 0,**kwargs):
         recordDict = dict(rec)
         listValue.append(recordDict)
     return listValue
+
+async def get_approval_routes_by_metadata(metadata_name: str, **kwargs):
+    metadata_name_document_type_id = await get_document_type_id_by_metadata_name(metadata_name)
+    query_min = select(func.min(ApprovalRoute.level).label("min_level"),
+                        ApprovalProcess.id.label("approval_process_id")).\
+                    join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id) & (ApprovalRoute.is_active), isouter=True).\
+                    join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalStatus.is_active), isouter=True).\
+                    where((ApprovalProcess.is_active) & (ApprovalStatus.status == None) & (ApprovalProcess.document_type_id == metadata_name_document_type_id)).\
+                    group_by(ApprovalProcess.id)
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query_min = query_min.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
+
+    query_current_approval_routes = select(
+            func.lower("current_approval_routes", type_=String).label('list_type'), 
+            ApprovalRoute.user_id,
+            ApprovalRoute.level,
+            ApprovalRoute.type,
+            ApprovalProcess.id.label('approval_process_id'),
+            ApprovalRoute.id.label('route_id'),
+            ApprovalStatus.status.label('route_status'),
+            ApprovalStatus.comment.label('route_comment'),
+            ApprovalStatus.date.label('route_date')).\
+            join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id) & (ApprovalRoute.is_active), isouter=True).\
+            join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalStatus.is_active), isouter=True).\
+            where((ApprovalProcess.is_active)  & (ApprovalProcess.document_type_id == metadata_name_document_type_id)).\
+            where(tuple_(ApprovalRoute.level, ApprovalRoute.approval_process_id).in_(query_min))
+    
+
+    query_all_approval_routes = select(
+            func.lower("all_approval_routes", type_=String).label('list_type'), 
+            ApprovalRoute.user_id,
+            ApprovalRoute.level,
+            ApprovalRoute.type,
+            ApprovalProcess.id.label('approval_process_id'),
+            ApprovalRoute.id.label('route_id'),
+            ApprovalStatus.status.label('route_status'),
+            ApprovalStatus.comment.label('route_comment'),
+            ApprovalStatus.date.label('route_date')).\
+            join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id) & (ApprovalRoute.is_active), isouter=True).\
+            join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalStatus.is_active), isouter=True).\
+            where((ApprovalProcess.is_active) & (ApprovalProcess.document_type_id == metadata_name_document_type_id))
+            
+            # where(ApprovalRoute.approval_process_id).in_(kwargs['approval_process_id_list'])
+    # RLS
+    if(is_need_filter('entity_iin_list', kwargs)):
+        query_all_approval_routes = query_all_approval_routes.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
+    
+    query = query_current_approval_routes.union_all(query_all_approval_routes).alias('approval_route_list')           
+    # print(query)
+    records = await database.fetch_all(query)
+    dictValue = {}
+    
+    for rec in records:
+        recordDict = dict(rec)
+        if(recordDict['approval_process_id'] not in dictValue):
+            dictValue[recordDict['approval_process_id']] = {'current_approval_routes': [], 'all_approval_routes': []}
+        
+        if(recordDict['list_type']=='current_approval_routes'):
+            dictValue[recordDict['approval_process_id']]['current_approval_routes'].append(recordDict)
+        elif(recordDict['list_type']=='all_approval_routes'):
+            dictValue[recordDict['approval_process_id']]['all_approval_routes'].append(recordDict)
+        
+    return dictValue
 
 async def post_approval_route(arInstance : dict):
     

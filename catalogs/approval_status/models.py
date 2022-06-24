@@ -20,7 +20,7 @@ class ApprovalStatus(Base):
     entity = relationship("Entity")
     user_id = Column(Integer, ForeignKey('user.id'), nullable = False, index = True)
     user = relationship("User")
-    approval_route_id = Column(Integer, ForeignKey('approval_route.id'), nullable = False, index = True)
+    approval_route_id = Column(Integer, ForeignKey('approval_route.id', ondelete = "CASCADE"), nullable = False, index = True)
     approval_route = relationship("ApprovalRoute")
 
     def __repr__(self) -> str:

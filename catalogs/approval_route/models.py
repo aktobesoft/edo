@@ -24,7 +24,7 @@ class ApprovalRoute(Base):
     user = relationship("User")
     approval_template_id = Column(Integer, ForeignKey('approval_template.id'), nullable = False, index = True)
     approval_template = relationship("ApprovalTemplate")
-    approval_process_id = Column(Integer, ForeignKey('approval_process.id'), nullable = False, index = True)
+    approval_process_id = Column(Integer, ForeignKey('approval_process.id', ondelete = "CASCADE"), nullable = False, index = True)
     approval_process = relationship("ApprovalProcess")
     hash = Column(String, index = True)
 

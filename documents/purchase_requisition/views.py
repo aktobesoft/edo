@@ -2,6 +2,7 @@ from certifi import where
 from fastapi import HTTPException
 from sqlalchemy import String, func, null, select, insert, tuple_, update, delete
 from catalogs.approval_route.models import ApprovalRoute
+from catalogs.approval_route.views import get_approval_routes_by_metadata
 from catalogs.approval_status.models import ApprovalStatus
 from catalogs.document_type.views import get_document_type_id_by_metadata_name
 from core.db import database
@@ -162,7 +163,7 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
     
     if('include_approve_route' in kwargs and kwargs['include_approve_route']):
         include_approve_route = True
-        routes_result  = await get_purchase_requisition_nested_list_with_routes(**kwargs)
+        routes_result  = await get_approval_routes_by_metadata('purchase_requisition', **kwargs)
     else:
         include_approve_route = False
 
@@ -181,69 +182,7 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
         listValue.append(recordDict)
     return listValue
 
-async def get_purchase_requisition_nested_list_with_routes(**kwargs):
-    purchase_requisition_document_type_id = await get_document_type_id_by_metadata_name("purchase_requisition")
-    query_min = select(func.min(ApprovalRoute.level).label("min_level"),
-                        ApprovalProcess.id.label("approval_process_id")).\
-                    join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id) & (ApprovalRoute.is_active), isouter=True).\
-                    join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalStatus.is_active), isouter=True).\
-                    where((ApprovalProcess.is_active) & (ApprovalStatus.status == None)).\
-                    group_by(ApprovalProcess.id)
-    # RLS
-    if(is_need_filter('entity_iin_list', kwargs)):
-        query_min = query_min.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
 
-    query_current_approval_routes = select(
-            func.lower("current_approval_routes", type_=String).label('list_type'), 
-            ApprovalRoute.user_id,
-            ApprovalRoute.level,
-            ApprovalRoute.type,
-            ApprovalProcess.id.label('approval_process_id'),
-            ApprovalRoute.id.label('route_id'),
-            ApprovalStatus.status.label('route_status'),
-            ApprovalStatus.comment.label('route_comment'),
-            ApprovalStatus.date.label('route_date')).\
-            join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id) & (ApprovalRoute.is_active), isouter=True).\
-            join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalStatus.is_active), isouter=True).\
-            where(ApprovalProcess.is_active).\
-            where(tuple_(ApprovalRoute.level, ApprovalRoute.approval_process_id).in_(query_min))
-    
-
-    query_all_approval_routes = select(
-            func.lower("all_approval_routes", type_=String).label('list_type'), 
-            ApprovalRoute.user_id,
-            ApprovalRoute.level,
-            ApprovalRoute.type,
-            ApprovalProcess.id.label('approval_process_id'),
-            ApprovalRoute.id.label('route_id'),
-            ApprovalStatus.status.label('route_status'),
-            ApprovalStatus.comment.label('route_comment'),
-            ApprovalStatus.date.label('route_date')).\
-            join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id) & (ApprovalRoute.is_active), isouter=True).\
-            join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalStatus.is_active), isouter=True).\
-            where(ApprovalProcess.is_active)
-            
-            # where(ApprovalRoute.approval_process_id).in_(kwargs['approval_process_id_list'])
-    # RLS
-    if(is_need_filter('entity_iin_list', kwargs)):
-        query_all_approval_routes = query_all_approval_routes.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
-
-    query = query_current_approval_routes.union_all(query_all_approval_routes).alias('approval_route_list')           
-    
-    records = await database.fetch_all(query)
-    dictValue = {}
-    
-    for rec in records:
-        recordDict = dict(rec)
-        if(recordDict['approval_process_id'] not in dictValue):
-            dictValue[recordDict['approval_process_id']] = {'current_approval_routes': [], 'all_approval_routes': []}
-        
-        if(recordDict['list_type']=='current_approval_routes'):
-            dictValue[recordDict['approval_process_id']]['current_approval_routes'].append(recordDict)
-        elif(recordDict['list_type']=='all_approval_routes'):
-            dictValue[recordDict['approval_process_id']]['all_approval_routes'].append(recordDict)
-        
-    return dictValue
     
 async def get_max_purchase_requisition_number(entity_iin: str)->str:
     query = select(func.max(PurchaseRequisition.number).label('number')).where(PurchaseRequisition.entity_iin == entity_iin)
