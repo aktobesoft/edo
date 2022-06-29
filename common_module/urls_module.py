@@ -2,6 +2,8 @@ from typing import Optional
 from datetime import date, datetime, timezone
 import math
 
+from sqlalchemy import false
+
 #Other
 async def query_parameters_list(q: Optional[str] = '', page: int = 1, limit: int = 100, nested: bool = False):
     return {"q": q, "page": page, "limit": limit, 'nested': nested}
@@ -53,9 +55,12 @@ async def paginator_execute(parameters: dict, items_count: int):
     parameters['skip'] = (parameters['page']-1) * parameters['limit'] if parameters['page'] > 1 else 0
 
 def is_need_filter(key: str = 'entity_iin', parameters: dict = {}):
-    if ('current_user' in parameters and parameters['current_user']['is_admin']):
+    
+    if (key not in parameters):
         return False
-    if (key in parameters and (parameters[key] != '' and parameters[key] != [])):
+    elif ('current_user' in parameters and parameters['current_user']['is_admin']):
+        return False
+    elif (key in parameters and (parameters[key] != '' and parameters[key] != [])):
         return True
     return True
 

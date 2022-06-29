@@ -70,11 +70,28 @@ async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **
     if(is_need_filter('entity_iin_list', kwargs)):
         query = query.where(PurchaseRequisition.entity_iin.in_(kwargs['entity_iin_list']))
     resultPurchaseRequisition = await database.fetch_one(query)
+
+    if(is_need_filter('include_approve_route', kwargs)):
+        kwargs['purchase_requisition_id'] = purchase_requisition_id
+        routes_result  = await get_approval_routes_by_metadata('purchase_requisition', **kwargs)
+        include_approve_route = True
+    else:
+        include_approve_route = False
+
     recordDict = dict(resultPurchaseRequisition)
     recordDict['entity'] = entity_fillDataFromDict(resultPurchaseRequisition)
     recordDict['document_type'] = document_type_fillDataFromDict(resultPurchaseRequisition)
     recordDict['counterparty'] = counterparty_fillDataFromDict(resultPurchaseRequisition)
-    recordDict['items'] = await get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id, **kwargs)
+    recordDict['items'] = await get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id)
+    
+    if(include_approve_route):
+            if recordDict['approval_process_id'] in routes_result:
+                recordDict['current_approval_routes'] = routes_result[recordDict['approval_process_id']]['current_approval_routes']
+                recordDict['all_approval_routes'] = routes_result[recordDict['approval_process_id']]['all_approval_routes']
+            else:
+                recordDict['current_approval_routes'] = []
+                recordDict['all_approval_routes'] = []
+
     return recordDict
 
 async def delete_purchase_requisition_by_id(purchase_requisition_id: int, **kwargs):

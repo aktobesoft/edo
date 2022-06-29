@@ -7,14 +7,15 @@
         <div class="col-12">
           <div class="card mt-3">
             <div class="card-header">
-                Заявка на расходование средств
+              Заявка на расходование средств
             </div>
             <div class="card-body table-responsive p-0">
               <div class="col-12 ">
-                <button v-on:click="goToPurchaseRequisitionLit()" class="btn btn-primary mt-2 " type="button" data-toggle="tooltip"
-                  data-placement="top">
+                <button v-on:click="goToPurchaseRequisitionLit()" class="btn btn-primary mt-2 " type="button"
+                  data-toggle="tooltip" data-placement="top">
                   Перейти к списку заявок
                 </button>
+
 
                 <div class="mt-2 ml-1 row">
 
@@ -27,19 +28,19 @@
                   <label for="id" class="col-sm-2 col-form-label mt-2">Номер</label>
                   <div class="col-sm-10 mt-2">
                     <input type="number" name="number" class="form-control" id="name" placeholder="Номер" readonly
-                      v-model.number="purchase_requisition.number">
+                      v-model.number="purchase_requisition.number" v-bind:readonly="isReadOnly">
                   </div>
 
                   <label for="id" class="col-sm-2 col-form-label mt-2">Дата</label>
                   <div class="col-sm-10 mt-2">
                     <input type="date" name="date" id="date" placeholder="Дата начало"
-                      v-model="purchase_requisition.date" class="form-control">
+                      v-model="purchase_requisition.date" class="form-control" v-bind:readonly="isReadOnly">
                   </div>
 
                   <label for="id" class="col-sm-2 col-form-label mt-2">Организация</label>
                   <div class="col-sm-10 mt-2">
                     <select v-on:click="getEntityList()" v-model="purchase_requisition.entity_iin" class="form-control"
-                      aria-label="Организация" id="item_entity">
+                      aria-label="Организация" id="item_entity" v-bind:disabled="isReadOnly">
                       <option value="0">---------</option>
                       <option v-for="item in entityList" v-bind:value="item.iin">
                         [[ item.name ]] ([[ item.iin ]])
@@ -50,7 +51,7 @@
                   <label for="id" class="col-sm-2 col-form-label mt-2">Контрагент</label>
                   <div class="col-sm-10 mt-2">
                     <select v-on:click="getCounterpartyList()" v-model="purchase_requisition.counterparty_iin"
-                      class="form-control" aria-label="Контрагент" id="item_counterparty">
+                      class="form-control" aria-label="Контрагент" id="item_counterparty" v-bind:disabled="isReadOnly">
                       <option value="0">---------</option>
                       <option v-for="item in counterpartyList" v-bind:value="item.iin">
                         [[ item.name ]] ([[ item.iin ]])
@@ -72,87 +73,160 @@
                   <label for="id" class="col-sm-2 col-form-label mt-2">Сумма</label>
                   <div class="col-sm-10 mt-2">
                     <input type="number" name="sum" class="form-control" id="sum" placeholder="Сумма"
-                      v-model.number="purchase_requisition.sum">
+                      v-model.number="purchase_requisition.sum" v-bind:readonly="isReadOnly">
                   </div>
 
                   <label for="id" class="col-sm-2 col-form-label mt-2">Комментарий</label>
                   <div class="col-sm-10 mt-2">
                     <textarea class="form-control" rows="3" placeholder="Комментарий"
-                    v-model="purchase_requisition.comment"></textarea>
+                      v-model="purchase_requisition.comment" v-bind:readonly="isReadOnly"></textarea>
+                  </div>
+
+                  <label for="id" class="col-sm-2 col-form-label mt-2">Статус документа</label>
+                  <div class="col-sm-10 mt-2 ">
+                    <template v-if="purchase_requisition.status === 'в работе'">
+                      <i class='fas fa-circle' style='color:#faab00'>&nbsp;</i>
+                    </template>
+                    <template v-else-if="purchase_requisition.status === 'подписан'">
+                      <i class='fas fa-circle' style='color:#28a745'>&nbsp;</i> 
+                    </template>
+                    <template v-else-if="purchase_requisition.status === 'отклонен'">
+                      <i class='fas fa-circle' style='color: red'>&nbsp;</i> 
+                    </template>
+                    [[ purchase_requisition.status]]
                   </div>
 
                 </div>
-                <div class="mt-2 mb-2 ml-2">
-                  <button v-on:click="clearActiveStep()" type="button" class="btn btn-success" data-toggle="modal"
-                    data-target="#newElementModal">
-                    Добавить
-                  </button>
-                </div>
-                <div class="col-12">
-                  <table class="table table-bordered table-hover p-0">
-                    <thead class="table-dark">
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">ID</th>
-                        <th scope="col">Это услуга</th>
-                        <th scope="col">Наименование</th>
-                        <th scope="col">Код</th>
-                        <th scope="col">Количество</th>
-                        <th scope="col">Сумма</th>
-                        <th scope="col">Операции</th>
-                      </tr>
-                    </thead>
-                    <tbody v-for="(item, index) in purchase_requisition.items" :key="index">
-                      <tr>
-                        <td>[[ index+1 ]]</td>
-                        <td>[[ item.id ]]</td>
-                        <td>
-                          <div v-if="item.service === true">
-                            да
-                          </div>
-                          <div v-else>
-                            нет
-                          </div>
-                        </td>
-                        <td>[[ item.description]]</td>
-                        <td>[[ item.description_code ]]</td>
-                        <td>[[ item.quantity ]]</td>
-                        <td>[[ item.sum ]]</td>
-                        <td>
-                          <button v-on:click="loadItem(item, index)" data-toggle="modal" data-target="#newElementModal"
-                            class="btn btn-success btn-sm rounded-3" type="button" data-toggle="tooltip"
-                            data-placement="top" title="" data-original-title="Edit">
-                            <i class="fas fa-edit"></i>
+
+                <div class="card card-primary card-outline card-tabs mt-2">
+                  <div class="card-header p-0 pt-1 border-bottom-0">
+                    <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+                      <li class="nav-item">
+                        <a class="nav-link active" id="custom-tabs-main-tab" data-toggle="pill"
+                          href="#custom-tabs-main" role="tab" aria-controls="custom-tabs-main"
+                          aria-selected="true">Основные данные</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="custom-tabs-approve-tab" data-toggle="pill"
+                          href="#custom-tabs-approve" role="tab" aria-controls="custom-tabs-approve"
+                          aria-selected="false">Согласование</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="card-body">
+                    <div class="tab-content" id="custom-tabs-three-tabContent">
+                      <div class="tab-pane fade show active" id="custom-tabs-main" role="tabpanel"
+                        aria-labelledby="custom-tabs-main-tab">
+                        <div class="mt-2 mb-2">
+                          <button v-on:click="clearActiveStep()" type="button" class="btn btn-success"
+                            data-toggle="modal" data-target="#newElementModal" v-bind:disabled="isReadOnly">
+                            Добавить
                           </button>
-                          <button v-on:click="deleteStep(item, index)" class="btn btn-danger btn-sm rounded-3"
-                            type="button" data-toggle="tooltip" data-placement="top" title=""
-                            data-original-title="Delete">
-                            <i class="fas fa-trash"></i>
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="mt-2 mb-2 ml-3">
-                  <div class="row">
-                  <button type="button" class="btn btn-primary" v-on:click="sendData()">
-                    Сохранить
-                  </button>
-                  <button type="button" class="btn btn-primary btn-danger ml-1" data-toggle="modal"
-                    data-target="#deleteElementModal">
-                    Удалить
-                  </button>
-                  <div class="dropdown ml-1">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Согласование
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                      <button class="dropdown-item" type="button" @click="startApprovalProcess()">Отправить на согласование</button>
-                      <button class="dropdown-item" type="button">Отменить согласование</button>
+                        </div>
+                        <!-- <div class="col-12"> -->
+                          <table class="table table-bordered table-hover p-0">
+                            <thead class="table-dark">
+                              <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">ID</th>
+                                <th scope="col">Это услуга</th>
+                                <th scope="col">Наименование</th>
+                                <th scope="col">Код</th>
+                                <th scope="col">Количество</th>
+                                <th scope="col">Сумма</th>
+                                <th scope="col">Операции</th>
+                              </tr>
+                            </thead>
+                            <tbody v-for="(item, index) in purchase_requisition.items" :key="index">
+                              <tr>
+                                <td>[[ index+1 ]]</td>
+                                <td>[[ item.id ]]</td>
+                                <td>
+                                  <div v-if="item.service === true">
+                                    да
+                                  </div>
+                                  <div v-else>
+                                    нет
+                                  </div>
+                                </td>
+                                <td>[[ item.description]]</td>
+                                <td>[[ item.description_code ]]</td>
+                                <td>[[ item.quantity ]]</td>
+                                <td>[[ item.sum ]]</td>
+                                <td>
+                                  <button v-on:click="loadItem(item, index)" data-toggle="modal"
+                                    data-target="#newElementModal" class="btn btn-success btn-sm rounded-3"
+                                    type="button" data-toggle="tooltip" data-placement="top" title=""
+                                    data-original-title="Edit" v-bind:disabled="isReadOnly">
+                                    <i class="fas fa-edit"></i>
+                                  </button>
+                                  <button v-on:click="setCurrentItem(index)" type="button" class="btn btn-danger btn-sm rounded-3" 
+                                      data-toggle="modal" data-target="#deleteElementModalStep" v-bind:disabled="isReadOnly">
+                                    <i class="fas fa-trash"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        <!-- </div> -->
+                      </div>
+                      <div class="tab-pane fade" id="custom-tabs-approve" role="tabpanel"
+                        aria-labelledby="custom-tabs-approve-tab">
+                        <table class="table table-bordered table-hover p-0">
+                          <thead class="table-dark">
+                            <tr>
+                              <th scope="col">Уровень</th>
+                              <th scope="col">Пользователь</th>
+                              <th scope="col">Статус</th>
+                              <th scope="col">Комментарий</th>
+                              <th scope="col">Дата согласования</th>
+                            </tr>
+                          </thead>
+                          <tbody v-for="(item, index) in purchase_requisition.all_approval_routes" :key="index">
+                            <tr>
+                              <td>[[ item.level ]]</td>
+                              <td>[[ item.user_name]]</td>
+                              <td>
+                                <template v-if="item.route_status === 'согласован'">
+                                  <i class='fas fa-circle' style='color:#28a745'>&nbsp;</i> 
+                                </template>
+                                <template v-else-if="item.route_status === 'отклонен'">
+                                  <i class='fas fa-circle' style='color: red'>&nbsp;</i> 
+                                </template>
+                                [[ item.route_status ]]
+                              </td>
+                              <td>[[ item.route_comment ]]</td>
+                              <td>[[ item.route_date|liveSubstr ]]</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
+                  <!-- /.card -->
                 </div>
+
+                <div class="mt-2 mb-2 ml-3">
+                  <div class="row">
+                    <button type="button" class="btn btn-primary" v-on:click="sendData()" v-bind:disabled="isReadOnly">
+                      Сохранить
+                    </button>
+                    <button type="button" class="btn btn-primary btn-danger ml-1" data-toggle="modal"
+                      data-target="#deleteElementModal" v-bind:disabled="isReadOnly">
+                      Удалить
+                    </button>
+                    <div class="dropdown ml-1">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
+                        Согласование
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                        <button class="dropdown-item" type="button" @click="startApprovalProcess()" v-bind:disabled="isReadOnly">Отправить на
+                          согласование</button>
+                        <button class="dropdown-item" type="button" v-bind:disabled="isReadOnly">Отменить согласование</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Modal -->
@@ -172,39 +246,39 @@
                           <label for="item_position" class="col-sm-2 col-form-label">Номер строки</label>
                           <div class="col-sm-10 mt-2">
                             <input type="number" class="form-control" id="item_position" placeholder="Номер строки<"
-                              v-model.number="item_position">
+                              v-model.number="item_position" v-bind:readonly="isReadOnly">
                           </div>
 
                           <label for="item_level" class="col-sm-2 col-form-label">Это услуга</label>
                           <div class="col-sm-10 mt-2">
                             <div class="form-check">
-                              <input type="checkbox" class="form-check-input" v-model="item_service">
+                              <input type="checkbox" class="form-check-input" v-model="item_service" v-bind:readonly="isReadOnly">
                             </div>
                           </div>
 
                           <label for="item_level" class="col-sm-2 col-form-label">Наименование</label>
                           <div class="col-sm-10 mt-2">
                             <input type="text" class="form-control" id="item_description" placeholder="Наименование"
-                              v-model.number="item_description">
+                              v-model.number="item_description" v-bind:readonly="isReadOnly">
                           </div>
 
                           <label for="item_level" class="col-sm-2 col-form-label">Код</label>
                           <div class="col-sm-10 mt-2">
                             <input type="text" class="form-control" id="item_description_code" placeholder="Код"
-                              v-model.number="item_description_code">
+                              v-model.number="item_description_code" v-bind:readonly="isReadOnly">
                           </div>
 
                           <label for="item_level" class="col-sm-2 col-form-label">Количество</label>
                           <div class="col-sm-10 mt-2">
                             <input type="number" class="form-control" id="item_quantity"
                               pattern="([0-9]{1,3}).([0-9]{1,3})" placeholder="Количество"
-                              v-model.number="item_quantity">
+                              v-model.number="item_quantity" v-bind:readonly="isReadOnly">
                           </div>
 
                           <label for="item_level" class="col-sm-2 col-form-label">Сумма</label>
                           <div class="col-sm-10 mt-2">
                             <input type="number" class="form-control" id="item_sum" pattern="([0-9]{1,3}).([0-9]{1,3})"
-                              placeholder="Сумма" v-model.number="item_sum">
+                              placeholder="Сумма" v-model.number="item_sum" v-bind:readonly="isReadOnly">
                           </div>
 
                         </div>
@@ -212,15 +286,13 @@
                       <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
                         <button type="button" class="btn btn-primary toastrDefaultSuccess" role="button"
-                          v-on:click="updateItem()" data-dismiss="modal">
+                          v-on:click="updateItem()" data-dismiss="modal" v-bind:disabled="isReadOnly">
                           Сохранить
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
-
-
 
                 <!-- Удаление записи -->
                 <!-- Modal -->
@@ -254,6 +326,30 @@
                   <!-- /.modal-dialog -->
                 </div>
                 <!-- /.modal -->
+
+                <!-- Сохранение записи -->
+                <div class="modal fade" id="deleteElementModalStep" tabindex="-1"
+                aria-labelledby="deleteElementModalLabelStep" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="deleteElementModalLabelStep">Подтвердите действие</h5>
+                      <button type="button" data-dismiss="modal" aria-label="Отмена" class="close"><span
+                          aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                      Вы действительно хотите удалить запись?
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                      <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal"
+                        v-on:click="deleteStep()">
+                        Удалить
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>  
 
               </div>
               <!-- /.row -->
@@ -310,33 +406,48 @@
       item_quantity: 0,
       item_index: -1,
       item_position: 0,
+      currentItemIndex: -1,
+      isReadOnly: false
     },
     async mounted() {
       is_authorized()
       if (this.purchase_requisition_id != 'new') {
         await this.getPurchaseRequisition()
-
       }
       await this.getCounterpartyList()
       await this.getEntityList()
       // await this.getDocumentTypeList()
 
     },
+    filters: {
+      liveSubstr: function (value) {
+        if (value) {
+        return value.substring(0, 10);
+      }},
+    },
     methods: {
       getPurchaseRequisition: async function () {
         console.log(Vue.version);
         try {
-          let response = await axios.get("{{url_for('get_purchase_requisition_list')}}" + this.purchase_requisition_id + "?nested=true", get_config());
+          let response = await axios.get("{{url_for('get_purchase_requisition_list')}}" + this.purchase_requisition_id + "?nested=true&include_approve_route=true", get_config());
           console.log(response.data)
           this.purchase_requisition = response.data
           this.purchase_requisition.date = this.dateToStr(this.purchase_requisition.date)
           console.log(response.data)
+          this.checkDocumentStatus()
           return response
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err)
           return null
         }
+      },
+      checkDocumentStatus: function(){
+        const readOnlyStatuses = ['в работе', 'подписан'];
+        if (readOnlyStatuses.includes(this.purchase_requisition.status))
+          this.isReadOnly = true
+        else 
+          this.isReadOnly = false 
       },
       dateToStr: function (valueDate) {
         var date = new Date(valueDate);
@@ -389,9 +500,10 @@
           console.log(response.data)
           this.purchase_requisition = response.data
           this.purchase_requisition_id = this.purchase_requisition['id']
+          history.pushState({}, null, window.location.href.replace('new', this.purchase_requisition_id));
           return response
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err)
           return null
         }
@@ -406,9 +518,12 @@
           console.log(response.data)
           return response
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err)
         }
+      },
+      setCurrentItem: function (item) {
+        this.currentItemIndex = this.purchase_requisition.items.indexOf(item)
       },
       deletePurchaseRequisition: async function () {
         try {
@@ -417,7 +532,7 @@
             this.goToPurchaseRequisitionLit()
           }
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err)
         }
       },
@@ -468,8 +583,8 @@
         item.sum = this.item_sum;
         item.quantity = this.item_quantity;
       },
-      deleteStep: function (item, index) {
-        this.purchase_requisition.items.pop(index);
+      deleteStep: function () {
+        this.purchase_requisition.items.splice(this.currentItemIndex, 1);
       },
       // getDocumentTypeList: async function () {
       //   if (this.documentTypeList.length > 0) {
@@ -493,7 +608,7 @@
           console.log(response.data['result'])
           this.entityList = response.data['result']
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err)
         }
       },
@@ -506,7 +621,7 @@
           console.log(response.data)
           this.counterpartyList = response.data['result']
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err)
         }
       },
@@ -524,16 +639,16 @@
           }
         }
       },
-      startApprovalProcess: async function(){
+      startApprovalProcess: async function () {
         try {
-          let response = await axios.get("{{url_for('get_approval_process_list')}}start?document_id="+
-                                      this.purchase_requisition_id+"&document_type_id="+this.purchase_requisition.document_type_id+"&entity_iin="+this.purchase_requisition.entity_iin, get_config())
+          let response = await axios.get("{{url_for('get_approval_process_list')}}start?document_id=" +
+            this.purchase_requisition_id + "&document_type_id=" + this.purchase_requisition.document_type_id + "&entity_iin=" + this.purchase_requisition.entity_iin, get_config())
           console.log(response.data)
-          result = response.data
+          await this.getPurchaseRequisition()
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err)
-        }  
+        }
       },
     }
   })

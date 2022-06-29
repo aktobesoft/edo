@@ -14,8 +14,6 @@ async def post_user(newUser : dict, **kwargs):
     if(is_need_filter('entity_iin_list', kwargs) and newUser["entity_iin"] not in kwargs['entity_iin_list']):
         raise HTTPException(status_code=403, detail="Forbidden")
 
-    print(newUser)
-
     if 'hashed_password' in newUser and newUser['hashed_password'] != '' and newUser['hashed_password'] != None:
         query = insert(User).values(
                         name = newUser['name'], 
@@ -98,7 +96,6 @@ async def delete_user_by_id(user_id: int, **kwargs):
     return resultUser
 
 async def update_user(newUser : dict, user_id: int, **kwargs):
-    print(newUser)
     if 'hashed_password' in newUser and newUser['hashed_password'] != '' and newUser['hashed_password'] != None:
         query = update(User).values(
                     name = newUser['name'], 

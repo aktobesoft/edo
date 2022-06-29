@@ -7,7 +7,7 @@ from json import dumps, encoder
 import hashlib
 import binascii
   
-async def get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id: int, **kwargs):
+async def get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id: int):
     query_CTPurchaseRequisition = select(PurchaseRequisitionItems.id,
                                     func.row_number().over(
                                         partition_by=PurchaseRequisitionItems.purchase_requisition_id,

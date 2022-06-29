@@ -261,25 +261,6 @@ async def start_approval_process(parameters, **kwargs):
     responseMap['Text'] = 'Процесс согласования запущен'
     responseMap['ApprovalRoute'] =  await get_approval_route_by_aproval_process_id(responseMap['ApprovalProcess']['id'])
 
-    # # Создаем шаги согласования
-    # listRout = []
-    # for item in approval_template_steps:
-    #     rout_step = {
-    #         'is_active': True,
-    #         'level': item['level'],
-    #         'type': item['type'],
-    #         'document_id': parameters['document_id'],
-    #         'document_type_id': parameters['document_type_id'],
-    #         'entity_iin': parameters['entity_iin'],
-    #         'user_id': item['user_id'],
-    #         'approval_template_id': approval_template['id'],
-    #         'approval_process_id': responseMap['ApprovalProcess']['id'],
-    #         'hash': '',
-    #     }
-    #     listRout.append(rout_step) 
-    # print(listRout)
-    # await post_approval_routes_by_approval_process_id(listRout)
-    # responseMap['ApprovalRoute'] =  await get_approval_route_by_aproval_process_id(responseMap['ApprovalProcess']['id'])
     return responseMap
 
 async def check_approval_processes(parameters, **kwargs):
@@ -358,7 +339,6 @@ async def is_approval_process_finished(parameters, **kwargs):
                     
 
     query = query_route.union_all(query_status).alias('approval_route_list')
-    # print(query)
     result = await database.fetch_all(query)
     approved_procesess = {}
     
@@ -371,8 +351,6 @@ async def is_approval_process_finished(parameters, **kwargs):
         if approved_procesess[item_row['approval_process_id']]['rejected_count']>0:
             continue
 
-        print(item_row)
-
         if item_row['status'] == 'all_routes' and item_row['status_count']>0:
             approved_procesess[item_row['approval_process_id']]['routes_count'] = item_row['status_count']
         elif item_row['status'] == 'отклонен' and item_row['status_count']>0:
@@ -382,7 +360,6 @@ async def is_approval_process_finished(parameters, **kwargs):
         elif item_row['status'] == 'согласован' and item_row['status_count']>0:
             if approved_procesess[item_row['approval_process_id']]['routes_count']>0 and \
                 approved_procesess[item_row['approval_process_id']]['routes_count'] == item_row['status_count']:
-                print(approved_procesess)
                 await set_approval_process_status(item_row['approval_process_id'], 'подписан', **kwargs)
 
 async def cancel_approval_process(parameters, **kwargs):

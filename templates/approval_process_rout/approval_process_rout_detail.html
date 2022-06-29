@@ -107,12 +107,13 @@
                           <td>[[ rout.user.name ]] ([[ rout.user.email ]])</td>
                           <td>
                             <template v-if="rout.status === 'согласован'">
-                              <i class='fas fa-circle' style='color:#28a745'>&nbsp;</i> 
+                              <i class='fas fa-circle' style='color:#28a745'>&nbsp;</i>
                             </template>
                             <template v-else-if="rout.status === 'отклонен'">
-                              <i class='fas fa-circle' style='color: red'>&nbsp;</i> 
+                              <i class='fas fa-circle' style='color: red'>&nbsp;</i>
                             </template>
-                            [[ rout.status]]</td>
+                            [[ rout.status]]
+                          </td>
                           <td>[[ rout.status_comment]]</td>
                           <td>
                             <button v-on:click="loadStep(rout, index)" data-toggle="modal"
@@ -120,9 +121,9 @@
                               data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
                               <i class="fas fa-edit"></i>
                             </button>
-                            <button v-on:click="deleteStep(rout, index)" class="btn btn-danger btn-sm rounded-3"
-                              type="button" data-toggle="tooltip" data-placement="top" title=""
-                              data-original-title="Delete">
+                            <button v-on:click="setCurrentItem(rout)" type="button"
+                              class="btn btn-danger btn-sm rounded-3" data-toggle="modal"
+                              data-target="#deleteElementModalStep">
                               <i class="fas fa-trash"></i>
                             </button>
                           </td>
@@ -167,16 +168,17 @@
                                 <input type="checkbox" class="form-check-input" v-model="rout_is_active">
                               </div>
                             </div>
-                            
+
                             <label for="rout_status" class="col-sm-2 col-form-label">Статус</label>
                             <div class="col-sm-10 mt-2">
                               <input type="text" class="form-control" id="rout_status" placeholder="Статус"
                                 v-model="rout_status" readonly>
                             </div>
 
-                            <label for="rout_status_comment" class="col-sm-2 col-form-label" >Комментарий</label>
+                            <label for="rout_status_comment" class="col-sm-2 col-form-label">Комментарий</label>
                             <div class="col-sm-10 mt-2">
-                              <textarea class="form-control" rows="3" placeholder="Комментарий" v-model="rout_status_comment" readonly></textarea>
+                              <textarea class="form-control" rows="3" placeholder="Комментарий"
+                                v-model="rout_status_comment" readonly></textarea>
                             </div>
 
                             <label for="rout_level" class="col-sm-2 col-form-label mt-2">Уровень</label>
@@ -243,6 +245,31 @@
                       </div>
                     </div>
                   </div>
+
+                  <!-- Сохранение записи -->
+                  <div class="modal fade" id="deleteElementModalStep" tabindex="-1"
+                    aria-labelledby="deleteElementModalLabelStep" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="deleteElementModalLabelStep">Подтвердите действие</h5>
+                          <button type="button" data-dismiss="modal" aria-label="Отмена" class="close"><span
+                              aria-hidden="true">×</span></button>
+                        </div>
+                        <div class="modal-body">
+                          Вы действительно хотите удалить запись?
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                          <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal"
+                            v-on:click="deleteStep()">
+                            Удалить
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
@@ -301,7 +328,8 @@
       rout_status_comment: '',
       rout_index: -1,
       rout_position: 0,
-      rout_is_active: true
+      rout_is_active: true,
+      currentItemIndex: -1
     },
     async mounted() {
       is_authorized()
@@ -323,7 +351,7 @@
           this.approval_process = response.data
           return response
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err);
           return null
         }
@@ -372,7 +400,7 @@
           this.approval_process_id = this.approval_process['id']
           return response
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err)
           return null
         }
@@ -387,7 +415,7 @@
           console.log(response.data)
           return response
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err)
         }
       },
@@ -398,7 +426,7 @@
             this.goToApprovalProcessList()
           }
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err)
         }
       },
@@ -411,8 +439,8 @@
           this.rout_level = 1,
           this.rout_is_active = true,
           this.rout_status = "";
-          this.rout_status_comment = "";
-          this.rout_index = -1
+        this.rout_status_comment = "";
+        this.rout_index = -1
         this.rout_position = this.approval_process.routes.length + 1
       },
       addNewStep: function () {
@@ -454,8 +482,8 @@
         rout.status_comment = this.rout_status_comment;
         rout.user = this.rout_user;
       },
-      deleteStep: function (rout, index) {
-        this.approval_process.routes.pop(index);
+      deleteStep: function () {
+        this.approval_process.routes.splice(this.currentItemIndex, 1);
       },
       getDocumentTypeList: async function () {
         if (this.documentType.length > 0) {
@@ -467,7 +495,7 @@
           console.log(response.data)
           this.documentType = response.data['result']
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err)
         }
       },
@@ -480,7 +508,7 @@
           console.log(response.data)
           this.userList = response.data['result']
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err)
         }
       },
@@ -493,9 +521,12 @@
           console.log(response.data)
           this.entityList = response.data['result']
         } catch (err) {
-          console.log(err); 
+          console.log(err);
           check_status(err)
         }
+      },
+      setCurrentItem: function (item) {
+        this.currentItemIndex = this.approval_process.routes.indexOf(item)
       },
       sendData: async function () {
         if (this.approval_process_id == 'new') {

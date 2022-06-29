@@ -104,6 +104,31 @@ class PurchaseRequisitionNestedOutWithRoutes(BaseModel):
     class Config:
         orm_mode = True
 
+class PurchaseRequisitionNestedItemsOutWithRoutes(BaseModel):
+    
+    id: int
+    guid: str
+    number: str
+    date: datetime.datetime
+    sum: float
+    counterparty_iin: str
+    document_type_id: int
+    entity_iin: str
+    counterparty: CounterpartySmallOut
+    document_type: DocumentTypeOut
+    comment: str
+    status: Union[str, None]
+    approval_process_id: Union[int, None]
+    approval_process_start_date: Union[datetime.date, None]
+    approval_process_end_date: Union[datetime.date, None]
+    entity: EntitySmallOut
+    current_approval_routes: list
+    all_approval_routes: list
+    items: list[_PurchaseRequisitionItemsOutWithLine]
+    
+    class Config:
+        orm_mode = True
+
 class PurchaseRequisitionNestedItemsOut(BaseModel):
     
     id: int

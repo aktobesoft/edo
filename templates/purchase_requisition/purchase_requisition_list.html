@@ -154,6 +154,7 @@
     },
     filters: {
       liveSubstr: function (string) {
+        if(string == "") return ""
         return string.substring(0, 10);
       },
     },

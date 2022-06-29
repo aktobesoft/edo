@@ -94,6 +94,9 @@ async def get_approval_routes_by_metadata(metadata_name: str, **kwargs):
     if(is_need_filter('entity_iin_list', kwargs)):
         query_min = query_min.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
 
+    if(is_need_filter('approval_process_id', kwargs)):
+        query_min = query_min.where(ApprovalProcess.id.in_(kwargs['approval_process_id']))
+
     query_current_approval_routes = select(
             func.lower("current_approval_routes", type_=String).label('list_type'), 
             ApprovalRoute.user_id,
@@ -101,11 +104,15 @@ async def get_approval_routes_by_metadata(metadata_name: str, **kwargs):
             ApprovalRoute.type,
             ApprovalProcess.id.label('approval_process_id'),
             ApprovalRoute.id.label('route_id'),
+            User.name.label('user_name'),
+            User.email.label('user_email'),
+            User.employee_id.label('user_employee_id'),
             ApprovalStatus.status.label('route_status'),
             ApprovalStatus.comment.label('route_comment'),
             ApprovalStatus.date.label('route_date')).\
             join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id) & (ApprovalRoute.is_active), isouter=True).\
             join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalStatus.is_active), isouter=True).\
+            join(User, (ApprovalRoute.user_id == User.id), isouter=True).\
             where((ApprovalProcess.is_active)  & (ApprovalProcess.document_type_id == metadata_name_document_type_id)).\
             where(tuple_(ApprovalRoute.level, ApprovalRoute.approval_process_id).in_(query_min))
     
@@ -117,20 +124,27 @@ async def get_approval_routes_by_metadata(metadata_name: str, **kwargs):
             ApprovalRoute.type,
             ApprovalProcess.id.label('approval_process_id'),
             ApprovalRoute.id.label('route_id'),
+            User.name.label('user_name'),
+            User.email.label('user_email'),
+            User.employee_id.label('user_employee_id'),
             ApprovalStatus.status.label('route_status'),
             ApprovalStatus.comment.label('route_comment'),
             ApprovalStatus.date.label('route_date')).\
             join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id) & (ApprovalRoute.is_active), isouter=True).\
             join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalStatus.is_active), isouter=True).\
-            where((ApprovalProcess.is_active) & (ApprovalProcess.document_type_id == metadata_name_document_type_id))
+            join(User, (ApprovalRoute.user_id == User.id), isouter=True).\
+            where((ApprovalProcess.is_active) & (ApprovalProcess.document_type_id == metadata_name_document_type_id)).\
+            order_by(ApprovalRoute.level)
             
             # where(ApprovalRoute.approval_process_id).in_(kwargs['approval_process_id_list'])
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
         query_all_approval_routes = query_all_approval_routes.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
+
+    if(is_need_filter('approval_process_id', kwargs)):
+        query_min = query_min.where(ApprovalProcess.id.in_(kwargs['approval_process_id']))
     
     query = query_current_approval_routes.union_all(query_all_approval_routes).alias('approval_route_list')           
-    # print(query)
     records = await database.fetch_all(query)
     dictValue = {}
     
