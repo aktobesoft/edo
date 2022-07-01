@@ -3,16 +3,15 @@ from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Date, DateT
 from sqlalchemy.orm import relationship
 from core.db import Base
 
-class EmployeeActivity(Base):
-    __tablename__ = "employee_activity"
+class UserActivity(Base):
+    __tablename__ = "user_activity"
     
     id = Column(Integer, primary_key = True, autoincrement = True)
-    token = Column(String, unique=True)
+    device_token = Column(String)
     last_activity = Column(DateTime(timezone=True))
-    employee_id = Column(Integer, ForeignKey('employee.id'))
-    employee = relationship("Employee")
-    user_id = Column(Integer, ForeignKey('user.id'))
+    action = Column(String)
+    user_id = Column(Integer, ForeignKey('user.id'), index = True)
     user = relationship("User")
 
     def __repr__(self) -> str:
-        return '<{0} - {1}>'.format(self.employee, self.last_activity)
+        return '<{0} - {1}>'.format(self.user_id, self.last_activity)

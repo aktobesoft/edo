@@ -1,9 +1,8 @@
-from sqlalchemy import bindparam, func, select, insert, update, delete
-from datetime import datetime, timezone
+from sqlalchemy import select, insert, update, delete
+from datetime import datetime
 from catalogs.approval_process.views import is_approval_process_finished
 
 from core.db import database
-from common_module.urls_module import correct_datetime
 
 from catalogs.approval_status.models import ApprovalStatus
 from catalogs.user.models import User, user_fillDataFromDict
@@ -71,7 +70,6 @@ async def post_approval_status(asInstance : dict):
     await is_approval_process_finished(parameters = asInstance)
 
     return {**asInstance, 'id': result}
-
 
 async def update_approval_status(asInstance: dict, approval_status_id: int):
 

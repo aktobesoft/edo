@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from sqlalchemy import false, func, select
 from catalogs.entity.models import Entity
 from catalogs.user.models import User
+from catalogs.user_activity.views import post_user_activity
 from core.db import database
 
 auth_Router = APIRouter()
@@ -96,8 +97,9 @@ async def get_current_active_user(current_user: UserModel = Depends(get_current_
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
-@auth_Router.post("/token", response_model=Token, tags=["login for access token"])
+@auth_Router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    print(form_data.client_id)
     user = await authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -109,7 +111,14 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     access_token = create_access_token(
         data={"username": user['username'], "email": user['email']}, expires_delta=access_token_expires
     )
+    if (form_data.client_id!= None):
+        await post_user_activity({'user_id': user['id'], 'device_token': form_data.client_id, 'action': 'log in'})
     return {"access_token": access_token, "token_type": "bearer", "username": user['username'], "useremail": user['email'], "id": user['id'],}
+
+@auth_Router.get('/logout')
+async def logout(current_user: UserModel = Depends(get_current_active_user)):
+    return await post_user_activity({'user_id': current_user['id'], 'device_token': "", 'action': 'log out'})
+
 
 async def authenticate_user(email: str, password: str):
     user = await get_user(email)

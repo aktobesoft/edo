@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from sqlalchemy import String, Table, false, func, select, insert, update, delete, event, table
 from catalogs.approval_route.models import ApprovalRoute
 from catalogs.approval_status.models import ApprovalStatus
+from common_module.approve_module import notificate_user_by_approval_process_id
 from common_module.urls_module import is_need_filter
 from core.db import database
 from documents.purchase_requisition.models import PurchaseRequisition
@@ -260,6 +261,7 @@ async def start_approval_process(parameters, **kwargs):
     responseMap['ApprovalProcessStatus'] = "в работе"
     responseMap['Text'] = 'Процесс согласования запущен'
     responseMap['ApprovalRoute'] =  await get_approval_route_by_aproval_process_id(responseMap['ApprovalProcess']['id'])
+    await notificate_user_by_approval_process_id(responseMap['ApprovalProcess']['id'], **kwargs)
 
     return responseMap
 

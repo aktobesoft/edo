@@ -4,6 +4,7 @@ from catalogs.business_type.models import BusinessType
 from catalogs.document_type.models import DocumentType
 from catalogs.employee.models import Employee
 from catalogs.user.models import User
+from catalogs.user_activity.models import UserActivity
 from catalogs.counterparty.models import Counterparty
 from catalogs.notes.models import Notes
 from catalogs.enum_types.models import StepType, RouteStatusType, ProcessStatusType
