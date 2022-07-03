@@ -9,20 +9,29 @@ from core.db import database
 
 async def notificate_user_by_approval_process_id(approval_process_id: int, **kwargs):
     current_routes = await get_current_approval_routes_by_approval_process_id(approval_process_id, **kwargs)
-    if len(current_routes)>0:
-        for itemAR in current_routes:
-            token = await get_device_token(itemAR['user_id'])
-            if token == '':
-                return
 
-            context = {
-                'user': itemAR['user_name'],
-                'token': token,
-                'body': str('ggggg'),
-                'title': 'Поступил новый документ на согласования',
-                'data': {}
-                }
-            send_message(context)
+    token = []
+    user = []
+
+    if len(current_routes) == 0:
+        return
+        
+    for itemAR in current_routes:
+        token.append(await get_device_token(itemAR['user_id']))
+        user.append(itemAR['user_name'])
+    
+    if token == []:
+        return
+
+    context = {
+        'user': user,
+        'token': token,
+        'body': '{0} №{1} от {2}'.format(kwargs['document_type_description'], kwargs['number'], kwargs['date'].strftime("%x")),
+        'title': 'Поступил новый документ на согласования',
+        'meta_data_name': kwargs['meta_data_name']
+        }
+
+    send_message(context)
 
 async def get_device_token(user_id):
     
@@ -37,18 +46,20 @@ async def get_device_token(user_id):
 
 def send_message(context):
     
-    if context['token'] == '':
+    if context['token'] == []:
         return
 
     data = {
-        'to' : context['token'],
-        'collapse_key' : 'type_a',
+        'registration_ids' : context['token'],
+        # 'collapse_key' : 'type_a',
         'notification' : {
             'body' : context['body'],
             'title': context['title']
         },
-        'data' : {'click_action':'FLUTTER_NOTIFICATION_CLICK', 'documentMetadataName': 'purchase_requisition'}
-    }    
+        'data' : {
+            'documentMetadataName': context['meta_data_name']
+            }
+    }  
     headers = {
         'Content-Type': 'application/json', 
         'Authorization': 'key=AAAAEUUvl70:APA91bH1lNUuHm_F1VWLpgwcczHBMBeZAHOGrhrN4NV2wqJkDHinol08GP30IXknqzUcnUF4kG_v3Ygr5UlJn_DPfvrUugQuBDsWiDODp3CZr6aE09YUrX_AHsi31dA9f6V2sK63GfgV'

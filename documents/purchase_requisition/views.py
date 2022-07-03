@@ -69,7 +69,7 @@ async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
         query = query.where(PurchaseRequisition.entity_iin.in_(kwargs['entity_iin_list']))
-    resultPurchaseRequisition = await database.fetch_one(query)
+    result = await database.fetch_one(query)
 
     if(is_need_filter('include_approve_route', kwargs)):
         kwargs['purchase_requisition_id'] = purchase_requisition_id
@@ -78,10 +78,13 @@ async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **
     else:
         include_approve_route = False
 
-    recordDict = dict(resultPurchaseRequisition)
-    recordDict['entity'] = entity_fillDataFromDict(resultPurchaseRequisition)
-    recordDict['document_type'] = document_type_fillDataFromDict(resultPurchaseRequisition)
-    recordDict['counterparty'] = counterparty_fillDataFromDict(resultPurchaseRequisition)
+    if result == None:
+        raise HTTPException(status_code=404, detail="Item not found") 
+
+    recordDict = dict(result)
+    recordDict['entity'] = entity_fillDataFromDict(recordDict)
+    recordDict['document_type'] = document_type_fillDataFromDict(recordDict)
+    recordDict['counterparty'] = counterparty_fillDataFromDict(recordDict)
     recordDict['items'] = await get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id)
     
     if(include_approve_route):

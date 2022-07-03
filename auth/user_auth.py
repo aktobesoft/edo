@@ -99,7 +99,6 @@ async def get_current_active_user(current_user: UserModel = Depends(get_current_
 
 @auth_Router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    print(form_data.client_id)
     user = await authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(

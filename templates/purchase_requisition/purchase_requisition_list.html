@@ -50,8 +50,18 @@
           </div>
           <div class="card-body table-responsive p-0">
               <a class="btn btn-primary m-2" href="{{ request.path }}new" role="button">Создать новый элемент</a>
-              <button type="button" class="btn btn-success m-2" @click="startApprovalProcess()">Отправить на согласование</button>
-              <button type="button" class="btn btn-danger m-2" @click="cancelApprovalProcess()">Отменить согласование</button>
+              <button class="btn btn-primary " type="button" @click="getPurchaseRequisitionList(0)">
+                Обновить данные
+              </button>
+              <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false" >
+                Согласование
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                <button class="dropdown-item" type="button" @click="startApprovalProcess()" >Отправить на
+                  согласование</button>
+                <button class="dropdown-item" type="button" @click="cancelApprovalProcess()">Отменить согласование</button>
+              </div>
             <div class="col-12">
               <table class="table table-bordered table-hover">
                 <thead class="table-dark">
@@ -209,6 +219,7 @@
         }
       },
       getPurchaseRequisitionList: async function (page) {
+        if (page == 0) page = this.page
         if (true) {
           try {
             let response = await axios.get("{{url_for('get_purchase_requisition_list')}}?limit=100&nested=true&page=" + page, get_config())

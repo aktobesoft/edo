@@ -1,6 +1,7 @@
+import asyncio
 from datetime import date
 from fastapi import HTTPException
-from sqlalchemy import String, Table, false, func, select, insert, update, delete, event, table
+from sqlalchemy import String, Table, func, select, insert, update, delete, event, table
 from catalogs.approval_route.models import ApprovalRoute
 from catalogs.approval_status.models import ApprovalStatus
 from common_module.approve_module import notificate_user_by_approval_process_id
@@ -16,6 +17,7 @@ from catalogs.approval_route.views import delete_approval_routes_by_approval_pro
                  post_approval_routes_by_approval_process_id, get_approval_route_nested_by_aproval_process_id, update_approval_routes_by_approval_process_id
 from catalogs.document_type.models import DocumentType, document_type_fillDataFromDict
 from catalogs.entity.models import Entity, entity_fillDataFromDict
+from documents.purchase_requisition.views import get_purchase_requisition_nested_by_id
 
 async def collectRoutes(list_of_object: list, approval_process_id):
     listDict = []
@@ -201,7 +203,7 @@ async def start_approval_process(parameters, **kwargs):
     # Дальше ищем его шаги
     query = select(ApprovalTemplateStep.user_id, ApprovalTemplateStep.level, ApprovalTemplateStep.type).\
             where(ApprovalTemplateStep.approval_template_id == approval_template['id']).order_by(ApprovalTemplateStep.level, ApprovalTemplateStep.type)
-    _qp_select_list = {'nested': false}
+    _qp_select_list = {'nested': False}
     approval_template_steps = await get_approval_template_step_list(approval_template['id'], **_qp_select_list)
     if len(approval_template_steps) == 0:
         responseMap['Error'] = True
@@ -261,9 +263,24 @@ async def start_approval_process(parameters, **kwargs):
     responseMap['ApprovalProcessStatus'] = "в работе"
     responseMap['Text'] = 'Процесс согласования запущен'
     responseMap['ApprovalRoute'] =  await get_approval_route_by_aproval_process_id(responseMap['ApprovalProcess']['id'])
-    await notificate_user_by_approval_process_id(responseMap['ApprovalProcess']['id'], **kwargs)
+    
+    asyncio.create_task(check_approval_process(responseMap['ApprovalProcess']['id'], **kwargs))
 
     return responseMap
+
+async def check_approval_process(approval_process_id, **kwargs):
+    document_data = await get_document_data_by_approval_process_id(approval_process_id, **kwargs)
+    
+    if (document_data['metadata_name'].lower() == 'purchase_requisition'):
+        document_full_data  = await get_purchase_requisition_nested_by_id(document_data['document_id'])
+        kwargs = {
+            'document_type_description': document_full_data['document_type_description'], 
+            'number': document_full_data['number'],
+            'date': document_full_data['date'],
+            'meta_data_name': document_data['metadata_name'].lower()}
+
+    await notificate_user_by_approval_process_id(approval_process_id, **kwargs)
+
 
 async def check_approval_processes(parameters, **kwargs):
     
@@ -348,21 +365,25 @@ async def is_approval_process_finished(parameters, **kwargs):
         item_row = dict(item)
 
         if item_row['approval_process_id'] not in approved_procesess:
-            approved_procesess[item_row['approval_process_id']] = {'routes_count': 0, 'rejected_count': 0, 'approved_count': 0}
+            approved_procesess[item_row['approval_process_id']] = {'routes_count': 0, 'id': item_row['approval_process_id'], 'rejected': False, 'approved': False}
 
-        if approved_procesess[item_row['approval_process_id']]['rejected_count']>0:
+        if approved_procesess[item_row['approval_process_id']]['rejected'] or \
+            approved_procesess[item_row['approval_process_id']]['approved']:
             continue
 
         if item_row['status'] == 'all_routes' and item_row['status_count']>0:
             approved_procesess[item_row['approval_process_id']]['routes_count'] = item_row['status_count']
-        elif item_row['status'] == 'отклонен' and item_row['status_count']>0:
+        elif (item_row['status'] == 'отклонен' and item_row['status_count']>0):
             await set_approval_process_status(item_row['approval_process_id'], 'отклонен', **kwargs)
-            approved_procesess[item_row['approval_process_id']]['rejected_count'] = approved_procesess[item_row['approval_process_id']]['rejected_count']  + 1
+            approved_procesess[item_row['approval_process_id']]['rejected'] = True
             continue
-        elif item_row['status'] == 'согласован' and item_row['status_count']>0:
-            if approved_procesess[item_row['approval_process_id']]['routes_count']>0 and \
-                approved_procesess[item_row['approval_process_id']]['routes_count'] == item_row['status_count']:
-                await set_approval_process_status(item_row['approval_process_id'], 'подписан', **kwargs)
+        elif (item_row['status'] == 'согласован' and item_row['status_count']>0 and \
+            approved_procesess[item_row['approval_process_id']]['routes_count']>0 and \
+            approved_procesess[item_row['approval_process_id']]['routes_count'] == item_row['status_count']):
+            await set_approval_process_status(item_row['approval_process_id'], 'подписан', **kwargs)
+            approved_procesess[item_row['approval_process_id']]['approved'] = True
+    
+    return approved_procesess
 
 async def cancel_approval_process(parameters, **kwargs):
     
@@ -394,3 +415,18 @@ async def set_approval_process_status(approval_process_id: int, approval_process
                 where(ApprovalProcess.id == approval_process_id)
 
     return await database.execute(query)
+
+async def get_document_data_by_approval_process_id(approval_process_id: int, **kwargs):
+    query = select( 
+                    ApprovalProcess.id,
+                    ApprovalProcess.document_id,
+                    ApprovalProcess.document_type_id,
+                    DocumentType.metadata_name,
+                    DocumentType.description).\
+                    join(DocumentType, (ApprovalProcess.document_type_id == DocumentType.id), isouter=True).\
+                    where(
+                    (ApprovalProcess.id == approval_process_id))
+    result = await database.fetch_one(query)
+    if result == None:
+        raise HTTPException(status_code=404, detail="Item not found") 
+    return dict(result)

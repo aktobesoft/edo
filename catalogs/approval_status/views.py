@@ -1,6 +1,8 @@
+import asyncio
+from multiprocessing.sharedctypes import Value
 from sqlalchemy import select, insert, update, delete
 from datetime import datetime
-from catalogs.approval_process.views import is_approval_process_finished
+from catalogs.approval_process.views import check_approval_process, is_approval_process_finished
 
 from core.db import database
 
@@ -67,9 +69,12 @@ async def post_approval_status(asInstance : dict):
 
     result = await database.execute(query)
 
-    await is_approval_process_finished(parameters = asInstance)
-
+    approval_processes = await is_approval_process_finished(parameters = asInstance)
+    for key in approval_processes:
+        if (approval_processes[key]['rejected']!=True and approval_processes[key]['approved']!=True):
+            asyncio.create_task(check_approval_process(key))
     return {**asInstance, 'id': result}
+    
 
 async def update_approval_status(asInstance: dict, approval_status_id: int):
 
