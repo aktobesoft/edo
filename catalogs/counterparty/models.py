@@ -4,7 +4,7 @@ from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Date
 from core.db import Base, metadata
 from sqlalchemy.orm import relationship
 from documents.base_document.models import Paginator
-from catalogs.business_type.models import BusinessType, BusinessTypeOut
+from catalogs.enum_types.models import BusinessType, BusinessTypeOut
 from catalogs.user.models import User
 from datetime import date, datetime
 

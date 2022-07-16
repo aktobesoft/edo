@@ -23,8 +23,14 @@ async def get_user_by_id(user_id: int, parameters: dict = Depends(query_paramete
     listValue = await userService.get_user_by_id(user_id, **parameters)
     return listValue
 
+# @userRouter.post('/', response_model = UserOut)
+# async def post_user(newUser : UserPOST, parameters: dict = Depends(query_parameters)):
+#     newUser = dict(newUser)
+#     newUser_id = await userService.post_user(newUser, **parameters)
+#     return {**newUser, 'id': int(newUser_id)}
+
 @userRouter.post('/', response_model = UserOut)
-async def post_user(newUser : UserPOST, parameters: dict = Depends(query_parameters), current_user: UserModel = Depends(get_current_active_user)):#, current_user: UserModel = Depends(get_current_active_user)):
+async def post_user(newUser : UserPOST, parameters: dict = Depends(query_parameters), current_user: UserModel = Depends(get_current_active_user)):
     await add_entity_filter(current_user, parameters)
     newUser = dict(newUser)
     newUser_id = await userService.post_user(newUser, **parameters)

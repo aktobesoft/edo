@@ -72,9 +72,9 @@ class UserListOut(BaseModel):
     result: list[UserOut]
 
 class UserSmallOut(BaseModel):
-    id: int
-    name: str
-    email: str
+    id: Union[int, None]
+    name: Union[str, None]
+    email: Union[str, None]
 
 def user_fillDataFromDict(queryResult : dict):
     return {

@@ -5,15 +5,15 @@ from core.db import Base
 from sqlalchemy.orm import relationship
 from catalogs.approval_template_step.models import _ApprovalTemplateStepPOST, _ApprovalTemplateStepPUT, _ApprovalTemplateStepNestedOut, _ApprovalTemplateStepOut
 
-from catalogs.document_type.models import DocumentTypeOut
+from catalogs.enum_types.models import EnumDocumentTypeOut
 from catalogs.entity.models import EntitySmallOut
    
 class ApprovalTemplate(Base):
     __tablename__ = "approval_template"
 
     id = Column(Integer, primary_key = True, autoincrement = True)
-    document_type_id = Column(Integer, ForeignKey('document_type.id'), nullable = False)
-    document_type = relationship("DocumentType")
+    enum_document_type_id = Column(Integer, ForeignKey('enum_document_type.id'), nullable = False)
+    enum_document_type = relationship("EnumDocumentType")
     name = Column(String(150))
     entity_iin = Column(String, ForeignKey('entity.iin'), nullable = False, index = True)
     entity = relationship("Entity")
@@ -21,12 +21,12 @@ class ApprovalTemplate(Base):
     def __repr__(self) -> str:
         return self.name
 
-Index('index_at_entity_document_type', ApprovalTemplate.entity_iin, ApprovalTemplate.document_type_id)
+Index('index_at_entity_enum_document_type', ApprovalTemplate.entity_iin, ApprovalTemplate.enum_document_type_id)
 
 class ApprovalTemplateOut(BaseModel):
     
     id: int
-    document_type_id: int
+    enum_document_type_id: int
     name: str
     entity_iin: str
     
@@ -36,7 +36,7 @@ class ApprovalTemplateOut(BaseModel):
 class ApprovalTemplateStepOut(BaseModel):
     
     id: int
-    document_type_id: int
+    enum_document_type_id: int
     name: str
     entity_iin: str
     steps: list[_ApprovalTemplateStepOut]
@@ -48,8 +48,8 @@ class ApprovalTemplateStepOut(BaseModel):
 class ApprovalTemplateNestedOut(BaseModel):
     
     id: int
-    document_type_id: int
-    document_type: DocumentTypeOut
+    enum_document_type_id: int
+    enum_document_type: EnumDocumentTypeOut
     name: str
     entity_iin: str
     entity: EntitySmallOut
@@ -60,8 +60,8 @@ class ApprovalTemplateNestedOut(BaseModel):
 class ApprovalTemplateStepsNestedOut(BaseModel):
     
     id: int = 0
-    document_type_id: int = 0
-    document_type: DocumentTypeOut
+    enum_document_type_id: int = 0
+    enum_document_type: EnumDocumentTypeOut
     name: str = 'Шаблон'
     entity_iin: str = '000123456789'
     entity: EntitySmallOut
@@ -72,7 +72,7 @@ class ApprovalTemplateStepsNestedOut(BaseModel):
 
 class ApprovalTemplateIn(BaseModel):
     
-    document_type_id: int = '0'
+    enum_document_type_id: int = '0'
     name: str = 'Шаблон документа'
     entity_iin: str = '000123456789'
     
@@ -81,7 +81,7 @@ class ApprovalTemplateIn(BaseModel):
 
 class ApprovalTemplatePOST(BaseModel):
     
-    document_type_id: int = '0'
+    enum_document_type_id: int = '0'
     name: str = 'Шаблон документа'
     entity_iin: str = '000123456789'
     steps: list[_ApprovalTemplateStepPOST]
@@ -92,7 +92,7 @@ class ApprovalTemplatePOST(BaseModel):
 class ApprovalTemplatePUT(BaseModel):
     
     id: int = 0
-    document_type_id: int = '0'
+    enum_document_type_id: int = '0'
     name: str = 'Шаблон документа'
     entity_iin: str = '000123456789'
     steps: list[_ApprovalTemplateStepPUT]
@@ -103,7 +103,7 @@ class ApprovalTemplatePUT(BaseModel):
 def approval_template_fillDataFromDict(queryResult : dict):
     return {
         'id': queryResult['approval_template_id'],
-        'document_type_id': queryResult['document_type_id'],
+        'enum_document_type_id': queryResult['enum_document_type_id'],
         'name': queryResult['approval_template_name']
         } 
 

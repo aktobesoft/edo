@@ -4,7 +4,8 @@ from sqlalchemy import String, func, null, select, insert, tuple_, update, delet
 from catalogs.approval_route.models import ApprovalRoute
 from catalogs.approval_route.views import get_approval_routes_by_metadata
 from catalogs.approval_status.models import ApprovalStatus
-from catalogs.document_type.views import get_document_type_id_by_metadata_name
+from catalogs.enum_types.views import enum_document_type_fillDataFromDict, get_enum_document_type_id_by_metadata_name
+from catalogs.user.models import User, user_fillDataFromDict
 from core.db import database
 from common_module.urls_module import correct_datetime, correct_datetime, is_need_filter
 
@@ -12,7 +13,7 @@ from documents.purchase_requisition.models import PurchaseRequisition, PurchaseR
 from documents.purchase_requisition_items.views import delete_all_pr_items_by_purchase_requisition, get_pr_items_list_by_purchase_requisition_id, post_pr_items_by_purchase_requisition, update_pr_items_by_purchase_requisition
 from catalogs.approval_process.models import ApprovalProcess
 from catalogs.counterparty.models import Counterparty, counterparty_fillDataFromDict
-from catalogs.document_type.models import DocumentType, document_type_fillDataFromDict
+from catalogs.enum_types.models import EnumDocumentType
 from catalogs.entity.models import Entity, entity_fillDataFromDict
 
 
@@ -20,9 +21,9 @@ async def get_purchase_requisition_by_id(purchase_requisition_id: int, **kwargs)
     if(kwargs['nested']):
         return await get_purchase_requisition_nested_by_id(purchase_requisition_id, **kwargs)
     
-    purchase_requisition_document_type_id = await get_document_type_id_by_metadata_name("purchase_requisition")
+    purchase_requisition_enum_document_type_id = await get_enum_document_type_id_by_metadata_name("purchase_requisition")
     query = select(PurchaseRequisition).where(PurchaseRequisition.id == purchase_requisition_id).\
-            where(PurchaseRequisition.document_type_id == purchase_requisition_document_type_id)
+            where(PurchaseRequisition.enum_document_type_id == purchase_requisition_enum_document_type_id)
     
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
@@ -32,40 +33,44 @@ async def get_purchase_requisition_by_id(purchase_requisition_id: int, **kwargs)
     if result == None:
         raise HTTPException(status_code=404, detail="Item not found") 
     resultPurchaseRequisition = dict(result)
-    resultPurchaseRequisition['items'] = await get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id, **kwargs)
+    resultPurchaseRequisition['items'] = await get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id)
     return resultPurchaseRequisition
 
 async def get_purchase_requisition_count(**kwargs):
-    purchase_requisition_document_type_id = await get_document_type_id_by_metadata_name("purchase_requisition")
-    query = select(func.count(PurchaseRequisition.id)).where(PurchaseRequisition.document_type_id == purchase_requisition_document_type_id)
+    purchase_requisition_enum_document_type_id = await get_enum_document_type_id_by_metadata_name("purchase_requisition")
+    query = select(func.count(PurchaseRequisition.id)).where(PurchaseRequisition.enum_document_type_id == purchase_requisition_enum_document_type_id)
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
         query = query.where(PurchaseRequisition.entity_iin.in_(kwargs['entity_iin_list']))
     return await database.execute(query)
 
 async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **kwargs):
-    purchase_requisition_document_type_id = await get_document_type_id_by_metadata_name("purchase_requisition")
+    purchase_requisition_enum_document_type_id = await get_enum_document_type_id_by_metadata_name("purchase_requisition")
     query = select(
                 PurchaseRequisition,
                 Entity.name.label("entity_name"),
                 Entity.iin.label("entity_iin"),
                 Entity.id.label("entity_id"),
+                User.id.label("user_id"),
+                User.name.label("user_name"),
+                User.email.label("user_email"),
                 Counterparty.iin.label("counterparty_iin"), 
                 Counterparty.id.label("counterparty_id"),
                 Counterparty.name.label("counterparty_name"),
-                DocumentType.name.label("document_type_name"),
+                EnumDocumentType.name.label("enum_document_type_name"),
                 ApprovalProcess.status.label("status"),
                 ApprovalProcess.id.label("approval_process_id"),
                 ApprovalProcess.start_date.label("approval_process_start_date"),
                 ApprovalProcess.end_date.label("approval_process_end_date"),
-                DocumentType.description.label("document_type_description")).\
+                EnumDocumentType.description.label("enum_document_type_description")).\
                 join(ApprovalProcess, (PurchaseRequisition.id == ApprovalProcess.document_id) & 
-                    (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id) & (ApprovalProcess.is_active), isouter=True).\
+                    (PurchaseRequisition.enum_document_type_id == ApprovalProcess.enum_document_type_id) & (ApprovalProcess.is_active), isouter=True).\
+                join(User, PurchaseRequisition.author_id == User.id, isouter=True).\
                 join(Entity, PurchaseRequisition.entity_iin == Entity.iin, isouter=True).\
                 join(Counterparty, PurchaseRequisition.counterparty_iin == Counterparty.iin, isouter=True).\
-                join(DocumentType, PurchaseRequisition.document_type_id == DocumentType.id, isouter=True).\
+                join(EnumDocumentType, PurchaseRequisition.enum_document_type_id == EnumDocumentType.id, isouter=True).\
                 where(PurchaseRequisition.id == purchase_requisition_id).\
-                where(PurchaseRequisition.document_type_id == purchase_requisition_document_type_id)       
+                where(PurchaseRequisition.enum_document_type_id == purchase_requisition_enum_document_type_id)       
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
         query = query.where(PurchaseRequisition.entity_iin.in_(kwargs['entity_iin_list']))
@@ -83,8 +88,9 @@ async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **
 
     recordDict = dict(result)
     recordDict['entity'] = entity_fillDataFromDict(recordDict)
-    recordDict['document_type'] = document_type_fillDataFromDict(recordDict)
+    recordDict['enum_document_type'] = enum_document_type_fillDataFromDict(recordDict)
     recordDict['counterparty'] = counterparty_fillDataFromDict(recordDict)
+    recordDict['author'] = user_fillDataFromDict(recordDict)
     recordDict['items'] = await get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id)
     
     if(include_approve_route):
@@ -108,7 +114,7 @@ async def delete_purchase_requisition_by_id(purchase_requisition_id: int, **kwar
     return resultPurchaseRequisition
 
 async def get_purchase_requisition_list(limit: int = 100, skip: int = 0, **kwargs)->list[PurchaseRequisitionOut]:
-    purchase_requisition_document_type_id = await get_document_type_id_by_metadata_name("purchase_requisition")
+    purchase_requisition_enum_document_type_id = await get_enum_document_type_id_by_metadata_name("purchase_requisition")
     if(kwargs['nested']):
         return await get_purchase_requisition_nested_list(limit, skip, **kwargs)
 
@@ -120,29 +126,43 @@ async def get_purchase_requisition_list(limit: int = 100, skip: int = 0, **kwarg
                 PurchaseRequisition.comment, 
                 PurchaseRequisition.sum, 
                 PurchaseRequisition.counterparty_iin, 
-                PurchaseRequisition.document_type_id, 
+                PurchaseRequisition.enum_document_type_id, 
                 PurchaseRequisition.entity_iin,
+                PurchaseRequisition.author_id,
                 ApprovalProcess.status,
                 ApprovalProcess.id.label("approval_process_id"),
                 ApprovalProcess.start_date.label("approval_process_start_date"),
                 ApprovalProcess.end_date.label("approval_process_end_date")).\
                 join(ApprovalProcess, (PurchaseRequisition.id == ApprovalProcess.document_id) & 
-                    (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id) & (ApprovalProcess.is_active), isouter=True).\
-                where(PurchaseRequisition.document_type_id == purchase_requisition_document_type_id).\
+                    (PurchaseRequisition.enum_document_type_id == ApprovalProcess.enum_document_type_id) & (ApprovalProcess.is_active), isouter=True).\
+                where(PurchaseRequisition.enum_document_type_id == purchase_requisition_enum_document_type_id).\
                 order_by(PurchaseRequisition.id).limit(limit).offset(skip)
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
         query = query.where(PurchaseRequisition.entity_iin.in_(kwargs['entity_iin_list']))
 
+    if('include_approve_route' in kwargs and kwargs['include_approve_route']):
+        include_approve_route = True
+        routes_result  = await get_approval_routes_by_metadata('purchase_requisition', **kwargs)
+    else:
+        include_approve_route = False
+
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
         recordDict = dict(rec)
+        if(include_approve_route):
+            if recordDict['approval_process_id'] in routes_result:
+                recordDict['current_approval_routes'] = routes_result[recordDict['approval_process_id']]['current_approval_routes']
+                recordDict['all_approval_routes'] = routes_result[recordDict['approval_process_id']]['all_approval_routes']
+            else:
+                recordDict['current_approval_routes'] = []
+                recordDict['all_approval_routes'] = []
         listValue.append(recordDict)
     return listValue
 
 async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, **kwargs)->list[PurchaseRequisitionOut]:
-    purchase_requisition_document_type_id = await get_document_type_id_by_metadata_name("purchase_requisition")
+    purchase_requisition_enum_document_type_id = await get_enum_document_type_id_by_metadata_name("purchase_requisition")
     query = select( 
                 PurchaseRequisition.id, 
                 PurchaseRequisition.guid, 
@@ -151,24 +171,28 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
                 PurchaseRequisition.comment, 
                 PurchaseRequisition.sum, 
                 PurchaseRequisition.counterparty_iin.label('counterparty_iin'), 
-                PurchaseRequisition.document_type_id.label('document_type_id'), 
+                PurchaseRequisition.enum_document_type_id.label('enum_document_type_id'), 
                 PurchaseRequisition.entity_iin.label('entity_iin'),
                 Entity.name.label("entity_name"),
                 Entity.id.label("entity_id"),
+                User.id.label("user_id"),
+                User.name.label("user_name"),
+                User.email.label("user_email"),
                 Counterparty.id.label("counterparty_id"), 
                 Counterparty.name.label("counterparty_name"),
-                DocumentType.name.label("document_type_name"),
-                DocumentType.description.label("document_type_description"),
+                EnumDocumentType.name.label("enum_document_type_name"),
+                EnumDocumentType.description.label("enum_document_type_description"),
                 ApprovalProcess.status,
                 ApprovalProcess.id.label("approval_process_id"),
                 ApprovalProcess.start_date.label("approval_process_start_date"),
                 ApprovalProcess.end_date.label("approval_process_end_date")).\
                 join(Entity, PurchaseRequisition.entity_iin == Entity.iin, isouter=True).\
+                join(User, PurchaseRequisition.author_id == User.id, isouter=True).\
                 join(Counterparty, PurchaseRequisition.counterparty_iin == Counterparty.iin, isouter=True).\
-                join(DocumentType, PurchaseRequisition.document_type_id == DocumentType.id, isouter=True).\
+                join(EnumDocumentType, PurchaseRequisition.enum_document_type_id == EnumDocumentType.id, isouter=True).\
                 join(ApprovalProcess, (PurchaseRequisition.id == ApprovalProcess.document_id) & 
-                    (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id) & (ApprovalProcess.is_active), isouter=True).\
-                where(PurchaseRequisition.document_type_id == purchase_requisition_document_type_id).\
+                    (PurchaseRequisition.enum_document_type_id == ApprovalProcess.enum_document_type_id) & (ApprovalProcess.is_active), isouter=True).\
+                where(PurchaseRequisition.enum_document_type_id == purchase_requisition_enum_document_type_id).\
                     order_by(PurchaseRequisition.id)
                
     # RLS
@@ -190,8 +214,9 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
     for rec in records:
         recordDict = dict(rec)
         recordDict['entity'] = entity_fillDataFromDict(rec)
-        recordDict['document_type'] = document_type_fillDataFromDict(rec)
+        recordDict['enum_document_type'] = enum_document_type_fillDataFromDict(rec)
         recordDict['counterparty'] = counterparty_fillDataFromDict(rec)
+        recordDict['author'] = user_fillDataFromDict(rec)
         if(include_approve_route):
             if recordDict['approval_process_id'] in routes_result:
                 recordDict['current_approval_routes'] = routes_result[recordDict['approval_process_id']]['current_approval_routes']
@@ -221,7 +246,7 @@ async def post_purchase_requisition(purchaseRequisitionInstance : dict, **kwargs
     if(is_need_filter('entity_iin_list', kwargs) and purchaseRequisitionInstance["entity_iin"] not in kwargs['entity_iin_list']):
         raise HTTPException(status_code=403, detail="Forbidden")
 
-    purchase_requisition_document_type_id = await get_document_type_id_by_metadata_name("purchase_requisition")
+    purchase_requisition_enum_document_type_id = await get_enum_document_type_id_by_metadata_name("purchase_requisition")
 
     purchaseRequisitionInstance["date"] = correct_datetime(purchaseRequisitionInstance["date"])
     max_number = await get_max_purchase_requisition_number(purchaseRequisitionInstance["entity_iin"])
@@ -232,7 +257,8 @@ async def post_purchase_requisition(purchaseRequisitionInstance : dict, **kwargs
                 comment = purchaseRequisitionInstance["comment"], 
                 sum = float(purchaseRequisitionInstance["sum"]), 
                 counterparty_iin = purchaseRequisitionInstance["counterparty_iin"], 
-                document_type_id = purchase_requisition_document_type_id, 
+                enum_document_type_id = purchase_requisition_enum_document_type_id, 
+                author_id = kwargs['current_user']['id'],
                 entity_iin = purchaseRequisitionInstance["entity_iin"])
 
     newPurchaseRequisitionId = await database.execute(query)
@@ -241,7 +267,7 @@ async def post_purchase_requisition(purchaseRequisitionInstance : dict, **kwargs
 
 async def update_purchase_requisition(purchaseRequisitionInstance: dict, purchaseRequisitionId: int, **kwargs):
     purchaseRequisitionInstance["date"] = correct_datetime(purchaseRequisitionInstance["date"])
-    purchase_requisition_document_type_id = await get_document_type_id_by_metadata_name("purchase_requisition")
+    purchase_requisition_enum_document_type_id = await get_enum_document_type_id_by_metadata_name("purchase_requisition")
 
     query = update(PurchaseRequisition).values(
                 number = purchaseRequisitionInstance["number"], 
@@ -249,7 +275,8 @@ async def update_purchase_requisition(purchaseRequisitionInstance: dict, purchas
                 comment = purchaseRequisitionInstance["comment"], 
                 sum = purchaseRequisitionInstance["sum"], 
                 counterparty_iin = purchaseRequisitionInstance["counterparty_iin"], 
-                document_type_id = purchase_requisition_document_type_id, 
+                enum_document_type_id = purchase_requisition_enum_document_type_id, 
+                author_id = kwargs['current_user']['id'],
                 guid = purchaseRequisitionInstance["guid"]).where(
                     (PurchaseRequisition.id == purchaseRequisitionId) & 
                     (PurchaseRequisition.entity_iin == purchaseRequisitionInstance["entity_iin"]))

@@ -1,20 +1,25 @@
-from concurrent.futures import process
 import datetime
 from typing import Union
 
-from sqlalchemy import null, union
+from sqlalchemy import Column, Float, ForeignKey, String
+from catalogs.user.models import UserSmallOut
 from documents.base_document.models import BaseDocument, Paginator
 from core.db import Base
 from pydantic import BaseModel
 
 from catalogs.counterparty.models import CounterpartySmallOut
-from catalogs.document_type.models import DocumentTypeOut
+from catalogs.enum_types.models import EnumDocumentTypeOut
 from catalogs.entity.models import EntitySmallOut
+from sqlalchemy.orm import relationship
 from documents.purchase_requisition_items.models import _PurchaseRequisitionItemsOut, _PurchaseRequisitionItemsPOST, _PurchaseRequisitionItemsPUT, _PurchaseRequisitionItemsOutWithLine
-from catalogs.enum_types.models import ProcessStatusType
+from catalogs.enum_types.models import EnumProcessStatusType
 
 class PurchaseRequisition(BaseDocument, Base):
     __tablename__ = "purchase_requisition"
+
+    sum = Column(Float, nullable=True)
+    counterparty_iin = Column(String, ForeignKey('counterparty.iin'), nullable = False, index = True)
+    counterparty = relationship("Counterparty")
 
     def __repr__(self) -> str:
         return '<{0} ({1})>'.format(self.number, self.date)
@@ -28,8 +33,9 @@ class PurchaseRequisitionOut(BaseModel):
     comment: str
     sum: float
     counterparty_iin: str
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
+    author_id: Union[int, None]
     status: Union[str, None]
     approval_process_id: Union[int, None]
     approval_process_start_date: Union[datetime.date, None]
@@ -46,8 +52,9 @@ class PurchaseRequisitionItemsOut(BaseModel):
     date: datetime.datetime
     sum: float
     counterparty_iin: str
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
+    author_id: Union[int, None]
     comment: str
     status: Union[str, None]
     approval_process_id: Union[int, None]
@@ -66,10 +73,12 @@ class PurchaseRequisitionNestedOut(BaseModel):
     date: datetime.datetime
     sum: float
     counterparty_iin: str
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
+    author_id: Union[int, None]
+    author: UserSmallOut
     counterparty: CounterpartySmallOut
-    document_type: DocumentTypeOut
+    enum_document_type: EnumDocumentTypeOut
     comment: str
     status: Union[str, None]
     approval_process_id: Union[int, None]
@@ -88,10 +97,12 @@ class PurchaseRequisitionNestedOutWithRoutes(BaseModel):
     date: datetime.datetime
     sum: float
     counterparty_iin: str
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
+    author_id: Union[int, None]
+    author: UserSmallOut
     counterparty: CounterpartySmallOut
-    document_type: DocumentTypeOut
+    enum_document_type: EnumDocumentTypeOut
     comment: str
     status: Union[str, None]
     approval_process_id: Union[int, None]
@@ -112,10 +123,12 @@ class PurchaseRequisitionNestedItemsOutWithRoutes(BaseModel):
     date: datetime.datetime
     sum: float
     counterparty_iin: str
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
+    author_id: Union[int, None]
+    author: UserSmallOut
     counterparty: CounterpartySmallOut
-    document_type: DocumentTypeOut
+    enum_document_type: EnumDocumentTypeOut
     comment: str
     status: Union[str, None]
     approval_process_id: Union[int, None]
@@ -137,11 +150,13 @@ class PurchaseRequisitionNestedItemsOut(BaseModel):
     date: datetime.datetime
     sum: float
     counterparty_iin: str
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
     counterparty: CounterpartySmallOut
-    document_type: DocumentTypeOut
+    enum_document_type: EnumDocumentTypeOut
     entity: EntitySmallOut
+    author_id: Union[int, None]
+    author: UserSmallOut
     comment: str
     status: Union[str, None]
     approval_process_id: Union[int, None]
@@ -169,7 +184,7 @@ class PurchaseRequisitionPUT(BaseModel):
     comment: str
     sum: float
     counterparty_iin: str
-    # document_type_id: int
+    # enum_document_type_id: int
     entity_iin: str
     items: list[_PurchaseRequisitionItemsPUT]
     
@@ -184,7 +199,7 @@ class PurchaseRequisitionPOST(BaseModel):
     comment: str
     sum: float
     counterparty_iin: str
-    # document_type_id: int
+    # enum_document_type_id: int
     entity_iin: str
     items: list[_PurchaseRequisitionItemsPOST]
     

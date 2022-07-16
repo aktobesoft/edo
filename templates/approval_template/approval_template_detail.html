@@ -42,8 +42,8 @@
 
                   <label for="id" class="col-sm-2 col-form-label mt-2">Шаблон документа</label>
                   <div class="col-sm-10 mt-2">
-                    <select v-on:click="getDocumentTypeList()" v-model="approval_template.document_type_id"
-                      class="form-control" aria-label="Шаблон документа" id="document_type">
+                    <select v-on:click="getEnumDocumentTypeList()" v-model="approval_template.enum_document_type_id"
+                      class="form-control" aria-label="Шаблон документа" id="enum_document_type">
                       <option value="0">---------</option>
                       <option v-for="item in documentType" v-bind:value="item.id">
                         [[ item.description ]]
@@ -139,8 +139,8 @@
 
                             <label for="step_level" class="col-sm-2 col-form-label">Тип согласования</label>
                             <div class="col-sm-10 mt-2">
-                              <select class="form-control" aria-label="Тип согласования" id="StepType"
-                                v-model="StepType">
+                              <select class="form-control" aria-label="Тип согласования" id="EnumStepType"
+                                v-model="EnumStepType">
                                 <option selected>-------------------</option>
                                 <option value="линейное">линейное</option>
                                 <option value="параллельное">параллельное</option>
@@ -212,19 +212,19 @@
     data: {
       approval_template: {
         "id": 0,
-        "document_type_id": 0,
+        "enum_document_type_id": 0,
         "name": "",
         "entity_iin": "",
         "entity_id": 0,
         "entity_name": "",
-        "document_type_name": "",
-        "document_type_description": "",
+        "enum_document_type_name": "",
+        "enum_document_type_description": "",
         "entity": {
           "id": 0,
           "iin": "",
           "name": ""
         },
-        "document_type": {
+        "enum_document_type": {
           "id": 0,
           "name": "",
           "description": ""
@@ -236,7 +236,7 @@
       entityList: [],
       documentType: [],
       step_user: '',
-      StepType: '',
+      EnumStepType: '',
       step_level: 0,
       step_index: -1,
       step_position: 0,
@@ -249,7 +249,7 @@
       }
       await this.getUserList()
       await this.getEntityList()
-      await this.getDocumentTypeList()
+      await this.getEnumDocumentTypeList()
 
     },
     methods: {
@@ -281,12 +281,12 @@
         })
         approval_template_dict = {
           "id": this.approval_template_id,
-          "document_type_id": this.approval_template.document_type_id,
+          "enum_document_type_id": this.approval_template.enum_document_type_id,
           "name": this.approval_template.name,
           "entity_iin": this.approval_template.entity_iin,
           "steps": approval_template_steps
         }
-        console.log(this.document_type_id);
+        console.log(this.enum_document_type_id);
         return approval_template_dict
       },
       postAproovalTemplate: async function () {
@@ -334,7 +334,7 @@
       },
       clearActiveStep: function () {
         this.step_user = '',
-          this.StepType = '',
+          this.EnumStepType = '',
           this.step_level = 1,
           this.step_index = -1
         this.step_position = this.approval_template.steps.length + 1
@@ -343,7 +343,7 @@
         this.approval_template.steps.push({
           "id": 0,
           "level": this.step_level,
-          "type": this.StepType,
+          "type": this.EnumStepType,
           "user_id": this.step_user.id,
           "user": {
             "id": this.step_user.id,
@@ -354,7 +354,7 @@
       },
       loadStep: function (step, index) {
         this.step_level = step.level;
-        this.StepType = step.type;
+        this.EnumStepType = step.type;
         this.step_user.name = step.user.name;
         this.step_user.id = step.user_id;
         this.step_user.email = step.user.email;
@@ -369,7 +369,7 @@
         }
         step = this.approval_template.steps[this.step_index]
         step.level = this.step_level;
-        step.type = this.StepType;
+        step.type = this.EnumStepType;
         step.user_id = this.step_user.id;
         step.user.name = this.step_user.name;
         step.user.id = this.step_user.id;
@@ -378,13 +378,13 @@
       deleteStep: function (step, index) {
         this.approval_template.steps.pop(index);
       },
-      getDocumentTypeList: async function () {
+      getEnumDocumentTypeList: async function () {
         if (this.documentType.length > 0) {
           return
         }
         try {
-          let response = await axios.get("{{url_for('get_document_type_list')}}?skip=0&limit=100&", get_config())
-          console.log("getDocumentTypeList")
+          let response = await axios.get("{{url_for('get_enum_document_type_list')}}?skip=0&limit=100&", get_config())
+          console.log("getEnumDocumentTypeList")
           console.log(response.data)
           this.documentType = response.data['result']
           his.documentType.sort()

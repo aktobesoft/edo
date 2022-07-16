@@ -5,13 +5,12 @@ from sqlalchemy import Column, ForeignKey, Index, String, Integer, Boolean, Date
 from core.db import Base
 from sqlalchemy.orm import relationship
    
-class ApprovalStatus(Base):
-    __tablename__ = "approval_status"
+class AssignmentStatus(Base):
+    __tablename__ = "assignment_status"
 
     id = Column(Integer, primary_key = True, autoincrement = True)
     is_active = Column(Boolean, default=True)
-    status = Column(String, ForeignKey('enum_route_status_type.name'), nullable = True)
-    enum_route_status_type = relationship("EnumRouteStatusType")
+    status = Column(String, ForeignKey('enum_assignment_status_type.name'), nullable = True)
     document_id = Column(Integer, nullable = False, index = True)
     enum_document_type_id= Column(Integer, ForeignKey('enum_document_type.id'), nullable = False)
     date = Column(DateTime(timezone=True), nullable = True, default=datetime.utcnow)
@@ -20,16 +19,11 @@ class ApprovalStatus(Base):
     entity = relationship("Entity")
     user_id = Column(Integer, ForeignKey('user.id'), nullable = False, index = True)
     user = relationship("User")
-    approval_route_id = Column(Integer, ForeignKey('approval_route.id', ondelete = "CASCADE"), nullable = False, index = True)
-    approval_route = relationship("ApprovalRoute")
 
     def __repr__(self) -> str:
         return self.name
 
-Index('idx_as_approval_route_id_user_id', ApprovalStatus.approval_route_id, ApprovalStatus.user_id)
-        
-
-class ApprovalStatusOut(BaseModel):
+class AssignmentStatusOut(BaseModel):
     
     id: int
     is_active: bool
@@ -39,35 +33,32 @@ class ApprovalStatusOut(BaseModel):
     entity_iin: str
     user_id: int
     date: Union[datetime, None]
-    approval_route_id: int
     
     class Config:
         orm_mode = True
 
-class ApprovalStatusPUT(BaseModel):
+class AssignmentStatusPUT(BaseModel):
     
     id: int
     is_active: bool
-    status: Literal['согласован', 'отклонен']
+    status: Literal['в работе', 'выполнено', 'отложено', 'в ожидании', 'не выполнено', 'переназначено', 'новый']
     document_id: int
     enum_document_type_id: int
     entity_iin: str
     user_id: int
-    approval_route_id: int
     comment: str
     
     class Config:
         orm_mode = True
 
-class ApprovalStatusPOST(BaseModel):
+class AssignmentStatusPOST(BaseModel):
     
     is_active: bool
-    status: Literal['согласован', 'отклонен']
+    status: Literal['в работе', 'выполнено', 'отложено', 'в ожидании', 'не выполнено', 'переназначено', 'новый']
     document_id: int
     enum_document_type_id: int
     entity_iin: str
     user_id: int
-    approval_route_id: int
     comment: str
     
     class Config:

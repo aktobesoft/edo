@@ -1,0 +1,443 @@
+{% extends 'index.html' %} {% block form_content %}
+
+<form method="POST" action='{{ request.path }}' novalidate>
+  <div id="vue">
+    <template>
+      <div class="row">
+        <div class="col-12">
+          <div class="card mt-3">
+            <div class="card-header">
+              Служебная записка на исполнение
+            </div>
+            <div class="card-body table-responsive p-0">
+              <div class="col-12 ">
+                <button v-on:click="goToEmployeeTaskLit()" class="btn btn-primary mt-2 " type="button"
+                  data-toggle="tooltip" data-placement="top">
+                  Перейти к списку cлужебок
+                </button>
+
+
+                <div class="mt-2 ml-1 row">
+
+                  <label for="id" class="col-sm-2 col-form-label mt-2">ID</label>
+                  <div class="col-sm-10">
+                    <input type="number" name="id" class="form-control" id="id" placeholder="ID" readonly
+                      v-model.number="employee_task.id" readonly>
+                  </div>
+
+                  <label for="id" class="col-sm-2 col-form-label mt-2">Номер</label>
+                  <div class="col-sm-10 mt-2">
+                    <input type="number" name="number" class="form-control" id="name" placeholder="Номер" readonly
+                      v-model.number="employee_task.number">
+                  </div>
+
+                  <label for="id" class="col-sm-2 col-form-label mt-2">Дата</label>
+                  <div class="col-sm-10 mt-2">
+                    <input type="date" name="date" id="date" placeholder="Дата начало"
+                      v-model="employee_task.date" class="form-control" v-bind:readonly="isReadOnly">
+                  </div>
+
+                  <label for="id" class="col-sm-2 col-form-label mt-2">Организация</label>
+                  <div class="col-sm-10 mt-2">
+                    <select v-on:click="getEntityList()" v-model="employee_task.entity_iin" class="form-control"
+                      aria-label="Организация" id="item_entity" v-bind:disabled="isReadOnly">
+                      <option value="0">---------</option>
+                      <option v-for="item in entityList" v-bind:value="item.iin">
+                        [[ item.name ]] ([[ item.iin ]])
+                      </option>
+                    </select>
+                  </div>
+
+                  <label for="id" class="col-sm-2 col-form-label mt-2">Комментарий</label>
+                  <div class="col-sm-10 mt-2">
+                    <textarea class="form-control" rows="3" placeholder="Комментарий"
+                      v-model="employee_task.comment" v-bind:readonly="isReadOnly"></textarea>
+                  </div>
+
+                  <label for="id" class="col-sm-2 col-form-label mt-2">Автор</label>
+                  <div class="col-sm-10 mt-2">
+                    <input type="text" name="author" class="form-control" id="author" placeholder="Автор"
+                      v-model="employee_task.author.name" readonly>
+                  </div>
+
+                  <label for="id" class="col-sm-2 col-form-label mt-2">Статус документа</label>
+                  <div class="col-sm-10 mt-2 ">
+                    <template v-if="employee_task.status === 'в работе'">
+                      <i class='fas fa-circle' style='color:#faab00'>&nbsp;</i>
+                    </template>
+                    <template v-else-if="employee_task.status === 'подписан'">
+                      <i class='fas fa-circle' style='color:#28a745'>&nbsp;</i> 
+                    </template>
+                    <template v-else-if="employee_task.status === 'отклонен'">
+                      <i class='fas fa-circle' style='color: red'>&nbsp;</i> 
+                    </template>
+                    [[ employee_task.status]]
+                  </div>
+
+                </div>
+
+                <div class="card card-primary card-outline card-tabs mt-2">
+                  <div class="card-header p-0 pt-1 border-bottom-0">
+                    <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+                      <li class="nav-item">
+                        <a class="nav-link active" id="custom-tabs-main-tab" data-toggle="pill"
+                          href="#custom-tabs-main" role="tab" aria-controls="custom-tabs-main"
+                          aria-selected="true">Основные данные</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="custom-tabs-approve-tab" data-toggle="pill"
+                          href="#custom-tabs-approve" role="tab" aria-controls="custom-tabs-approve"
+                          aria-selected="false">Согласование</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <!-- /.card -->
+                </div>
+
+                <div class="mt-2 mb-2 ml-3">
+                  <div class="row">
+                    <button type="button" class="btn btn-primary" v-on:click="sendData()" v-bind:disabled="isReadOnly">
+                      Сохранить
+                    </button>
+                    <button type="button" class="btn btn-primary btn-danger ml-1" data-toggle="modal"
+                      data-target="#deleteElementModal" v-bind:disabled="isReadOnly">
+                      Удалить
+                    </button>
+                    <div class="dropdown ml-1">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-bind:disabled="isReadOnly">
+                        Согласование
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                        <button class="dropdown-item" type="button" @click="startApprovalProcess()" v-bind:disabled="isReadOnly">Отправить на
+                          согласование</button>
+                        <button class="dropdown-item" type="button" v-bind:disabled="isReadOnly">Отменить согласование</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- Удаление записи -->
+                <!-- Modal -->
+                <div class="modal fade" id="deleteElementModal" tabindex="-1" role="dialog"
+                  aria-labelledby="deleteElementModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered " role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="deleteElementModalLabel">Подтвердите действие</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>Вы действительно хотите удалить запись?</p>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+                        <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal"
+                          v-on:click="deleteEmployeeTask()">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-trash-fill" viewBox="0 0 16 16">
+                            <path
+                              d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                          </svg>
+                          Удалить</button>
+                      </div>
+                    </div>
+                    <!-- /.modal-content -->
+                  </div>
+                  <!-- /.modal-dialog -->
+                </div>
+                <!-- /.modal -->
+
+                <!-- Сохранение записи -->
+                <div class="modal fade" id="deleteElementModalStep" tabindex="-1"
+                aria-labelledby="deleteElementModalLabelStep" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="deleteElementModalLabelStep">Подтвердите действие</h5>
+                      <button type="button" data-dismiss="modal" aria-label="Отмена" class="close"><span
+                          aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                      Вы действительно хотите удалить запись?
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                      <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal"
+                        v-on:click="deleteStep()">
+                        Удалить
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>  
+
+              </div>
+              <!-- /.row -->
+            </div>
+            <!-- /.col-12 -->
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+</form>
+
+<script>
+  new Vue({
+    delimiters: ['[[', ']]'],
+    el: '#vue',
+    data: {
+      employee_task: {
+        "id": 0,
+        "guid": "",
+        "number": "",
+        "date": new Date().toISOString().slice(0, 10),
+        "comment": "",
+        "enum_document_type": {
+          "id": 0,
+          "name": "",
+          "description": ""
+        },
+        "entity": {
+          "id": 0,
+          "name": "",
+          "iin": ""
+        },
+        "author": {
+          "id": 0,
+          "name": "",
+          "email": ""
+        },
+        "enum_document_type_id": 0,
+        "entity_iin": "",
+        "items": []
+      },
+      employee_task_id: "{{itemId}}",
+      entityList: [],
+      item_service: true,
+      item_type: '',
+      item_description: '',
+      item_description_code: '',
+      item_quantity: 0,
+      item_index: -1,
+      item_position: 0,
+      currentItemIndex: -1,
+      isReadOnly: false
+    },
+    async mounted() {
+      is_authorized()
+      if (this.employee_task_id != 'new') {
+        await this.getEmployeeTask()
+      }
+      await this.getEntityList()
+      // await this.getEnumDocumentTypeList()
+
+    },
+    filters: {
+      liveSubstr: function (value) {
+        if (value) {
+        return value.substring(0, 10);
+      }},
+    },
+    methods: {
+      getEmployeeTask: async function () {
+        console.log(Vue.version);
+        try {
+          let response = await axios.get("{{url_for('get_employee_task_list')}}" + this.employee_task_id + "?nested=true&include_approve_route=true", get_config());
+          console.log(response.data)
+          this.employee_task = response.data
+          this.employee_task.date = this.dateToStr(this.employee_task.date)
+          console.log(response.data)
+          this.checkDocumentStatus()
+          return response
+        } catch (err) {
+          console.log(err);
+          check_status(err)
+          return null
+        }
+      },
+      checkDocumentStatus: function(){
+        const readOnlyStatuses = ['в работе', 'подписан'];
+        if (readOnlyStatuses.includes(this.employee_task.status))
+          this.isReadOnly = true
+        else 
+          this.isReadOnly = false 
+      },
+      dateToStr: function (valueDate) {
+        var date = new Date(valueDate);
+        return date.toISOString().substring(0, 10);
+      },
+      strToDate: function (valueDate) {
+        //var date = new Date(valueDate);
+        //date.setUTCHours(0,0,0,0);
+        //return date.toISOString();
+        return valueDate + "T18:00:00+00:00";
+      },
+      collectData: function () {
+        employee_task_items = []
+        employee_task_dict = {}
+
+        employee_task_dict = {
+          "id": parseInt(this.employee_task_id),
+          "guid": this.employee_task.guid,
+          "number": this.employee_task.number,
+          "date": this.strToDate(this.employee_task.date),
+          "comment": this.employee_task.comment,
+          "enum_document_type_id": parseInt(this.employee_task.enum_document_type_id),
+          "entity_iin": this.employee_task.entity_iin,
+        }
+        console.log(this.enum_document_type_id);
+        return employee_task_dict
+      },
+      postEmployeeTask: async function () {
+        employee_task_dict = this.collectData()
+        console.log("before send post")
+        console.log(JSON.stringify(employee_task_dict))
+        try {
+          let response = await axios.post("{{url_for('get_employee_task_list')}}?nested=true", employee_task_dict, get_config());
+          console.log(response.data)
+          this.employee_task = response.data
+          this.employee_task_id = this.employee_task['id']
+          history.pushState({}, null, window.location.href.replace('new', this.employee_task_id));
+          return response
+        } catch (err) {
+          console.log(err);
+          check_status(err)
+          return null
+        }
+      },
+
+      putEmployeeTask: async function () {
+        employee_task_dict = this.collectData()
+        console.log("before send put")
+        console.log(JSON.stringify(employee_task_dict))
+        try {
+          let response = await axios.put("{{url_for('get_employee_task_list')}}" + this.employee_task_id + "?nested=true", employee_task_dict, get_config());
+          console.log(response.data)
+          return response
+        } catch (err) {
+          console.log(err);
+          check_status(err)
+        }
+      },
+      setCurrentItem: function (item) {
+        this.currentItemIndex = this.employee_task.items.indexOf(item)
+      },
+      deleteEmployeeTask: async function () {
+        try {
+          let response = await axios.delete("{{url_for('get_employee_task_list')}}" + this.employee_task_id, get_config());
+          if (response != null && (response.status == 200 || response.status == 201)) {
+            this.goToEmployeeTaskLit()
+          }
+        } catch (err) {
+          console.log(err);
+          check_status(err)
+        }
+      },
+      goToEmployeeTaskLit: function () {
+        window.location.href = "{{url_for('employee_task_list')}}"
+      },
+      clearActiveStep: function () {
+        this.item_type = '',
+          this.item_index = -1
+        this.item_position = this.employee_task.items.length + 1
+        this.item_service = true
+        this.item_description = ''
+        this.item_description_code = ''
+        this.item_quantity = 0
+      },
+      addNewItem: function () {
+        this.employee_task.items.push({
+          "id": 0,
+          "service": this.item_service,
+          "type": this.item_type,
+          "description": this.item_description,
+          "description_code": this.item_description_code,
+          "quantity": this.item_quantity,
+        })
+      },
+      loadItem: function (item, index) {
+        this.item_service = item.service;
+        this.item_type = item.type;
+        this.item_description = item.description;
+        this.item_description_code = item.description_code;
+        this.item_quantity = item.quantity
+        this.item_index = index;
+        this.item_position = index + 1;
+      },
+      updateItem: function () {
+        if (this.item_index == -1) {
+          this.addNewItem();
+          return
+        }
+        item = this.employee_task.items[this.item_index]
+        item.service = this.item_service;
+        item.type = this.item_type;
+        item.description = this.item_description;
+        item.description_code = this.item_description_code;
+        item.quantity = this.item_quantity;
+      },
+      deleteStep: function () {
+        this.employee_task.items.splice(this.currentItemIndex, 1);
+      },
+      // getEnumDocumentTypeList: async function () {
+      //   if (this.documentTypeList.length > 0) {
+      //     return
+      //   }
+      //   try {
+      //     let response = await axios.get("{{url_for('get_enum_document_type_list')}}?skip=0&limit=3000", get_config())
+      //     console.log(response.data)
+      //     this.documentTypeList = response.data['result']
+      //   } catch (err) {
+      //     console.log(err); 
+      //     check_status(err)
+      //   }
+      // },
+      getEntityList: async function () {
+        if (this.entityList.length > 0) {
+          return
+        }
+        try {
+          let response = await axios.get("{{url_for('get_entity_list')}}?skip=0&limit=300&nested=false&optional=false", get_config())
+          console.log(response.data['result'])
+          this.entityList = response.data['result']
+        } catch (err) {
+          console.log(err);
+          check_status(err)
+        }
+      },
+      
+      sendData: async function () {
+        if (this.employee_task_id == 'new') {
+
+          let response = await this.postEmployeeTask()
+          if (response != null && (response.status == 200 || response.status == 201)) {
+            await this.getEmployeeTask()
+          }
+        } else {
+          let response = await this.putEmployeeTask()
+          if (response != null && (response.status == 200 || response.status == 201)) {
+            await this.getEmployeeTask()
+          }
+        }
+      },
+      startApprovalProcess: async function () {
+        try {
+          let response = await axios.get("{{url_for('get_approval_process_list')}}start?document_id=" +
+            this.employee_task_id + "&enum_document_type_id=" + this.employee_task.enum_document_type_id + "&entity_iin=" + this.employee_task.entity_iin, get_config())
+          console.log(response.data)
+          await this.getEmployeeTask()
+        } catch (err) {
+          console.log(err);
+          check_status(err)
+        }
+      },
+    }
+  })
+</script>
+
+{% endblock %}

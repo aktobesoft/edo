@@ -9,7 +9,7 @@ from core.db import Base
 from pydantic import BaseModel
 
 from catalogs.counterparty.models import CounterpartySmallOut
-from catalogs.document_type.models import DocumentTypeOut
+from catalogs.enum_types.models import EnumDocumentTypeOut
 from catalogs.entity.models import EntitySmallOut
 
 class PurchaseRequisitionItems(Base):

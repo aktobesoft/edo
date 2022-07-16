@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 import enum
 from catalogs.user.models import UserSmallOut
 from catalogs.entity.models import EntitySmallOut
-from catalogs.enum_types.models import StepType
+from catalogs.enum_types.models import EnumStepType
 
    
 class ApprovalTemplateStep(Base):
@@ -14,8 +14,8 @@ class ApprovalTemplateStep(Base):
 
     id = Column(Integer, primary_key = True, autoincrement = True)
     level = Column(Integer, nullable = False)
-    type = Column(String, ForeignKey('step_type.name'), nullable = True)
-    step_type = relationship("StepType")
+    type = Column(String, ForeignKey('enum_step_type.name'), nullable = True)
+    enum_step_type = relationship("EnumStepType")
     user_id = Column(Integer, ForeignKey('user.id'), nullable = False, index = True)
     user = relationship("User")
     approval_template_id = Column(Integer, ForeignKey('approval_template.id'), nullable = False, index = True)

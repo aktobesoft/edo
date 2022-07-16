@@ -7,42 +7,42 @@
       <div class="col-12">
         <div class="card mt-2">
           <div class="card-header">
-              <h3 class="card-title">Список заявок на согласование</h3>
+              <h3 class="card-title">Список служебных записок на исполнение</h3>
               
             <div class="card-tools">
               <ul class="pagination pagination-sm float-right">
                 <template v-if="page > 3">
                   <li class="page-item"><button type="button" class="page-link"
-                      v-on:click="getPurchaseRequisitionList(1)">1</button></li>
+                      v-on:click="getEmployeeTaskList(1)">1</button></li>
                 </template>
 
                 <template v-if="page-3 > 1">
                   <li class="page-item"><button type="button" class="page-link "
-                      v-on:click="getPurchaseRequisitionList(page-3)"><i class="fas fa-angle-double-left"></i></button>
+                      v-on:click="getEmployeeTaskList(page-3)"><i class="fas fa-angle-double-left"></i></button>
                   </li>
                 </template>
 
                 <template v-if="page > 1">
                   <li class="page-item"><button type="button" class="page-link"
-                      v-on:click="getPurchaseRequisitionList(page-1)">[[page-1]]</button></li>
+                      v-on:click="getEmployeeTaskList(page-1)">[[page-1]]</button></li>
                 </template>
 
                 <li class="page-item active"><button type="button" class="page-link">[[page]]</button></li>
 
                 <template v-if="page < page_count">
                   <li class="page-item"><button type="button" class="page-link"
-                      v-on:click="getPurchaseRequisitionList(page+1)">[[page+1]]</button></li>
+                      v-on:click="getEmployeeTaskList(page+1)">[[page+1]]</button></li>
                 </template>
 
                 <template v-if="page+3 < page_count">
                   <li class="page-item"><button type="button" class="page-link"
-                      v-on:click="getPurchaseRequisitionList(page+3)"><i class="fas fa-angle-double-right"></i></button>
+                      v-on:click="getEmployeeTaskList(page+3)"><i class="fas fa-angle-double-right"></i></button>
                   </li>
                 </template>
 
                 <template v-if="page < page_count-2">
                   <li class="page-item"><button type="button" class="page-link"
-                      v-on:click="getPurchaseRequisitionList(page_count)">[[page_count]]</button></li>
+                      v-on:click="getEmployeeTaskList(page_count)">[[page_count]]</button></li>
                 </template>
 
               </ul>
@@ -50,7 +50,7 @@
           </div>
           <div class="card-body table-responsive p-0">
               <a class="btn btn-primary m-2" href="{{ request.path }}new" role="button">Создать новый элемент</a>
-              <button class="btn btn-primary " type="button" @click="getPurchaseRequisitionList(0)">
+              <button class="btn btn-primary " type="button" @click="getEmployeeTaskList(0)">
                 Обновить данные
               </button>
               <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown"
@@ -70,16 +70,13 @@
                     <th width="8%">Номер</th>
                     <th width="7%">Дата</th>
                     <th width="15%">Организация</th>
-                    <th width="5%">Статус согласования</th>
-                    <th width="15%">Тип документа</th>
-                    <th width="15%">Контрагент</th>
-                    <th width="5%">Сумма</th>
+                    <th width="5%">Статус документа</th>
                     <th width="10%">Комментарий</th>
                     <th width="5%">Автор</th>
                     <th width="10%">Операции</th>
                   </tr>
                 </thead>
-                <tbody v-for="item in purchaseRequisitionList" :key="item.id">
+                <tbody v-for="item in employeeTaskList" :key="item.id">
                   <tr v-on:click="setActive(item)" v-bind:class="selectedRow(item)" style="cursor: pointer">
                     <td>[[ item.id ]]</td>
                     <td>[[ item.number ]]</td>
@@ -97,13 +94,10 @@
                       </template>
                       [[ item.status]]
                     </td>
-                    <td>[[ item.enum_document_type.description ]]</td>
-                    <td>[[ item.counterparty.name]] ([[ item.counterparty.iin]])</td>
-                    <td>[[ item.sum ]]</td>
                     <td>[[ item.comment ]]</td>
                     <td>[[ item.author.name ]]</td>
                     <td>
-                      <button v-on:click="openPurchaseRequisition(item)" class="btn btn-success btn-sm rounded-3"
+                      <button v-on:click="openEmployeeTask(item)" class="btn btn-success btn-sm rounded-3"
                         type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
                         <i class="fas fa-edit"></i>
                       </button>
@@ -137,7 +131,7 @@
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
                 <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal"
-                  v-on:click="deletePurchaseRequisition()">
+                  v-on:click="deleteEmployeeTask()">
                   Удалить
                 </button>
               </div>
@@ -154,7 +148,7 @@
     el: '#vue',
     delimiters: ['[[', ']]'],
     data: {
-      purchaseRequisitionList: [],
+      employeeTaskList: [],
       currentItemIndex: 0,
       page: 1,
       page_count: 1,
@@ -162,7 +156,7 @@
     },
     async mounted() {
       is_authorized()
-      await this.getPurchaseRequisitionList(this.page);
+      await this.getEmployeeTaskList(this.page);
     },
     filters: {
       liveSubstr: function (string) {
@@ -174,38 +168,6 @@
       
     },
     methods: {
-      startApprovalProcess: async function () {
-        for (index=0;this.selectedRows.length>index;index++) {
-          item = this.selectedRows[index]
-          try {
-            let response = await axios.get("{{url_for('get_approval_process_list')}}start?document_id=" +
-              item.id + "&enum_document_type_id=" + item.enum_document_type_id + "&entity_iin=" + item.entity_iin, get_config())
-            console.log(response.data)
-            result = response.data
-          } catch (err) {
-            console.log(err); 
-          check_status(err)
-          }
-        }
-        this.selectedRows = []
-        await this.getPurchaseRequisitionList(this.page)
-      },
-      cancelApprovalProcess: async function () {
-        for (index=0;this.selectedRows.length>index;index++) {
-          item = this.selectedRows[index]
-          try {
-            let response = await axios.get("{{url_for('get_approval_process_list')}}cancel?document_id=" +
-              item.id + "&enum_document_type_id=" + item.enum_document_type_id + "&entity_iin=" + item.entity_iin, get_config())
-            console.log(response.data)
-            result = response.data
-          } catch (err) {
-            console.log(err); 
-          check_status(err)
-          }
-        }
-        this.selectedRows = []
-        await this.getPurchaseRequisitionList(this.page)
-      },
       selectedRow(item) {
         if (this.selectedRows.includes(item))
           return 'table-active'
@@ -220,13 +182,13 @@
           this.selectedRows.push(item) 
         }
       },
-      getPurchaseRequisitionList: async function (page) {
+      getEmployeeTaskList: async function (page) {
         if (page == 0) page = this.page
         if (true) {
           try {
-            let response = await axios.get("{{url_for('get_purchase_requisition_list')}}?limit=100&nested=true&page=" + page, get_config())
+            let response = await axios.get("{{url_for('get_employee_task_list')}}?limit=100&nested=true&page=" + page, get_config())
             console.log(response.data['result'])
-            this.purchaseRequisitionList = response.data['result']
+            this.employeeTaskList = response.data['result']
             this.page_count = response.data['info']['pages']
             if (page > 0) {
               this.page = page
@@ -238,16 +200,16 @@
           }
         }
       },
-      openPurchaseRequisition: function (item) {
+      openEmployeeTask: function (item) {
         console.log(item.entity.iin);
         window.location.href = "{{ request.path }}" + item.id
       },
-      deletePurchaseRequisition: async function () {
+      deleteEmployeeTask: async function () {
         try {
-          let id = this.purchaseRequisitionList[this.currentItemIndex].id
-          let response = await axios.delete("{{url_for('get_purchase_requisition_list')}}" + id, get_config());
+          let id = this.employeeTaskList[this.currentItemIndex].id
+          let response = await axios.delete("{{url_for('get_employee_task_list')}}" + id, get_config());
           if (response != null && (response.status == 200 || response.status == 201)) {
-            this.purchaseRequisitionList.splice(this.currentItemIndex, 1);
+            this.employeeTaskList.splice(this.currentItemIndex, 1);
           }
         } catch (err) {
           console.log(err); 
@@ -258,7 +220,7 @@
         strData.substring(0, 10)
       },
       setCurrentItem: function (item) {
-        this.currentItemIndex = this.purchaseRequisitionList.indexOf(item)
+        this.currentItemIndex = this.employeeTaskList.indexOf(item)
       },
     }
   })

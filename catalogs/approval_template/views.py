@@ -2,6 +2,7 @@ import json
 from fastapi import HTTPException
 from sqlalchemy import select, insert, update, delete
 import asyncpg
+from catalogs.enum_types.views import enum_document_type_fillDataFromDict
 from core.db import database
 from common_module.urls_module import correct_datetime, is_need_filter
 
@@ -9,7 +10,7 @@ from catalogs.approval_template.models import ApprovalTemplate, ApprovalTemplate
 from catalogs.approval_template_step.views import get_approval_template_step_list, get_approval_template_step_nested_list,\
                 post_approval_template_steps_by_approval_template_id, update_approval_template_steps_by_approval_template_id
 from catalogs.counterparty.models import Counterparty
-from catalogs.document_type.models import DocumentType, document_type_fillDataFromDict
+from catalogs.enum_types.models import EnumDocumentType
 from catalogs.entity.models import Entity, entity_fillDataFromDict
 
 
@@ -32,12 +33,12 @@ async def get_approval_template_nested_by_id(approval_template_id: int, **kwargs
     query = select(ApprovalTemplate,
                     Entity.id.label('entity_id'), 
                     Entity.name.label('entity_name'), 
-                    DocumentType.id.label('document_type_id'),
-                    DocumentType.name.label('document_type_name'),
-                    DocumentType.description.label('document_type_description')).\
+                    EnumDocumentType.id.label('enum_document_type_id'),
+                    EnumDocumentType.name.label('enum_document_type_name'),
+                    EnumDocumentType.description.label('enum_document_type_description')).\
             where(ApprovalTemplate.id == approval_template_id).\
         join(Entity, ApprovalTemplate.entity_iin == Entity.iin, isouter=True).\
-        join(DocumentType, ApprovalTemplate.document_type_id == DocumentType.id, isouter=True)
+        join(EnumDocumentType, ApprovalTemplate.enum_document_type_id == EnumDocumentType.id, isouter=True)
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
         query = query.where(ApprovalTemplate.entity_iin.in_(kwargs['entity_iin_list']))
@@ -46,7 +47,7 @@ async def get_approval_template_nested_by_id(approval_template_id: int, **kwargs
         raise HTTPException(status_code=404, detail="Item not found")
     recordDict = dict(result)
     recordDict['entity'] = entity_fillDataFromDict(recordDict)
-    recordDict['document_type'] = document_type_fillDataFromDict(recordDict)
+    recordDict['enum_document_type'] = enum_document_type_fillDataFromDict(recordDict)
     return {**recordDict, 'steps': await get_approval_template_step_nested_list(approval_template_id, **kwargs)}
 
 async def delete_approval_template_by_id(approval_template_id: int, **kwargs):
@@ -79,11 +80,11 @@ async def get_approval_template_nested_list(limit: int = 100,skip: int = 0,**kwa
     query = select(ApprovalTemplate, 
                     Entity.id.label('entity_id'), 
                     Entity.name.label('entity_name'), 
-                    DocumentType.id.label('document_type_id'),
-                    DocumentType.name.label('document_type_name'),
-                    DocumentType.description.label('document_type_description')).\
+                    EnumDocumentType.id.label('enum_document_type_id'),
+                    EnumDocumentType.name.label('enum_document_type_name'),
+                    EnumDocumentType.description.label('enum_document_type_description')).\
                 join(Entity, ApprovalTemplate.entity_iin == Entity.iin, isouter=True).\
-                join(DocumentType, ApprovalTemplate.document_type_id == DocumentType.id, isouter=True).\
+                join(EnumDocumentType, ApprovalTemplate.enum_document_type_id == EnumDocumentType.id, isouter=True).\
                 limit(limit).offset(skip).order_by(ApprovalTemplate.id)
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
@@ -94,7 +95,7 @@ async def get_approval_template_nested_list(limit: int = 100,skip: int = 0,**kwa
     for rec in records:
         recordDict = dict(rec)
         recordDict['entity'] = entity_fillDataFromDict(recordDict)
-        recordDict['document_type'] = document_type_fillDataFromDict(recordDict)
+        recordDict['enum_document_type'] = enum_document_type_fillDataFromDict(recordDict)
         listValue.append(recordDict)
     return listValue
 
@@ -104,7 +105,7 @@ async def post_approval_template(atInstance : dict, **kwargs):
         raise HTTPException(status_code=403, detail="Forbidden")
 
     query = insert(ApprovalTemplate).values(
-                document_type_id = int(atInstance["document_type_id"]), 
+                enum_document_type_id = int(atInstance["enum_document_type_id"]), 
                 name = atInstance["name"],
                 entity_iin = atInstance["entity_iin"])
     result = await database.execute(query)
@@ -114,7 +115,7 @@ async def post_approval_template(atInstance : dict, **kwargs):
 
 async def update_approval_template(atInstance: dict, approval_template_id: int, **kwargs):
     query = update(ApprovalTemplate).values(
-                document_type_id = int(atInstance["document_type_id"]), 
+                enum_document_type_id = int(atInstance["enum_document_type_id"]), 
                 name = atInstance["name"],
                 entity_iin = atInstance["entity_iin"]).\
                 where(ApprovalTemplate.id == int(approval_template_id))

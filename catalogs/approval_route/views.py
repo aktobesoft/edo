@@ -2,7 +2,7 @@ from sqlalchemy import String, bindparam, func, select, insert, tuple_, update, 
 import asyncpg
 from catalogs.approval_process.models import ApprovalProcess
 from catalogs.approval_status.models import ApprovalStatus
-from catalogs.document_type.views import get_document_type_id_by_metadata_name
+from catalogs.enum_types.views import get_enum_document_type_id_by_metadata_name
 from core.db import database
 from common_module.urls_module import correct_datetime, is_need_filter
 
@@ -122,12 +122,12 @@ async def get_current_approval_routes_by_approval_process_id(approval_process_id
 
 
 async def get_approval_routes_by_metadata(metadata_name: str, **kwargs):
-    metadata_name_document_type_id = await get_document_type_id_by_metadata_name(metadata_name)
+    metadata_name_enum_document_type_id = await get_enum_document_type_id_by_metadata_name(metadata_name)
     query_min = select(func.min(ApprovalRoute.level).label("min_level"),
                         ApprovalProcess.id.label("approval_process_id")).\
                     join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id) & (ApprovalRoute.is_active), isouter=True).\
                     join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalStatus.is_active), isouter=True).\
-                    where((ApprovalProcess.is_active) & (ApprovalStatus.status == None) & (ApprovalProcess.document_type_id == metadata_name_document_type_id)).\
+                    where((ApprovalProcess.is_active) & (ApprovalStatus.status == None) & (ApprovalProcess.enum_document_type_id == metadata_name_enum_document_type_id)).\
                     group_by(ApprovalProcess.id)
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
@@ -152,7 +152,7 @@ async def get_approval_routes_by_metadata(metadata_name: str, **kwargs):
             join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id) & (ApprovalRoute.is_active), isouter=True).\
             join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalStatus.is_active), isouter=True).\
             join(User, (ApprovalRoute.user_id == User.id), isouter=True).\
-            where((ApprovalProcess.is_active)  & (ApprovalProcess.document_type_id == metadata_name_document_type_id)).\
+            where((ApprovalProcess.is_active)  & (ApprovalProcess.enum_document_type_id == metadata_name_enum_document_type_id)).\
             where(tuple_(ApprovalRoute.level, ApprovalRoute.approval_process_id).in_(query_min))
     
 
@@ -172,7 +172,7 @@ async def get_approval_routes_by_metadata(metadata_name: str, **kwargs):
             join(ApprovalRoute, (ApprovalProcess.id == ApprovalRoute.approval_process_id) & (ApprovalRoute.is_active), isouter=True).\
             join(ApprovalStatus, (ApprovalRoute.id == ApprovalStatus.approval_route_id) & (ApprovalStatus.is_active), isouter=True).\
             join(User, (ApprovalRoute.user_id == User.id), isouter=True).\
-            where((ApprovalProcess.is_active) & (ApprovalProcess.document_type_id == metadata_name_document_type_id)).\
+            where((ApprovalProcess.is_active) & (ApprovalProcess.enum_document_type_id == metadata_name_enum_document_type_id)).\
             order_by(ApprovalRoute.level)
             
             # where(ApprovalRoute.approval_process_id).in_(kwargs['approval_process_id_list'])
@@ -320,7 +320,7 @@ async def update_approval_routes_by_approval_process_id(ap_routes : list, approv
                 level = bindparam("level"),
                 type = bindparam("type"),
                 document_id = bindparam("document_id"),
-                document_type_id = (bindparam("document_type_id")),
+                enum_document_type_id = (bindparam("enum_document_type_id")),
                 entity_iin = bindparam("entity_iin"),
                 hash = bindparam("hash"), 
                 user_id = bindparam("user_id"),

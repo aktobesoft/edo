@@ -42,8 +42,8 @@
 
                   <label for="id" class="col-sm-2 col-form-label mt-2">Шаблон документа</label>
                   <div class="col-sm-10 mt-2">
-                    <select v-on:click="getDocumentTypeList()" v-model="approval_process.document_type_id"
-                      class="form-control" aria-label="Шаблон документа" id="document_type">
+                    <select v-on:click="getEnumDocumentTypeList()" v-model="approval_process.enum_document_type_id"
+                      class="form-control" aria-label="Шаблон документа" id="enum_document_type">
                       <option value="0">---------</option>
                       <option v-for="item in documentType" v-bind:value="item.id">
                         [[ item.description ]]
@@ -289,7 +289,7 @@
         "id": 0,
         "is_active": true,
         "document_id": 0,
-        "document_type_id": 0,
+        "enum_document_type_id": 0,
         "entity_iin": "",
         "approval_template_id": 0,
         "status": "в работе",
@@ -299,7 +299,7 @@
           "number": "",
           "date": ""
         },
-        "document_type": {
+        "enum_document_type": {
           "id": 4,
           "name": "",
           "description": ""
@@ -311,7 +311,7 @@
         },
         "approval_template": {
           "id": 0,
-          "document_type_id": 0,
+          "enum_document_type_id": 0,
           "name": ""
         },
         "routes": [],
@@ -339,7 +339,7 @@
       }
       await this.getUserList()
       await this.getEntityList()
-      await this.getDocumentTypeList()
+      await this.getEnumDocumentTypeList()
 
     },
     methods: {
@@ -366,7 +366,7 @@
             'level': element.level,
             'type': element.type,
             "document_id": this.approval_process.document_id,
-            "document_type_id": this.approval_process.document_type_id,
+            "enum_document_type_id": this.approval_process.enum_document_type_id,
             "entity_iin": this.approval_process.entity_iin,
             'user_id': element.user_id,
             'approval_template_id': this.approval_process.approval_template_id,
@@ -379,7 +379,7 @@
           "id": this.approval_process.id,
           "is_active": this.approval_process.is_active,
           "document_id": this.approval_process.document_id,
-          "document_type_id": this.approval_process.document_type_id,
+          "enum_document_type_id": this.approval_process.enum_document_type_id,
           "status": this.approval_process.status,
           "start_date": this.approval_process.start_date,
           "end_date": this.approval_process.end_date,
@@ -387,7 +387,7 @@
           'approval_template_id': this.approval_process.approval_template_id,
           "routes": approval_process_routes
         }
-        console.log(this.document_type_id);
+        console.log(this.enum_document_type_id);
         return approval_process_dict
       },
       postApprovalProcess: async function () {
@@ -485,13 +485,13 @@
       deleteStep: function () {
         this.approval_process.routes.splice(this.currentItemIndex, 1);
       },
-      getDocumentTypeList: async function () {
+      getEnumDocumentTypeList: async function () {
         if (this.documentType.length > 0) {
           return
         }
         try {
-          let response = await axios.get("{{url_for('get_document_type_list')}}?skip=0&limit=100&", get_config())
-          console.log("getDocumentTypeList")
+          let response = await axios.get("{{url_for('get_enum_document_type_list')}}?skip=0&limit=100&", get_config())
+          console.log("getEnumDocumentTypeList")
           console.log(response.data)
           this.documentType = response.data['result']
         } catch (err) {

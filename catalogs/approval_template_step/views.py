@@ -10,7 +10,7 @@ from common_module.urls_module import correct_datetime
 
 from catalogs.approval_template_step.models import ApprovalTemplateStep, _ApprovalTemplateStepPUT
 from catalogs.user.models import User, user_fillDataFromDict
-from catalogs.enum_types.models import StepType
+from catalogs.enum_types.models import EnumStepType
 
 async def get_approval_template_step_by_id(approval_template_step_id: int):
     query = select(ApprovalTemplateStep).where(ApprovalTemplateStep.id == approval_template_step_id)

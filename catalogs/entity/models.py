@@ -4,7 +4,7 @@ from core.db import Base
 from datetime import date
 from pydantic import BaseModel, validator
 from documents.base_document.models import Paginator
-from catalogs.business_type.models import BusinessTypeOut
+from catalogs.enum_types.models import BusinessTypeOut
 
 class Entity(Base):
     __tablename__ = 'entity'

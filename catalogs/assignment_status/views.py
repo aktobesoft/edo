@@ -6,21 +6,21 @@ from catalogs.approval_process.views import check_approval_process, is_approval_
 
 from core.db import database
 
-from catalogs.approval_status.models import ApprovalStatus
+from catalogs.assignment_status.models import AssignmentStatus
 from catalogs.user.models import User, user_fillDataFromDict
 
-async def get_approval_status_by_id(approval_status_id: int):
-    query = select(ApprovalStatus).where(ApprovalStatus.id == approval_status_id)
+async def get_assignment_status_by_id(assignment_status_id: int):
+    query = select(AssignmentStatus).where(AssignmentStatus.id == assignment_status_id)
     result = await database.fetch_one(query)
     return result
 
-async def get_approval_status_nested_by_id(aproval_status_id: int):
-    query = select(ApprovalStatus,
+async def get_assignment_status_nested_by_id(aproval_status_id: int):
+    query = select(AssignmentStatus,
             User.id.label('user_id'),
             User.email.label('user_email'),
             User.name.label('user_name')).\
-            join(User, ApprovalStatus.user_id == User.id, isouter=True).\
-            where(ApprovalStatus.id == aproval_status_id)
+            join(User, AssignmentStatus.user_id == User.id, isouter=True).\
+            where(AssignmentStatus.id == aproval_status_id)
     records = await database.fetch_one(query)
     listValue = []
     for rec in records:
@@ -29,14 +29,14 @@ async def get_approval_status_nested_by_id(aproval_status_id: int):
         listValue.append(recordDict)
     return listValue
 
-async def delete_approval_status_by_id(approval_status_list_id: list):
-    query = delete(ApprovalStatus).where(ApprovalStatus.id.in_(approval_status_list_id))
+async def delete_assignment_status_by_id(assignment_status_list_id: list):
+    query = delete(AssignmentStatus).where(AssignmentStatus.id.in_(assignment_status_list_id))
     result = await database.execute(query)
     return result
 
-async def get_approval_status_list(limit: int = 100,skip: int = 0,**kwargs):
+async def get_assignment_status_list(limit: int = 100,skip: int = 0,**kwargs):
 
-    query = select(ApprovalStatus).limit(limit).offset(skip)
+    query = select(AssignmentStatus).limit(limit).offset(skip)
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
@@ -44,26 +44,24 @@ async def get_approval_status_list(limit: int = 100,skip: int = 0,**kwargs):
         listValue.append(recordDict)
     return listValue
 
-async def post_approval_status(asInstance : dict):
+async def post_assignment_status(asInstance : dict):
 
-    query = update(ApprovalStatus).values(
+    query = update(AssignmentStatus).values(
                 is_active = False, 
                 date = datetime.now()).\
-                    where((ApprovalStatus.enum_document_type_id == int(asInstance["enum_document_type_id"])) & 
-                            (ApprovalStatus.approval_route_id == int(asInstance["approval_route_id"])) &
-                            (ApprovalStatus.entity_iin == asInstance["entity_iin"]) &
-                            (ApprovalStatus.user_id == int(asInstance["user_id"])))
+                    where((AssignmentStatus.enum_document_type_id == int(asInstance["enum_document_type_id"])) & 
+                            (AssignmentStatus.entity_iin == asInstance["entity_iin"]) &
+                            (AssignmentStatus.user_id == int(asInstance["user_id"])))
 
     result = await database.execute(query)
     
-    query = insert(ApprovalStatus).values(
+    query = insert(AssignmentStatus).values(
                 is_active = asInstance["is_active"], 
                 status = asInstance["status"],
                 document_id = int(asInstance["document_id"]),
                 date = datetime.now(),
                 comment = asInstance["comment"],
                 enum_document_type_id = int(asInstance["enum_document_type_id"]),
-                approval_route_id = int(asInstance["approval_route_id"]),
                 entity_iin = asInstance["entity_iin"],
                 user_id = int(asInstance["user_id"]))
 
@@ -76,19 +74,18 @@ async def post_approval_status(asInstance : dict):
     return {**asInstance, 'id': result}
     
 
-async def update_approval_status(asInstance: dict, approval_status_id: int):
+async def update_assignment_status(asInstance: dict, assignment_status_id: int):
 
-    query = update(ApprovalStatus).values(
+    query = update(AssignmentStatus).values(
                 is_active = asInstance["is_active"], 
                 status = asInstance["status"],
                 document_id = int(asInstance["document_id"]),
                 date = datetime.now(),
                 comment = asInstance["comment"],
                 enum_document_type_id = int(asInstance["enum_document_type_id"]),
-                approval_route_id = int(asInstance["approval_route_id"]),
                 entity_iin = asInstance["entity_iin"],
                 user_id = int(asInstance["user_id"])).\
-                    where(ApprovalStatus.id == approval_status_id)
+                    where(AssignmentStatus.id == assignment_status_id)
 
     result = await database.execute(query)
     return asInstance

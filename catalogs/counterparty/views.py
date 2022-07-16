@@ -1,10 +1,11 @@
 from fastapi import HTTPException
 from sqlalchemy import func, select, insert, update, delete
+from catalogs.enum_types.views import business_type_fillDataFromDict
 from core.db import database
 import asyncpg
 from datetime import date, datetime
 from common_module.urls_module import correct_datetime
-from catalogs.business_type.models import BusinessType, business_type_fillDataFromDict
+from catalogs.enum_types.models import BusinessType
 
 from catalogs.user.models import User
 from catalogs.entity.models import Entity

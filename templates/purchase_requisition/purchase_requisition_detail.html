@@ -61,8 +61,8 @@
 
                   <!-- <label for="id" class="col-sm-2 col-form-label mt-2">Тип документа</label>
                   <div class="col-sm-10 mt-2">
-                    <select v-on:click="getDocumentTypeList()" v-model="purchase_requisition.document_type_id"
-                      class="form-control" aria-label="Шаблон документа" id="document_type">
+                    <select v-on:click="getEnumDocumentTypeList()" v-model="purchase_requisition.enum_document_type_id"
+                      class="form-control" aria-label="Шаблон документа" id="enum_document_type">
                       <option value="0">---------</option>
                       <option v-for="item in documentTypeList" v-bind:value="item.id">
                         [[ item.description ]]
@@ -80,6 +80,12 @@
                   <div class="col-sm-10 mt-2">
                     <textarea class="form-control" rows="3" placeholder="Комментарий"
                       v-model="purchase_requisition.comment" v-bind:readonly="isReadOnly"></textarea>
+                  </div>
+
+                  <label for="id" class="col-sm-2 col-form-label mt-2">Автор</label>
+                  <div class="col-sm-10 mt-2">
+                    <input type="text" name="author" class="form-control" id="author" placeholder="Автор"
+                      v-model="purchase_requisition.author.name" readonly>
                   </div>
 
                   <label for="id" class="col-sm-2 col-form-label mt-2">Статус документа</label>
@@ -380,7 +386,7 @@
           "name": "0",
           "iin": "0"
         },
-        "document_type": {
+        "enum_document_type": {
           "id": 0,
           "name": "",
           "description": ""
@@ -390,7 +396,12 @@
           "name": "",
           "iin": ""
         },
-        "document_type_id": 0,
+        "author": {
+          "id": 0,
+          "name": "",
+          "email": ""
+        },
+        "enum_document_type_id": 0,
         "entity_iin": "",
         "items": []
       },
@@ -416,7 +427,7 @@
       }
       await this.getCounterpartyList()
       await this.getEntityList()
-      // await this.getDocumentTypeList()
+      // await this.getEnumDocumentTypeList()
 
     },
     filters: {
@@ -484,11 +495,11 @@
           "comment": this.purchase_requisition.comment,
           "sum": sum,
           "counterparty_iin": this.purchase_requisition.counterparty_iin,
-          "document_type_id": parseInt(this.purchase_requisition.document_type_id),
+          "enum_document_type_id": parseInt(this.purchase_requisition.enum_document_type_id),
           "entity_iin": this.purchase_requisition.entity_iin,
           "items": purchase_requisition_items
         }
-        console.log(this.document_type_id);
+        console.log(this.enum_document_type_id);
         return purchase_requisition_dict
       },
       postPurchaseRequisition: async function () {
@@ -586,12 +597,12 @@
       deleteStep: function () {
         this.purchase_requisition.items.splice(this.currentItemIndex, 1);
       },
-      // getDocumentTypeList: async function () {
+      // getEnumDocumentTypeList: async function () {
       //   if (this.documentTypeList.length > 0) {
       //     return
       //   }
       //   try {
-      //     let response = await axios.get("{{url_for('get_document_type_list')}}?skip=0&limit=3000", get_config())
+      //     let response = await axios.get("{{url_for('get_enum_document_type_list')}}?skip=0&limit=3000", get_config())
       //     console.log(response.data)
       //     this.documentTypeList = response.data['result']
       //   } catch (err) {
@@ -642,7 +653,7 @@
       startApprovalProcess: async function () {
         try {
           let response = await axios.get("{{url_for('get_approval_process_list')}}start?document_id=" +
-            this.purchase_requisition_id + "&document_type_id=" + this.purchase_requisition.document_type_id + "&entity_iin=" + this.purchase_requisition.entity_iin, get_config())
+            this.purchase_requisition_id + "&enum_document_type_id=" + this.purchase_requisition.enum_document_type_id + "&entity_iin=" + this.purchase_requisition.entity_iin, get_config())
           console.log(response.data)
           await this.getPurchaseRequisition()
         } catch (err) {

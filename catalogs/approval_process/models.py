@@ -12,15 +12,15 @@ class ApprovalProcess(Base):
     id = Column(Integer, primary_key = True, autoincrement = True)
     is_active = Column(Boolean, default=True)
     document_id = Column(Integer, nullable = False, index = True)
-    document_type_id= Column(Integer, ForeignKey('document_type.id'), nullable = False)
+    enum_document_type_id= Column(Integer, ForeignKey('enum_document_type.id'), nullable = False)
     entity_iin = Column(String, ForeignKey('entity.iin'), nullable = False, index = True)
     entity = relationship("Entity")
     start_date = Column(Date, nullable = True, default=datetime.utcnow)
     end_date = Column(Date, nullable = True)
     approval_template_id = Column(Integer, ForeignKey('approval_template.id'), nullable = False, index = True)
     approval_template = relationship("ApprovalTemplate")
-    status = Column(String, ForeignKey('process_status_type.name'), nullable = True)
-    process_status_type = relationship("ProcessStatusType")
+    status = Column(String, ForeignKey('enum_process_status_type.name'), nullable = True)
+    enum_process_status_type = relationship("EnumProcessStatusType")
 
 
 class ApprovalProcessOut(BaseModel):
@@ -28,7 +28,7 @@ class ApprovalProcessOut(BaseModel):
     id: int
     is_active: bool
     document_id: int
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
     approval_template_id: int
     status: Union[str, None]
@@ -43,14 +43,14 @@ class ApprovalProcessNestedOut(BaseModel):
     id: int
     is_active: bool
     document_id: int
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
     approval_template_id: int
     status: Union[str, None]
     start_date: date = None
     end_date: date = None
     document: dict
-    document_type: dict
+    enum_document_type: dict
     entity: dict
     approval_template: dict
 
@@ -59,7 +59,7 @@ class ApprovalProcessRoutOut(BaseModel):
     id: int
     is_active: bool
     document_id: int
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
     approval_template_id: int
     status: Union[str, None]
@@ -74,14 +74,14 @@ class ApprovalProcessRoutNestedOut(BaseModel):
     id: int
     is_active: bool
     document_id: int
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
     approval_template_id: int
     status: Union[str, None]
     start_date: date = None
     end_date: date = None
     document: dict
-    document_type: dict
+    enum_document_type: dict
     entity: dict
     approval_template: dict
     routes: list[ApprovalRouteNestedOut]
@@ -94,7 +94,7 @@ class ApprovalProcessRoutPUT(BaseModel):
     id: int
     is_active: bool
     document_id: int
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
     approval_template_id: int
     status: str = ""
@@ -109,7 +109,7 @@ class ApprovalProcessRoutPOST(BaseModel):
     
     is_active: bool
     document_id: int
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
     approval_template_id: int
     status: str = ""
@@ -126,7 +126,7 @@ class ApprovalProcessIn(BaseModel):
     
     is_active: bool
     document_id: int
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
     approval_template_id: int
     status: Union[str, None]
@@ -140,7 +140,7 @@ class ApprovalProcessCheck(BaseModel):
     
     is_active: bool
     document_id: list[int]
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
 
 class ResponseMapStart(BaseModel):

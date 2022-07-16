@@ -10,21 +10,13 @@ class BaseDocument:
     number = Column(String(150), nullable = False)
     date = Column(DateTime(timezone=True), nullable = False)
     comment = Column(String(350), nullable=True)
-    sum = Column(Float, nullable=True)
 
     @declared_attr
-    def counterparty_iin(cls):
-        return Column(String, ForeignKey('counterparty.iin'), nullable = False, index = True)
+    def enum_document_type_id(cls):
+        return Column(Integer, ForeignKey('enum_document_type.id', ondelete='CASCADE'), nullable = False)
     @declared_attr 
-    def counterparty(cls):
-        return relationship("Counterparty")
-
-    @declared_attr
-    def document_type_id(cls):
-        return Column(Integer, ForeignKey('document_type.id', ondelete='CASCADE'), nullable = False)
-    @declared_attr 
-    def document_type(cls):
-        return relationship("DocumentType")
+    def enum_document_type(cls):
+        return relationship("EnumDocumentType")
 
     @declared_attr
     def entity_iin(cls):
@@ -32,6 +24,13 @@ class BaseDocument:
     @declared_attr 
     def entity(cls):
         return relationship("Entity")
+
+    @declared_attr
+    def author_id(cls):
+        return Column(Integer, ForeignKey('user.id'))
+    @declared_attr 
+    def author(cls):
+        return relationship("User")
 
 class OptionsStructure(BaseModel):
     

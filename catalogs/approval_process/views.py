@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy import String, Table, func, select, insert, update, delete, event, table
 from catalogs.approval_route.models import ApprovalRoute
 from catalogs.approval_status.models import ApprovalStatus
+from catalogs.enum_types.views import enum_document_type_fillDataFromDict
 from common_module.approve_module import notificate_user_by_approval_process_id
 from common_module.urls_module import is_need_filter
 from core.db import database
@@ -15,7 +16,7 @@ from catalogs.approval_template_step.models import ApprovalTemplateStep
 from catalogs.approval_template_step.views import get_approval_template_step_list
 from catalogs.approval_route.views import delete_approval_routes_by_approval_process_id, get_approval_route_by_aproval_process_id,\
                  post_approval_routes_by_approval_process_id, get_approval_route_nested_by_aproval_process_id, update_approval_routes_by_approval_process_id
-from catalogs.document_type.models import DocumentType, document_type_fillDataFromDict
+from catalogs.enum_types.models import EnumDocumentType
 from catalogs.entity.models import Entity, entity_fillDataFromDict
 from documents.purchase_requisition.views import get_purchase_requisition_nested_by_id
 
@@ -23,7 +24,7 @@ async def collectRoutes(list_of_object: list, approval_process_id):
     listDict = []
     for item in list_of_object:
         itemDict = dict(item)
-        # itemDict['type'] = 'line' if itemDict['type'] == StepType.line else 'paralel'
+        # itemDict['type'] = 'line' if itemDict['type'] == EnumStepType.line else 'paralel'
         itemDict['approval_process_id'] = approval_process_id
         listDict.append(itemDict)
     return listDict
@@ -76,17 +77,17 @@ async def get_approval_process_nested_list(limit: int = 100,skip: int = 0, **kwa
     query_AR = select(ApprovalProcess,
                     PurchaseRequisition.number.label('number'),
                     PurchaseRequisition.date.label('date'),
-                    DocumentType.description.label('document_type_description'),
-                    DocumentType.name.label('document_type_name'),
+                    EnumDocumentType.description.label('enum_document_type_description'),
+                    EnumDocumentType.name.label('enum_document_type_name'),
                     ApprovalTemplate.name.label('approval_template_name'),
                     ApprovalTemplate.id.label('approval_template_id'),
                     Entity.name.label("entity_name"),
                     Entity.iin.label("entity_iin"),
                     Entity.id.label("entity_id")).\
-                join(ApprovalProcess, ((PurchaseRequisition.id == ApprovalProcess.document_id) & (PurchaseRequisition.document_type_id == ApprovalProcess.document_type_id))).\
+                join(ApprovalProcess, ((PurchaseRequisition.id == ApprovalProcess.document_id) & (PurchaseRequisition.enum_document_type_id == ApprovalProcess.enum_document_type_id))).\
                 join(ApprovalTemplate, (ApprovalTemplate.id == ApprovalProcess.approval_template_id)).\
                 join(Entity, (Entity.iin == ApprovalProcess.entity_iin)).\
-                join(DocumentType, (DocumentType.id == ApprovalProcess.document_type_id)).\
+                join(EnumDocumentType, (EnumDocumentType.id == ApprovalProcess.enum_document_type_id)).\
                 where(ApprovalProcess.is_active).\
                 limit(limit).offset(skip)
     if('id' in kwargs and kwargs['id']):
@@ -102,7 +103,7 @@ async def get_approval_process_nested_list(limit: int = 100,skip: int = 0, **kwa
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['document_type'] = document_type_fillDataFromDict(recordDict)
+        recordDict['enum_document_type'] = enum_document_type_fillDataFromDict(recordDict)
         recordDict['document'] = {'number': recordDict['number'], 'date': recordDict['date']}
         recordDict['entity'] = entity_fillDataFromDict(recordDict)
         recordDict['approval_template'] = approval_template_fillDataFromDict(recordDict)
@@ -117,7 +118,7 @@ async def post_approval_process(apInstance : dict, **kwargs):
     query = insert(ApprovalProcess).values(
                 is_active = apInstance["is_active"], 
                 document_id = int(apInstance["document_id"]),
-                document_type_id = int(apInstance["document_type_id"]),
+                enum_document_type_id = int(apInstance["enum_document_type_id"]),
                 entity_iin = apInstance["entity_iin"],
                 approval_template_id = int(apInstance["approval_template_id"]),
                 start_date = apInstance["start_date"],
@@ -132,7 +133,7 @@ async def update_approval_process(approval_process_id: int, apInstance: dict, **
     query = update(ApprovalProcess).values(
                 is_active = apInstance["is_active"], 
                 document_id = int(apInstance["document_id"]),
-                document_type_id = int(apInstance["document_type_id"]),
+                enum_document_type_id = int(apInstance["enum_document_type_id"]),
                 entity_iin = apInstance["entity_iin"],
                 approval_template_id = int(apInstance["approval_template_id"]),
                 start_date = apInstance["start_date"],
@@ -172,7 +173,7 @@ async def start_approval_process(parameters, **kwargs):
             responseMap['ApprovalProcess'] = {
                                         'is_active': approval_processes['is_active'],
                                         'document_id': approval_processes['document_id'],
-                                        'document_type_id': approval_processes['document_type_id'],
+                                        'enum_document_type_id': approval_processes['enum_document_type_id'],
                                         'entity_iin': approval_processes['entity_iin'],
                                         'approval_template_id': approval_processes['approval_template_id'],
                                         'status': approval_processes['status'],
@@ -190,7 +191,7 @@ async def start_approval_process(parameters, **kwargs):
     else:
         # Ищем шаблон если нет актуального процесса
         query = select(ApprovalTemplate.id, ApprovalTemplate.name).\
-                where((ApprovalTemplate.entity_iin == parameters['entity_iin']) & (ApprovalTemplate.document_type_id == parameters['document_type_id'])).limit(1)
+                where((ApprovalTemplate.entity_iin == parameters['entity_iin']) & (ApprovalTemplate.enum_document_type_id == parameters['enum_document_type_id'])).limit(1)
     
     approval_template = await database.fetch_one(query)
     if approval_template == None:
@@ -221,7 +222,7 @@ async def start_approval_process(parameters, **kwargs):
                 where(
                     (ApprovalProcess.is_active) &
                     (ApprovalProcess.document_id == int(parameters['document_id'])) &
-                    (ApprovalProcess.document_type_id == int(parameters['document_type_id'])) &
+                    (ApprovalProcess.enum_document_type_id == int(parameters['enum_document_type_id'])) &
                     (ApprovalProcess.entity_iin == parameters['entity_iin']))
 
     result = await database.execute(query)
@@ -237,7 +238,7 @@ async def start_approval_process(parameters, **kwargs):
             'level': item['level'],
             'type': item['type'],
             'document_id': parameters['document_id'],
-            'document_type_id': parameters['document_type_id'],
+            'enum_document_type_id': parameters['enum_document_type_id'],
             'entity_iin': parameters['entity_iin'],
             'user_id': item['user_id'],
             'approval_template_id': approval_template['id'],
@@ -250,7 +251,7 @@ async def start_approval_process(parameters, **kwargs):
     apInstance = {
         'is_active': True,
         'document_id': parameters['document_id'],
-        'document_type_id': parameters['document_type_id'],
+        'enum_document_type_id': parameters['enum_document_type_id'],
         'entity_iin': parameters['entity_iin'],
         'approval_template_id': approval_template['id'],
         'status': 'в работе',
@@ -274,7 +275,7 @@ async def check_approval_process(approval_process_id, **kwargs):
     if (document_data['metadata_name'].lower() == 'purchase_requisition'):
         document_full_data  = await get_purchase_requisition_nested_by_id(document_data['document_id'])
         kwargs = {
-            'document_type_description': document_full_data['document_type_description'], 
+            'enum_document_type_description': document_full_data['enum_document_type_description'], 
             'number': document_full_data['number'],
             'date': document_full_data['date'],
             'meta_data_name': document_data['metadata_name'].lower()}
@@ -294,7 +295,7 @@ async def check_approval_processes(parameters, **kwargs):
 
     query = select( 
             ApprovalProcess.document_id,
-            ApprovalProcess.document_type_id, 
+            ApprovalProcess.enum_document_type_id, 
             ApprovalProcess.entity_iin,
             ApprovalProcess.approval_template_id,
             ApprovalProcess.status,
@@ -305,9 +306,9 @@ async def check_approval_processes(parameters, **kwargs):
                 where((ApprovalProcess.is_active) &
                     (ApprovalProcess.entity_iin == parameters['entity_iin']) & 
                     (ApprovalProcess.document_id.in_(listId)) & 
-                    (ApprovalProcess.document_type_id == parameters['document_type_id'])).\
+                    (ApprovalProcess.enum_document_type_id == parameters['enum_document_type_id'])).\
                 group_by(ApprovalProcess.entity_iin, 
-                        ApprovalProcess.document_type_id,
+                        ApprovalProcess.enum_document_type_id,
                         ApprovalProcess.approval_template_id, 
                         ApprovalProcess.status,
                         ApprovalProcess.document_id,
@@ -336,7 +337,7 @@ async def is_approval_process_finished(parameters, **kwargs):
                     (ApprovalProcess.is_active) &
                     (ApprovalProcess.status == 'в работе') &
                     (ApprovalProcess.document_id == int(parameters['document_id'])) &
-                    (ApprovalProcess.document_type_id == int(parameters['document_type_id'])) &
+                    (ApprovalProcess.enum_document_type_id == int(parameters['enum_document_type_id'])) &
                     (ApprovalProcess.entity_iin == parameters['entity_iin'])).\
                     group_by(ApprovalProcess.id, ApprovalProcess.status)
 
@@ -351,7 +352,7 @@ async def is_approval_process_finished(parameters, **kwargs):
                     (ApprovalProcess.is_active) &
                     (ApprovalProcess.status == 'в работе') &
                     (ApprovalProcess.document_id == int(parameters['document_id'])) &
-                    (ApprovalProcess.document_type_id == int(parameters['document_type_id'])) &
+                    (ApprovalProcess.enum_document_type_id == int(parameters['enum_document_type_id'])) &
                     (ApprovalProcess.entity_iin == parameters['entity_iin']) &
                     (ApprovalStatus.status != None)).\
                     group_by(ApprovalProcess.id, ApprovalProcess.status, ApprovalStatus.status)
@@ -390,7 +391,7 @@ async def cancel_approval_process(parameters, **kwargs):
     apInstance = {
         'is_active': False,
         'document_id': parameters['document_id'],
-        'document_type_id': parameters['document_type_id'],
+        'enum_document_type_id': parameters['enum_document_type_id'],
         'entity_iin': parameters['entity_iin']
         }
 
@@ -401,7 +402,7 @@ async def cancel_approval_process(parameters, **kwargs):
                 where(
                     (ApprovalProcess.is_active) &
                     (ApprovalProcess.document_id == int(parameters['document_id'])) &
-                    (ApprovalProcess.document_type_id == int(parameters['document_type_id'])) &
+                    (ApprovalProcess.enum_document_type_id == int(parameters['enum_document_type_id'])) &
                     (ApprovalProcess.entity_iin == parameters['entity_iin']))
 
     result = await database.execute(query)
@@ -420,10 +421,10 @@ async def get_document_data_by_approval_process_id(approval_process_id: int, **k
     query = select( 
                     ApprovalProcess.id,
                     ApprovalProcess.document_id,
-                    ApprovalProcess.document_type_id,
-                    DocumentType.metadata_name,
-                    DocumentType.description).\
-                    join(DocumentType, (ApprovalProcess.document_type_id == DocumentType.id), isouter=True).\
+                    ApprovalProcess.enum_document_type_id,
+                    EnumDocumentType.metadata_name,
+                    EnumDocumentType.description).\
+                    join(EnumDocumentType, (ApprovalProcess.enum_document_type_id == EnumDocumentType.id), isouter=True).\
                     where(
                     (ApprovalProcess.id == approval_process_id))
     result = await database.fetch_one(query)

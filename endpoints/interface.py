@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from documents.purchase_requisition.views import get_purchase_requisition_list
 from catalogs.approval_template.views import get_approval_template_list
 
-from catalogs.enum_types.models import StepType
+from catalogs.enum_types.models import EnumStepType
 
 templates = Jinja2Templates(directory="templates")
 interfaceRoute = APIRouter() 
@@ -77,6 +77,16 @@ async def purchase_requisition_list(request: Request):
 @interfaceRoute.get("/purchase_requisition/{itemId}", response_class=HTMLResponse)
 async def purchase_requisition_detail(request: Request, itemId: str):
     return templates.TemplateResponse("purchase_requisition/purchase_requisition_detail.html", context={'request': request, 'itemId': itemId})
+
+# ----------------------------------------------
+# employee_task
+@interfaceRoute.get("/employee_task/", response_class=HTMLResponse)
+async def employee_task_list(request: Request):
+    return templates.TemplateResponse("employee_task/employee_task_list.html", context={'request': request})
+
+@interfaceRoute.get("/employee_task/{itemId}", response_class=HTMLResponse)
+async def employee_task_detail(request: Request, itemId: str):
+    return templates.TemplateResponse("employee_task/employee_task_detail.html", context={'request': request, 'itemId': itemId})
 
 # ----------------------------------------------
 # approval_process

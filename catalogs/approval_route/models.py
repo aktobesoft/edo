@@ -6,7 +6,7 @@ from core.db import Base
 from sqlalchemy.orm import relationship
 import enum
 from catalogs.approval_template.models import ApprovalTemplate
-from catalogs.enum_types.models import RouteStatusType
+from catalogs.enum_types.models import EnumRouteStatusType
    
 class ApprovalRoute(Base):
     __tablename__ = "approval_route"
@@ -14,10 +14,10 @@ class ApprovalRoute(Base):
     id = Column(Integer, primary_key = True, autoincrement = True)
     is_active = Column(Boolean, default=True)
     level = Column(Integer, nullable = False)
-    type = Column(String, ForeignKey('step_type.name'), nullable = True)
-    step_type = relationship("StepType")
+    type = Column(String, ForeignKey('enum_step_type.name'), nullable = True)
+    enum_step_type = relationship("EnumStepType")
     document_id = Column(Integer, nullable = False, index = True)
-    document_type_id= Column(Integer, ForeignKey('document_type.id'), nullable = False)
+    enum_document_type_id= Column(Integer, ForeignKey('enum_document_type.id'), nullable = False)
     entity_iin = Column(String, ForeignKey('entity.iin'), nullable = False, index = True)
     entity = relationship("Entity")
     user_id = Column(Integer, ForeignKey('user.id'), nullable = False, index = True)
@@ -40,7 +40,7 @@ class ApprovalRouteOut(BaseModel):
     level: int
     type: Union[str, None]
     document_id: int
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
     user_id: int
     approval_template_id: int
@@ -61,7 +61,7 @@ class ApprovalRoutePUT(BaseModel):
     level: int
     type: Union[str, None]
     document_id: int
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
     user_id: int
     approval_template_id: int
@@ -77,7 +77,7 @@ class ApprovalRoutePOST(BaseModel):
     level: int
     type: Union[str, None]
     document_id: int
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
     user_id: int
     approval_template_id: int
@@ -94,7 +94,7 @@ class ApprovalRouteNestedOut(BaseModel):
     level: int
     type: Union[str, None]
     document_id: int
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
     user_id: int
     user: dict
@@ -115,7 +115,7 @@ class ApprovalRouteIn(BaseModel):
     level: int
     type: Union[str, None]
     document_id: int
-    document_type_id: int
+    enum_document_type_id: int
     entity_iin: str
     user_id: int
     approval_template_id: int

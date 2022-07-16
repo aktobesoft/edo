@@ -6,11 +6,11 @@ from typing import List, Optional, Union
 from catalogs.approval_process.models import ApprovalProcess, ApprovalProcessCheck, ApprovalProcessIn, ApprovalProcessNestedOut, ApprovalProcessOut, ApprovalProcessRoutNestedOut, ApprovalProcessRoutOut, ApprovalProcessRoutPOST, ApprovalProcessRoutPUT, ResponseMapStart
 from catalogs.approval_process import views
 
-async def ap_select(document_id: int = 0, document_type_id: int = 0, entity_iin: str = ''):
-    return {"document_id": document_id, "document_type_id": document_type_id, "entity_iin": entity_iin}
+async def ap_select(document_id: int = 0, enum_document_type_id: int = 0, entity_iin: str = ''):
+    return {"document_id": document_id, "enum_document_type_id": enum_document_type_id, "entity_iin": entity_iin}
 
-async def ap_select_list(document_id: list = [], document_type_id: int = 0, entity_iin: str = ''):
-    return {"document_id": document_id, "document_type_id": document_type_id, "entity_iin": entity_iin}
+async def ap_select_list(document_id: list = [], enum_document_type_id: int = 0, entity_iin: str = ''):
+    return {"document_id": document_id, "enum_document_type_id": enum_document_type_id, "entity_iin": entity_iin}
 
 
 approval_processRouter = APIRouter()

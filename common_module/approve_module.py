@@ -26,7 +26,7 @@ async def notificate_user_by_approval_process_id(approval_process_id: int, **kwa
     context = {
         'user': user,
         'token': token,
-        'body': '{0} №{1} от {2}'.format(kwargs['document_type_description'], kwargs['number'], kwargs['date'].strftime("%x")),
+        'body': '{0} №{1} от {2}'.format(kwargs['enum_document_type_description'], kwargs['number'], kwargs['date'].strftime("%x")),
         'title': 'Поступил новый документ на согласования',
         'meta_data_name': kwargs['meta_data_name']
         }
