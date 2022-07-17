@@ -61,7 +61,7 @@
 
                   <label for="item_position" class="col-sm-2 col-form-label">Тип организации</label>
                   <div class="col-sm-10 mt-2">
-                    <select v-on:click="getBusinessTypeList()" v-model="counterparty.type_name" class="form-control"
+                    <select v-on:click="getEnumBusinessTypeList()" v-model="counterparty.type_name" class="form-control"
                       aria-label="Тип организации<">
                       <option value="0">---------</option>
                       <option v-for="item in businessTypeList" v-bind:value="item.name">
@@ -139,14 +139,14 @@
       if (this.counterparty_iin != 'new') {
         await this.getCounterparty()
       }
-      await this.getBusinessTypeList();
+      await this.getEnumBusinessTypeList();
     },
     methods: {
-      getBusinessTypeList: async function () {
+      getEnumBusinessTypeList: async function () {
         if (this.businessTypeList.length > 0) {
           return
         }
-        let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true", get_config())
+        let response = await axios.get("{{url_for('get_enum_business_type_list')}}?optional=true", get_config())
         console.log(response.data)
         this.businessTypeList = response.data
       },

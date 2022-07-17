@@ -59,17 +59,6 @@
                     </select>
                   </div>
 
-                  <!-- <label for="id" class="col-sm-2 col-form-label mt-2">Тип документа</label>
-                  <div class="col-sm-10 mt-2">
-                    <select v-on:click="getEnumDocumentTypeList()" v-model="purchase_requisition.enum_document_type_id"
-                      class="form-control" aria-label="Шаблон документа" id="enum_document_type">
-                      <option value="0">---------</option>
-                      <option v-for="item in documentTypeList" v-bind:value="item.id">
-                        [[ item.description ]]
-                      </option>
-                    </select>
-                  </div> -->
-
                   <label for="id" class="col-sm-2 col-form-label mt-2">Сумма</label>
                   <div class="col-sm-10 mt-2">
                     <input type="number" name="sum" class="form-control" id="sum" placeholder="Сумма"
@@ -401,6 +390,7 @@
           "name": "",
           "email": ""
         },
+        "all_approval_routes": [],
         "enum_document_type_id": 0,
         "entity_iin": "",
         "items": []
@@ -427,7 +417,6 @@
       }
       await this.getCounterpartyList()
       await this.getEntityList()
-      // await this.getEnumDocumentTypeList()
 
     },
     filters: {
@@ -597,19 +586,7 @@
       deleteStep: function () {
         this.purchase_requisition.items.splice(this.currentItemIndex, 1);
       },
-      // getEnumDocumentTypeList: async function () {
-      //   if (this.documentTypeList.length > 0) {
-      //     return
-      //   }
-      //   try {
-      //     let response = await axios.get("{{url_for('get_enum_document_type_list')}}?skip=0&limit=3000", get_config())
-      //     console.log(response.data)
-      //     this.documentTypeList = response.data['result']
-      //   } catch (err) {
-      //     console.log(err); 
-      //     check_status(err)
-      //   }
-      // },
+
       getEntityList: async function () {
         if (this.entityList.length > 0) {
           return

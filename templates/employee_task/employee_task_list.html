@@ -67,13 +67,14 @@
                 <thead class="table-dark">
                   <tr>
                     <th width="5%">#</th>
-                    <th width="8%">Номер</th>
-                    <th width="7%">Дата</th>
-                    <th width="15%">Организация</th>
-                    <th width="5%">Статус документа</th>
-                    <th width="10%">Комментарий</th>
+                    <th width="5%">Номер</th>
+                    <th width="10%">Дата</th>
+                    <th width="20%">Организация</th>
+                    <th width="10%">Статус документа</th>
+                    <th width="20%">Содержание записки</th>
+                    <th width="20%">Комментарий</th>
                     <th width="5%">Автор</th>
-                    <th width="10%">Операции</th>
+                    <th width="5%">Операции</th>
                   </tr>
                 </thead>
                 <tbody v-for="item in employeeTaskList" :key="item.id">
@@ -94,6 +95,7 @@
                       </template>
                       [[ item.status]]
                     </td>
+                    <td>[[ item.content ]]</td>
                     <td>[[ item.comment ]]</td>
                     <td>[[ item.author.name ]]</td>
                     <td>

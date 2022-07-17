@@ -7,7 +7,7 @@ from catalogs.approval_status.models import ApprovalStatus
 from catalogs.enum_types.views import enum_document_type_fillDataFromDict, get_enum_document_type_id_by_metadata_name
 from catalogs.user.models import User, user_fillDataFromDict
 from core.db import database
-from common_module.urls_module import correct_datetime, correct_datetime, is_need_filter
+from common_module.urls_module import correct_datetime, correct_datetime, is_need_filter, is_parameter_exist
 
 from documents.purchase_requisition.models import PurchaseRequisition, PurchaseRequisitionOut
 from documents.purchase_requisition_items.views import delete_all_pr_items_by_purchase_requisition, get_pr_items_list_by_purchase_requisition_id, post_pr_items_by_purchase_requisition, update_pr_items_by_purchase_requisition
@@ -76,13 +76,6 @@ async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **
         query = query.where(PurchaseRequisition.entity_iin.in_(kwargs['entity_iin_list']))
     result = await database.fetch_one(query)
 
-    if(is_need_filter('include_approve_route', kwargs)):
-        kwargs['purchase_requisition_id'] = purchase_requisition_id
-        routes_result  = await get_approval_routes_by_metadata('purchase_requisition', **kwargs)
-        include_approve_route = True
-    else:
-        include_approve_route = False
-
     if result == None:
         raise HTTPException(status_code=404, detail="Item not found") 
 
@@ -92,6 +85,13 @@ async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **
     recordDict['counterparty'] = counterparty_fillDataFromDict(recordDict)
     recordDict['author'] = user_fillDataFromDict(recordDict)
     recordDict['items'] = await get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id)
+
+    if(is_parameter_exist('include_approve_route', kwargs)):
+        kwargs['approval_process_id'] = [recordDict['approval_process_id']]
+        routes_result  = await get_approval_routes_by_metadata('purchase_requisition', **kwargs)
+        include_approve_route = True
+    else:
+        include_approve_route = False
     
     if(include_approve_route):
             if recordDict['approval_process_id'] in routes_result:
@@ -141,7 +141,7 @@ async def get_purchase_requisition_list(limit: int = 100, skip: int = 0, **kwarg
     if(is_need_filter('entity_iin_list', kwargs)):
         query = query.where(PurchaseRequisition.entity_iin.in_(kwargs['entity_iin_list']))
 
-    if('include_approve_route' in kwargs and kwargs['include_approve_route']):
+    if(is_parameter_exist('include_approve_route', kwargs)):
         include_approve_route = True
         routes_result  = await get_approval_routes_by_metadata('purchase_requisition', **kwargs)
     else:
@@ -205,7 +205,9 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
     if (len(records) == 0):
         return listValue
     
-    if('include_approve_route' in kwargs and kwargs['include_approve_route']):
+    print(kwargs)
+    
+    if(is_parameter_exist('include_approve_route', kwargs)):
         include_approve_route = True
         routes_result  = await get_approval_routes_by_metadata('purchase_requisition', **kwargs)
     else:

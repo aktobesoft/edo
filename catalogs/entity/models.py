@@ -4,7 +4,7 @@ from core.db import Base
 from datetime import date
 from pydantic import BaseModel, validator
 from documents.base_document.models import Paginator
-from catalogs.enum_types.models import BusinessTypeOut
+from catalogs.enum_types.models import EnumBusinessTypeOut
 
 class Entity(Base):
     __tablename__ = 'entity'
@@ -22,8 +22,8 @@ class Entity(Base):
     token = Column(String(64), nullable=True)
     start_date = Column(Date, nullable=True)
     end_date = Column(Date, nullable=True)
-    type_name = Column(String(50), ForeignKey('business_type.name'), nullable=True)
-    type = relationship('BusinessType')
+    type_name = Column(String(50), ForeignKey('enum_business_type.name'), nullable=True)
+    type = relationship('EnumBusinessType')
     
     def __repr__(self) -> str:
         return '<{0} ({1})>'.format(self.name, self.iin)
@@ -42,7 +42,7 @@ class EntityNestedOut(BaseModel):
     token: str
     start_date: date
     end_date: date
-    type: BusinessTypeOut
+    type: EnumBusinessTypeOut
     
     class Config:
         orm_mode = True

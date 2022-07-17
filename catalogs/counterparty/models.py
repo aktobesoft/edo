@@ -4,7 +4,7 @@ from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Date
 from core.db import Base, metadata
 from sqlalchemy.orm import relationship
 from documents.base_document.models import Paginator
-from catalogs.enum_types.models import BusinessType, BusinessTypeOut
+from catalogs.enum_types.models import EnumBusinessType, EnumBusinessTypeOut
 from catalogs.user.models import User
 from datetime import date, datetime
 
@@ -18,8 +18,8 @@ class Counterparty(Base):
     address = Column(String(350))
     comment = Column(String(350))
     contact = Column(String(150))
-    type_name = Column(String(50), ForeignKey('business_type.name'))
-    type = relationship("BusinessType")
+    type_name = Column(String(50), ForeignKey('enum_business_type.name'))
+    type = relationship("EnumBusinessType")
 
     def __repr__(self) -> str:
         return '<{0} ({1})>'.format(self.name, self.iin)
@@ -45,7 +45,7 @@ class CounterpartyOut(BaseModel):
     comment: str
     contact: str
     type_name: str
-    #type: BusinessTypeOut
+    #type: EnumBusinessTypeOut
     
     class Config:
         orm_mode = True
@@ -67,7 +67,7 @@ class CounterpartyNestedOut(BaseModel):
     comment: str
     contact: str
     type_name: str
-    type: BusinessTypeOut
+    type: EnumBusinessTypeOut
     
     class Config:
         orm_mode = True

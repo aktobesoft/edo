@@ -1,3 +1,4 @@
+from typing import Union
 from sqlalchemy import Column, Integer, String
 from core.db import Base
 from pydantic import BaseModel
@@ -15,16 +16,15 @@ class EnumDocumentType(Base):
 
 class EnumDocumentTypeOut(BaseModel): 
     
-    id: int = 0
-    name: str = ''
-    metadata_name: str = ''
-    description: str = ''
+    id: Union[int, None]
+    name: Union[str, None]
+    description: Union[str, None]
     
     class Config:
         orm_mode = True
 
-class BusinessType(Base):
-    __tablename__ = "business_type"
+class EnumBusinessType(Base):
+    __tablename__ = "enum_business_type"
 
     id = Column(Integer, primary_key = True, autoincrement = True)
     name = Column(String(150), index = True, unique=True)
@@ -33,11 +33,11 @@ class BusinessType(Base):
     def __repr__(self) -> str:
         return self.name
 
-class BusinessTypeOut(BaseModel):
+class EnumBusinessTypeOut(BaseModel):
     
-    id: int
-    name: str
-    full_name: str
+    id: Union[int, None]
+    name: Union[str, None]
+    full_name: Union[str, None]
     
     class Config:
         orm_mode = True
@@ -60,8 +60,8 @@ class EnumRouteStatusType(Base):
     name = Column(String(150), primary_key = True)
     description = Column(String(360), nullable=True)
 
-class EnumAssignmentStatusType(Base):
-    __tablename__ = 'enum_assignment_status_type'
+class EnumTaskStatusType(Base):
+    __tablename__ = 'enum_task_status_type'
     
     name = Column(String(150), primary_key = True)
     description = Column(String(360), nullable=True)

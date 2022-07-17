@@ -117,7 +117,7 @@
       if (this.employee_id != 'new') {
         await this.getEmployee()
       }
-      await this.getBusinessTypeList();
+      await this.getEnumBusinessTypeList();
       await this.getUserList();
       await this.getEntityList();
     },
@@ -148,11 +148,11 @@
           check_status(err)
         }
       },
-      getBusinessTypeList: async function () {
+      getEnumBusinessTypeList: async function () {
         if (this.businessTypeList.length > 0) {
           return
         }
-        let response = await axios.get("{{url_for('get_business_type_list')}}?optional=true", get_config())
+        let response = await axios.get("{{url_for('get_enum_business_type_list')}}?optional=true", get_config())
         console.log(response.data)
         this.businessTypeList = response.data
       },

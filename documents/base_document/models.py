@@ -27,7 +27,7 @@ class BaseDocument:
 
     @declared_attr
     def author_id(cls):
-        return Column(Integer, ForeignKey('user.id'))
+        return Column(Integer, ForeignKey('user.id'), nullable = False, index = True)
     @declared_attr 
     def author(cls):
         return relationship("User")

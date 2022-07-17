@@ -1,12 +1,12 @@
 from fastapi import HTTPException
 from sqlalchemy import func, select, insert, update, delete
-from catalogs.enum_types.views import business_type_fillDataFromDict
+from catalogs.enum_types.views import enum_business_type_fillDataFromDict
 from core.db import database
 import asyncpg
 from common_module.urls_module import correct_datetime, is_need_filter
 
 from catalogs.entity.models import Entity
-from catalogs.enum_types.models import BusinessType
+from catalogs.enum_types.models import EnumBusinessType
 
 
 async def get_entity_by_id(entity_id: int, **kwargs):
@@ -36,10 +36,10 @@ async def get_entity_by_iin(entity_iin: str, **kwargs):
                 Entity.start_date, 
                 Entity.type_name, 
                 Entity.end_date, 
-                BusinessType.id.label("business_type_id"), 
-                BusinessType.name.label("business_type_name"),
-                BusinessType.full_name.label("business_type_full_name")).\
-                    join(BusinessType, Entity.type_name == BusinessType.name, isouter=True).\
+                EnumBusinessType.id.label("enum_business_type_id"), 
+                EnumBusinessType.name.label("enum_business_type_name"),
+                EnumBusinessType.full_name.label("enum_business_type_full_name")).\
+                    join(EnumBusinessType, Entity.type_name == EnumBusinessType.name, isouter=True).\
                     where(Entity.iin == entity_iin)
 
     query = select(Entity).where(Entity.iin == entity_iin)
@@ -112,10 +112,10 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs):
                 Entity.start_date, 
                 Entity.type_name, 
                 Entity.end_date, 
-                BusinessType.id.label("business_type_id"), 
-                BusinessType.name.label("business_type_name"),
-                BusinessType.full_name.label("business_type_full_name")).\
-                    join(BusinessType, Entity.type_name == BusinessType.name, isouter=True).\
+                EnumBusinessType.id.label("enum_business_type_id"), 
+                EnumBusinessType.name.label("enum_business_type_name"),
+                EnumBusinessType.full_name.label("enum_business_type_full_name")).\
+                    join(EnumBusinessType, Entity.type_name == EnumBusinessType.name, isouter=True).\
                     limit(limit).offset(skip)
     # RLS
     if(is_need_filter('entity_iin_list', kwargs)):
@@ -125,7 +125,7 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs):
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['type'] = business_type_fillDataFromDict(rec)
+        recordDict['type'] = enum_business_type_fillDataFromDict(rec)
         listValue.append(recordDict)
     return listValue
 

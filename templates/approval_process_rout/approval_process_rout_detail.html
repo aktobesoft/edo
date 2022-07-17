@@ -493,7 +493,7 @@
           let response = await axios.get("{{url_for('get_enum_document_type_list')}}?skip=0&limit=100&", get_config())
           console.log("getEnumDocumentTypeList")
           console.log(response.data)
-          this.documentType = response.data['result']
+          this.documentType = response.data
         } catch (err) {
           console.log(err);
           check_status(err)

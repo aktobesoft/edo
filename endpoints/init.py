@@ -5,9 +5,9 @@ from unicodedata import name
 from fastapi import APIRouter
 from catalogs.counterparty.models import Counterparty, CounterpartyOut
 from catalogs.entity.models import Entity, EntityNestedOut
-from catalogs.enum_types.models import BusinessType
+from catalogs.enum_types.models import EnumBusinessType
 from catalogs.enum_types.models import EnumDocumentType
-from catalogs.enum_types.models import EnumAssignmentStatusType, EnumProcessStatusType, EnumRouteStatusType, EnumStepType
+from catalogs.enum_types.models import EnumTaskStatusType, EnumProcessStatusType, EnumRouteStatusType, EnumStepType
 from catalogs.user.models import User
 from core.db import database, SessionLocal
 from sqlalchemy import select, insert, tuple_, join
@@ -15,14 +15,14 @@ from sqlalchemy import select, insert, tuple_, join
 initRouter = APIRouter()
 session = SessionLocal()
 
-@initRouter.get('/createBusinessType')
-def create_BusinessType():
+@initRouter.get('/createEnumBusinessType')
+def create_EnumBusinessType():
     typeList = []
-    typeList.append(BusinessType(name = 'АО', full_name = 'Акционерное Общество'))
-    typeList.append(BusinessType(name = 'ТОО', full_name = 'Товарищество с ограниченной ответственностью'))
-    typeList.append(BusinessType(name = 'ИП', full_name = 'Индивидуальный предприниматель'))
-    typeList.append(BusinessType(name = 'ФизЛицо', full_name = 'Физическое лицо'))
-    typeList.append(BusinessType(name = 'ГП', full_name = 'Государственное предприятие'))
+    typeList.append(EnumBusinessType(name = 'АО', full_name = 'Акционерное Общество'))
+    typeList.append(EnumBusinessType(name = 'ТОО', full_name = 'Товарищество с ограниченной ответственностью'))
+    typeList.append(EnumBusinessType(name = 'ИП', full_name = 'Индивидуальный предприниматель'))
+    typeList.append(EnumBusinessType(name = 'ФизЛицо', full_name = 'Физическое лицо'))
+    typeList.append(EnumBusinessType(name = 'ГП', full_name = 'Государственное предприятие'))
     session.add_all(typeList)
     session.commit()
     return {'status': 'done'}
@@ -41,13 +41,13 @@ def create_types():
     typeList.append(EnumRouteStatusType(name = 'отклонен', description = 'Отклонен'))
 
     # 'в работе', 'выполнено', 'отложено', 'в ожидании', 'не выполнено', 'переназначено', 'новый'
-    typeList.append(EnumAssignmentStatusType(name = 'в работе', description = 'В работе'))
-    typeList.append(EnumAssignmentStatusType(name = 'выполнено', description = 'Выполнено'))
-    typeList.append(EnumAssignmentStatusType(name = 'отложено', description = 'Отложено'))
-    typeList.append(EnumAssignmentStatusType(name = 'в ожидании', description = 'В ожидании'))
-    typeList.append(EnumAssignmentStatusType(name = 'не выполнено', description = 'Не выполнено'))
-    typeList.append(EnumAssignmentStatusType(name = 'переназначено', description = 'Переназначено'))
-    typeList.append(EnumAssignmentStatusType(name = 'новый', description = 'Новый'))
+    typeList.append(EnumTaskStatusType(name = 'в работе', description = 'В работе'))
+    typeList.append(EnumTaskStatusType(name = 'выполнено', description = 'Выполнено'))
+    typeList.append(EnumTaskStatusType(name = 'отложено', description = 'Отложено'))
+    typeList.append(EnumTaskStatusType(name = 'в ожидании', description = 'В ожидании'))
+    typeList.append(EnumTaskStatusType(name = 'не выполнено', description = 'Не выполнено'))
+    typeList.append(EnumTaskStatusType(name = 'переназначено', description = 'Переназначено'))
+    typeList.append(EnumTaskStatusType(name = 'новый', description = 'Новый'))
 
     typeList.append(EnumStepType(name = 'линейное', description = 'Линейное'))
     typeList.append(EnumStepType(name = 'параллельное', description = 'Параллельное'))

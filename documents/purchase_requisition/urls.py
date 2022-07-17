@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from auth.user_auth import UserModel, add_approval_filter, add_entity_filter, get_current_active_user
+from auth.user_auth import UserModel, add_parameters, add_entity_filter, get_current_active_user
 from common_module.urls_module import approval_parameters, paginator_execute, query_parameters_list, query_parameters, query_parameters
 from typing import Union
 
@@ -13,7 +13,7 @@ purchase_requisitionRouter = APIRouter()
 async def get_purchase_requisition_list(parameters: dict = Depends(query_parameters_list), 
                 approvalParameters: dict = Depends(approval_parameters),current_user: UserModel = Depends(get_current_active_user)):
     await add_entity_filter(current_user, parameters)
-    await add_approval_filter(approvalParameters, parameters)
+    await add_parameters(approvalParameters, parameters)
     await paginator_execute(parameters, await views.get_purchase_requisition_count(**parameters))
     return {'info': parameters, 'result': await views.get_purchase_requisition_list(**parameters)}
 
@@ -21,7 +21,7 @@ async def get_purchase_requisition_list(parameters: dict = Depends(query_paramet
 async def get_purchase_requisition_by_id(purchase_requisition_id : int, approvalParameters: dict = Depends(approval_parameters), 
     parameters: dict = Depends(query_parameters), current_user: UserModel = Depends(get_current_active_user)):
     await add_entity_filter(current_user, parameters)
-    await add_approval_filter(approvalParameters, parameters)
+    await add_parameters(approvalParameters, parameters)
     result = await views.get_purchase_requisition_by_id(purchase_requisition_id, **parameters)
     return result
 

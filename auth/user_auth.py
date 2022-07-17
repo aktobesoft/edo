@@ -142,8 +142,8 @@ async def add_entity_filter(current_user: UserModel, parameters: dict):
         listValue.append(rec['entity_iin'])
     parameters['entity_iin_list'] = listValue
 
-async def add_approval_filter(approvalParameters: dict, parameters: dict):
-    for key in approvalParameters:
-        parameters[key] = approvalParameters[key]
+async def add_parameters(fromParameters: dict, toParameters: dict):
+    for key in fromParameters:
+        toParameters[key] = fromParameters[key]
 
 

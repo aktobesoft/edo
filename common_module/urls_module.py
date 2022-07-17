@@ -14,6 +14,9 @@ async def paginator(page: int = 1, limit: int = 100):
 async def approval_parameters(include_approve_route: bool = False):
     return {"include_approve_route": include_approve_route}
 
+async def task_parameters(include_task_status: bool = False):
+    return {"include_task_status": include_task_status}
+
 async def query_parameters(q: Optional[str] = '', nested: bool = False):
     return {"q": q, 'nested': nested}
 
@@ -63,6 +66,16 @@ def is_need_filter(key: str = 'entity_iin', parameters: dict = {}):
     elif (key in parameters and (parameters[key] != '' and parameters[key] != [])):
         return True
     return True
+
+def is_parameter_exist(key: str = '', parameters: dict = {}):
+    
+    if (key not in parameters):
+        return False
+
+    if (key in parameters and (parameters[key] != '' and parameters[key] != [])):
+        return True
+        
+    return False
 
 
             

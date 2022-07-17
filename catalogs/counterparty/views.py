@@ -1,11 +1,11 @@
 from fastapi import HTTPException
 from sqlalchemy import func, select, insert, update, delete
-from catalogs.enum_types.views import business_type_fillDataFromDict
+from catalogs.enum_types.views import enum_business_type_fillDataFromDict
 from core.db import database
 import asyncpg
 from datetime import date, datetime
 from common_module.urls_module import correct_datetime
-from catalogs.enum_types.models import BusinessType
+from catalogs.enum_types.models import EnumBusinessType
 
 from catalogs.user.models import User
 from catalogs.entity.models import Entity
@@ -26,15 +26,15 @@ async def get_employee_count():
 
 async def get_counterparty_nested_by_iin(counterparty_iin: str, **kwargs):
     query = select(Counterparty,
-                BusinessType.id.label("business_type_id"),
-                BusinessType.name.label("business_type_name"), 
-                BusinessType.full_name.label("business_type_full_name")).\
+                EnumBusinessType.id.label("enum_business_type_id"),
+                EnumBusinessType.name.label("enum_business_type_name"), 
+                EnumBusinessType.full_name.label("enum_business_type_full_name")).\
                     join(
-                BusinessType, Counterparty.type_name == BusinessType.name, isouter=True).\
+                EnumBusinessType, Counterparty.type_name == EnumBusinessType.name, isouter=True).\
                     where(Counterparty.iin == counterparty_iin)
     result = await database.fetch_one(query)
     resultDict = dict(result)
-    resultDict['type'] = business_type_fillDataFromDict(resultDict)
+    resultDict['type'] = enum_business_type_fillDataFromDict(resultDict)
     return resultDict
 
 async def delete_counterparty_by_iin(counterparty_iin: str):
@@ -57,10 +57,10 @@ async def get_counterparty_list(limit: int = 100, skip: int = 0, **kwargs)->list
                 Counterparty.comment, 
                 Counterparty.contact, 
                 Counterparty.type_name, 
-                BusinessType.name.label("business_type_name"), 
-                BusinessType.full_name.label("business_type_full_name")).\
+                EnumBusinessType.name.label("enum_business_type_name"), 
+                EnumBusinessType.full_name.label("enum_business_type_full_name")).\
                     join(
-                BusinessType, Counterparty.type_name == BusinessType.name, isouter=True).\
+                EnumBusinessType, Counterparty.type_name == EnumBusinessType.name, isouter=True).\
                     limit(limit).offset(skip).order_by(Counterparty.name)
    
     records = await database.fetch_all(query)
@@ -80,18 +80,18 @@ async def get_counterparty_nested_list(limit: int = 100, skip: int = 0, **kwargs
                 Counterparty.comment, 
                 Counterparty.contact, 
                 Counterparty.type_name, 
-                BusinessType.id.label("business_type_id"),
-                BusinessType.name.label('business_type_name'),
-                BusinessType.full_name.label("business_type_full_name")).\
+                EnumBusinessType.id.label("enum_business_type_id"),
+                EnumBusinessType.name.label('enum_business_type_name'),
+                EnumBusinessType.full_name.label("enum_business_type_full_name")).\
                     join(
-                BusinessType, Counterparty.type_name == BusinessType.name, isouter=True).\
+                EnumBusinessType, Counterparty.type_name == EnumBusinessType.name, isouter=True).\
                    limit(limit).offset(skip).order_by(Counterparty.name)
    
     records = await database.fetch_all(query)
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['type'] = business_type_fillDataFromDict(rec)
+        recordDict['type'] = enum_business_type_fillDataFromDict(rec)
         listValue.append(recordDict)
     return listValue
 
@@ -102,9 +102,9 @@ async def get_counterparty_options_list(limit: int = 100,
                 Counterparty.iin,
                 Counterparty.id, 
                 Counterparty.name,
-                BusinessType.name.label("type_name")).\
+                EnumBusinessType.name.label("type_name")).\
                     join(
-                BusinessType, Counterparty.type_name == BusinessType.name, isouter=True).\
+                EnumBusinessType, Counterparty.type_name == EnumBusinessType.name, isouter=True).\
                 limit(limit).offset(skip)
    
     records = await database.fetch_all(query)
