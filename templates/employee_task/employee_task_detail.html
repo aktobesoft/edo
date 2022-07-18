@@ -11,7 +11,7 @@
             </div>
             <div class="card-body table-responsive p-0">
               <div class="col-12 ">
-                <button v-on:click="goToEmployeeTaskLit()" class="btn btn-primary mt-2 " type="button"
+                <button v-on:click="goToEmployeeTaskList()" class="btn btn-primary mt-2 " type="button"
                   data-toggle="tooltip" data-placement="top">
                   Перейти к списку cлужебок
                 </button>
@@ -33,8 +33,8 @@
 
                   <label for="id" class="col-sm-2 col-form-label mt-2">Дата</label>
                   <div class="col-sm-10 mt-2">
-                    <input type="date" name="date" id="date" placeholder="Дата начало"
-                      v-model="employee_task.date" class="form-control" v-bind:readonly="isReadOnly">
+                    <input type="date" name="date" id="date" placeholder="Дата начало" v-model="employee_task.date"
+                      class="form-control" v-bind:readonly="isReadOnly">
                   </div>
 
                   <label for="id" class="col-sm-2 col-form-label mt-2">Организация</label>
@@ -56,8 +56,8 @@
 
                   <label for="id" class="col-sm-2 col-form-label mt-2">Комментарий</label>
                   <div class="col-sm-10 mt-2">
-                    <textarea class="form-control" rows="3" placeholder="Комментарий"
-                      v-model="employee_task.comment" v-bind:readonly="isReadOnly"></textarea>
+                    <textarea class="form-control" rows="3" placeholder="Комментарий" v-model="employee_task.comment"
+                      v-bind:readonly="isReadOnly"></textarea>
                   </div>
 
                   <label for="id" class="col-sm-2 col-form-label mt-2">Автор</label>
@@ -66,36 +66,78 @@
                       v-model="employee_task.author.name" readonly>
                   </div>
 
-                  <label for="id" class="col-sm-2 col-form-label mt-2">Статус документа</label>
-                  <div class="col-sm-10 mt-2 ">
-                    <template v-if="employee_task.status === 'в работе'">
-                      <i class='fas fa-circle' style='color:#faab00'>&nbsp;</i>
-                    </template>
-                    <template v-else-if="employee_task.status === 'подписан'">
-                      <i class='fas fa-circle' style='color:#28a745'>&nbsp;</i> 
-                    </template>
-                    <template v-else-if="employee_task.status === 'отклонен'">
-                      <i class='fas fa-circle' style='color: red'>&nbsp;</i> 
-                    </template>
-                    [[ employee_task.status]]
-                  </div>
-
                 </div>
 
                 <div class="card card-primary card-outline card-tabs mt-2">
                   <div class="card-header p-0 pt-1 border-bottom-0">
                     <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
                       <li class="nav-item">
-                        <a class="nav-link active" id="custom-tabs-main-tab" data-toggle="pill"
-                          href="#custom-tabs-main" role="tab" aria-controls="custom-tabs-main"
-                          aria-selected="true">Основные данные</a>
+                        <a class="nav-link active" id="custom-tabs-main-tab" data-toggle="pill" href="#custom-tabs-main"
+                          role="tab" aria-controls="custom-tabs-main" aria-selected="true">Текущий статус</a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" id="custom-tabs-approve-tab" data-toggle="pill"
-                          href="#custom-tabs-approve" role="tab" aria-controls="custom-tabs-approve"
-                          aria-selected="false">Согласование</a>
+                        <a class="nav-link" id="custom-tabs-status-history-tab" data-toggle="pill" href="#custom-tabs-approve"
+                          role="tab" aria-controls="custom-tabs-approve" aria-selected="false">История статуса</a>
                       </li>
                     </ul>
+                  </div>
+
+                  <div class="card-body">
+                    <div class="tab-content" id="custom-tabs-three-tabContent">
+                      
+                      <div class="tab-pane fade show active" id="custom-tabs-main" role="tabpanel" aria-labelledby="custom-tabs-main-tab">
+                        <div class="mt-2 ml-1 row">
+                          <label for="id" class="col-sm-2 col-form-label">Статус документа</label>
+                          <div class="col-sm-10 mt-2 ">
+                            <select v-model="employee_task.status" class="form-control"
+                              aria-label="Статус документа" id="item_entity">
+                              <option value="0">---------</option>
+                              <option v-for="item in statusList" v-bind:value="item.value">
+                                [[ item.text ]]
+                              </option>
+                            </select>
+                          </div>
+                      
+                          <label for="id" class="col-sm-2 col-form-label">Комментарий по статусу</label>
+                          <div class="col-sm-10 mt-2">
+                            <textarea class="form-control" rows="3" placeholder="Комментарий"
+                              v-model="employee_task.status_comment"></textarea>
+                          </div>
+                      
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="custom-tabs-approve" role="tabpanel"
+                        aria-labelledby="custom-tabs-status-history-tab">
+                        <table class="table table-bordered table-hover p-0">
+                          <thead class="table-dark">
+                            <tr>
+                              <th scope="col">ID</th>
+                              <th scope="col">Пользователь</th>
+                              <th scope="col">Статус</th>
+                              <th scope="col">Комментарий</th>
+                              <th scope="col">Дата статуса</th>
+                            </tr>
+                          </thead>
+                          <tbody v-for="(item, index) in employee_task.all_task_status" :key="index">
+                            <tr>
+                              <td>[[ item.id ]]</td>
+                              <td>[[ item.user_name]]</td>
+                              <td>
+                                <template v-if="item.status === 'согласован'">
+                                  <i class='fas fa-circle' style='color:#28a745'>&nbsp;</i>
+                                </template>
+                                <template v-else-if="item.status === 'отклонен'">
+                                  <i class='fas fa-circle' style='color: red'>&nbsp;</i>
+                                </template>
+                                [[ item.status ]]
+                              </td>
+                              <td>[[ item.comment ]]</td>
+                              <td>[[ item.date|liveSubstr ]]</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   </div>
                   <!-- /.card -->
                 </div>
@@ -109,17 +151,6 @@
                       data-target="#deleteElementModal" v-bind:disabled="isReadOnly">
                       Удалить
                     </button>
-                    <div class="dropdown ml-1">
-                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-bind:disabled="isReadOnly">
-                        Согласование
-                      </button>
-                      <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                        <button class="dropdown-item" type="button" @click="startApprovalProcess()" v-bind:disabled="isReadOnly">Отправить на
-                          согласование</button>
-                        <button class="dropdown-item" type="button" v-bind:disabled="isReadOnly">Отменить согласование</button>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
@@ -159,27 +190,27 @@
 
                 <!-- Сохранение записи -->
                 <div class="modal fade" id="deleteElementModalStep" tabindex="-1"
-                aria-labelledby="deleteElementModalLabelStep" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="deleteElementModalLabelStep">Подтвердите действие</h5>
-                      <button type="button" data-dismiss="modal" aria-label="Отмена" class="close"><span
-                          aria-hidden="true">×</span></button>
-                    </div>
-                    <div class="modal-body">
-                      Вы действительно хотите удалить запись?
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                      <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal"
-                        v-on:click="deleteStep()">
-                        Удалить
-                      </button>
+                  aria-labelledby="deleteElementModalLabelStep" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="deleteElementModalLabelStep">Подтвердите действие</h5>
+                        <button type="button" data-dismiss="modal" aria-label="Отмена" class="close"><span
+                            aria-hidden="true">×</span></button>
+                      </div>
+                      <div class="modal-body">
+                        Вы действительно хотите удалить запись?
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                        <button type="button" class="btn btn-primary btn-danger" data-dismiss="modal"
+                          v-on:click="deleteStep()">
+                          Удалить
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>  
 
               </div>
               <!-- /.row -->
@@ -233,7 +264,15 @@
       item_index: -1,
       item_position: 0,
       currentItemIndex: -1,
-      isReadOnly: false
+      isReadOnly: false,
+      statusList: [
+        { text: 'новый', value: 'новый' },
+        { text: 'в работе', value: 'в работе' },
+        { text: 'отложено', value: 'отложено' },
+        { text: 'в ожидании', value: 'в ожидании' },
+        { text: 'выполнено', value: 'выполнено' },
+        { text: 'переназначено', value: 'переназначено' }
+      ]
     },
     async mounted() {
       is_authorized()
@@ -247,8 +286,9 @@
     filters: {
       liveSubstr: function (value) {
         if (value) {
-        return value.substring(0, 10);
-      }},
+          return value.substring(0, 10);
+        }
+      },
     },
     methods: {
       getEmployeeTask: async function () {
@@ -267,12 +307,12 @@
           return null
         }
       },
-      checkDocumentStatus: function(){
+      checkDocumentStatus: function () {
         const readOnlyStatuses = ['в работе', 'подписан'];
         if (readOnlyStatuses.includes(this.employee_task.status))
-          this.isReadOnly = true
-        else 
-          this.isReadOnly = false 
+          this.isReadOnly = false
+        else
+          this.isReadOnly = false
       },
       dateToStr: function (valueDate) {
         var date = new Date(valueDate);
@@ -318,7 +358,32 @@
           return null
         }
       },
+      postNewTaskStatus: async function () {
 
+        if(this.employee_task.status == this.employee_task.last_task_status.status && 
+            this.employee_task.comment == this.employee_task.last_task_status.comment)
+          return 
+
+        task_status =  {
+          "is_active": true,
+          "status": this.employee_task.status,
+          "document_id": this.employee_task_id,
+          "enum_document_type_id": this.employee_task.enum_document_type_id,
+          "entity_iin": this.employee_task.entity_iin,
+          "comment": this.employee_task.comment,
+        }
+        console.log("before send post")
+        console.log(JSON.stringify(task_status))
+        try {
+          let response = await axios.post("{{url_for('get_task_status_list')}}?nested=true", task_status, get_config());
+          console.log(response.data)
+          return response
+        } catch (err) {
+          console.log(err);
+          check_status(err)
+          return null
+        }
+      },
       putEmployeeTask: async function () {
         employee_task_dict = this.collectData()
         console.log("before send put")
@@ -332,79 +397,20 @@
           check_status(err)
         }
       },
-      setCurrentItem: function (item) {
-        this.currentItemIndex = this.employee_task.items.indexOf(item)
-      },
       deleteEmployeeTask: async function () {
         try {
           let response = await axios.delete("{{url_for('get_employee_task_list')}}" + this.employee_task_id, get_config());
           if (response != null && (response.status == 200 || response.status == 201)) {
-            this.goToEmployeeTaskLit()
+            this.goToEmployeeTaskList()
           }
         } catch (err) {
           console.log(err);
           check_status(err)
         }
       },
-      goToEmployeeTaskLit: function () {
+      goToEmployeeTaskList: function () {
         window.location.href = "{{url_for('employee_task_list')}}"
       },
-      clearActiveStep: function () {
-        this.item_type = '',
-          this.item_index = -1
-        this.item_position = this.employee_task.items.length + 1
-        this.item_service = true
-        this.item_description = ''
-        this.item_description_code = ''
-        this.item_quantity = 0
-      },
-      addNewItem: function () {
-        this.employee_task.items.push({
-          "id": 0,
-          "service": this.item_service,
-          "type": this.item_type,
-          "description": this.item_description,
-          "description_code": this.item_description_code,
-          "quantity": this.item_quantity,
-        })
-      },
-      loadItem: function (item, index) {
-        this.item_service = item.service;
-        this.item_type = item.type;
-        this.item_description = item.description;
-        this.item_description_code = item.description_code;
-        this.item_quantity = item.quantity
-        this.item_index = index;
-        this.item_position = index + 1;
-      },
-      updateItem: function () {
-        if (this.item_index == -1) {
-          this.addNewItem();
-          return
-        }
-        item = this.employee_task.items[this.item_index]
-        item.service = this.item_service;
-        item.type = this.item_type;
-        item.description = this.item_description;
-        item.description_code = this.item_description_code;
-        item.quantity = this.item_quantity;
-      },
-      deleteStep: function () {
-        this.employee_task.items.splice(this.currentItemIndex, 1);
-      },
-      // getEnumDocumentTypeList: async function () {
-      //   if (this.documentTypeList.length > 0) {
-      //     return
-      //   }
-      //   try {
-      //     let response = await axios.get("{{url_for('get_enum_document_type_list')}}?skip=0&limit=3000", get_config())
-      //     console.log(response.data)
-      //     this.documentTypeList = response.data['result']
-      //   } catch (err) {
-      //     console.log(err); 
-      //     check_status(err)
-      //   }
-      // },
       getEntityList: async function () {
         if (this.entityList.length > 0) {
           return
@@ -418,17 +424,21 @@
           check_status(err)
         }
       },
-      
+
       sendData: async function () {
+
         if (this.employee_task_id == 'new') {
 
           let response = await this.postEmployeeTask()
           if (response != null && (response.status == 200 || response.status == 201)) {
             await this.getEmployeeTask()
+            await this.postNewTaskStatus()
+            await this.getEmployeeTask()
           }
         } else {
           let response = await this.putEmployeeTask()
           if (response != null && (response.status == 200 || response.status == 201)) {
+            await this.postNewTaskStatus()
             await this.getEmployeeTask()
           }
         }

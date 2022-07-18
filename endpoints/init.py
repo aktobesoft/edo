@@ -16,7 +16,7 @@ initRouter = APIRouter()
 session = SessionLocal()
 
 @initRouter.get('/createEnumBusinessType')
-def create_EnumBusinessType():
+def create_Enum_Business_Type():
     typeList = []
     typeList.append(EnumBusinessType(name = 'АО', full_name = 'Акционерное Общество'))
     typeList.append(EnumBusinessType(name = 'ТОО', full_name = 'Товарищество с ограниченной ответственностью'))
@@ -24,21 +24,59 @@ def create_EnumBusinessType():
     typeList.append(EnumBusinessType(name = 'ФизЛицо', full_name = 'Физическое лицо'))
     typeList.append(EnumBusinessType(name = 'ГП', full_name = 'Государственное предприятие'))
     session.add_all(typeList)
-    session.commit()
-    return {'status': 'done'}
+    try:
+        session.commit()
+        return {'status': 'done'}
+    except:
+        return {'status': 'error'}
 
-@initRouter.get('/createAllTypes')
-def create_types():
+@initRouter.get('/createProcessStatusType')
+async def create_Process_Status_Type():
+
     typeList = []
-
     typeList.append(EnumProcessStatusType(name = 'подписан', description = 'Подписан'))
     typeList.append(EnumProcessStatusType(name = 'отклонен', description = 'Отклонен'))
     typeList.append(EnumProcessStatusType(name = 'отменен', description = 'Отменен'))
     typeList.append(EnumProcessStatusType(name = 'в работе', description = 'В работе'))
     typeList.append(EnumProcessStatusType(name = 'черновик', description = 'Черновик'))
+    session.add_all(typeList)
+    try:
+        session.commit()
+        return {'status': 'done'}
+    except:
+        return {'status': 'error'}
+
+@initRouter.get('/createApproveStepType')
+def create_Approve_Step_Type():
+    typeList = []
+
+    typeList.append(EnumStepType(name = 'линейное', description = 'Линейное'))
+    typeList.append(EnumStepType(name = 'параллельное', description = 'Параллельное'))
+
+    session.add_all(typeList)
+    try:
+        session.commit()
+        return {'status': 'done'}
+    except:
+        return {'status': 'error'}
+
+@initRouter.get('/createRouteStatusType')
+def create_Route_Status_Type():
+    typeList = []
 
     typeList.append(EnumRouteStatusType(name = 'согласован', description = 'Согласован'))
     typeList.append(EnumRouteStatusType(name = 'отклонен', description = 'Отклонен'))
+
+    session.add_all(typeList)
+    try:
+        session.commit()
+        return {'status': 'done'}
+    except:
+        return {'status': 'error'}
+
+@initRouter.get('/createTaskStatusType')
+def create_Task_Status_Type():
+    typeList = []
 
     # 'в работе', 'выполнено', 'отложено', 'в ожидании', 'не выполнено', 'переназначено', 'новый'
     typeList.append(EnumTaskStatusType(name = 'в работе', description = 'В работе'))
@@ -49,15 +87,15 @@ def create_types():
     typeList.append(EnumTaskStatusType(name = 'переназначено', description = 'Переназначено'))
     typeList.append(EnumTaskStatusType(name = 'новый', description = 'Новый'))
 
-    typeList.append(EnumStepType(name = 'линейное', description = 'Линейное'))
-    typeList.append(EnumStepType(name = 'параллельное', description = 'Параллельное'))
-
     session.add_all(typeList)
-    session.commit()
-    return {'status': 'done'}
+    try:
+        session.commit()
+        return {'status': 'done'}
+    except:
+        return {'status': 'error'}
 
 @initRouter.get('/get_entityList',response_model=List[EntityNestedOut])
-def get_entityList():
+def get_entity_List():
     query = select(Entity)
     session = SessionLocal()
     result = session.execute(query)
@@ -65,7 +103,7 @@ def get_entityList():
     return resultAll
 
 @initRouter.get('/getCounterpartyList',response_model=List[CounterpartyOut])
-def getCounterpartyList():
+def get_Counterparty_List():
     query = select(Counterparty)
     session = SessionLocal()
     result = session.execute(query)
@@ -85,7 +123,7 @@ def getCounterpartyList():
 
 
 @initRouter.get('/createAdmin')
-def create_AdminUser():
+def create_Admin_User():
     typeList = []
     typeList.append(User(name = 'Admin', email = 'admin@email.com', is_active = True, is_company = False))
     session.add_all(typeList)
@@ -93,11 +131,14 @@ def create_AdminUser():
     return {'status': 'done'}
 
 @initRouter.get('/createEnumDocumentType')
-def create_EnumDocumentType():
+def create_Enum_Document_Type():
     typeList = []
     typeList.append(EnumDocumentType(name = "ЗаявкаНаРасходованиеДенежныхСредств", description = "Заявка на расходование денежных средств", metadata_name = "purchase_requisition"))
     typeList.append(EnumDocumentType(name = "СлужебнаяЗапискаНаИсполнение", description = "Служебная записка на исполнение", metadata_name = "employee_task"))
 
     session.add_all(typeList)
-    session.commit()
-    return {'status': 'done'}
+    try:
+        session.commit()
+        return {'status': 'done'}
+    except:
+        return {'status': 'error'}

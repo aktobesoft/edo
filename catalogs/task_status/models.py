@@ -45,7 +45,6 @@ class TaskStatusPUT(BaseModel):
     document_id: int
     enum_document_type_id: int
     entity_iin: str
-    user_id: int
     comment: str
     
     class Config:
@@ -58,7 +57,6 @@ class TaskStatusPOST(BaseModel):
     document_id: int
     enum_document_type_id: int
     entity_iin: str
-    user_id: int
     comment: str
     
     class Config:

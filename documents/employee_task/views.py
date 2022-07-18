@@ -53,6 +53,9 @@ async def get_employee_task_nested_by_id(employee_task_id: int, **kwargs):
                 User.id.label("user_id"),
                 User.name.label("user_name"),
                 User.email.label("user_email"),
+                TaskStatus.status.label("status"),
+                TaskStatus.date.label("status_date"),
+                TaskStatus.comment.label("status_comment"),
                 EnumDocumentType.name.label("enum_document_type_name"),
                 EnumDocumentType.description.label("enum_document_type_description")).\
                 join(TaskStatus, (EmployeeTask.id == TaskStatus.document_id) & 
@@ -117,6 +120,7 @@ async def get_employee_task_list(limit: int = 100, skip: int = 0, **kwargs)->lis
                 EmployeeTask.entity_iin,
                 TaskStatus.status.label("status"),
                 TaskStatus.date.label("status_date"),
+                TaskStatus.comment.label("status_comment"),
                 EmployeeTask.author_id).\
                 join(TaskStatus, (EmployeeTask.id == TaskStatus.document_id) & 
                     (EmployeeTask.enum_document_type_id == TaskStatus.enum_document_type_id) & (TaskStatus.is_active), isouter=True).\
@@ -151,6 +155,7 @@ async def get_employee_task_nested_list(limit: int = 100, skip: int = 0, **kwarg
                 User.email.label("user_email"),
                 TaskStatus.status.label("status"),
                 TaskStatus.date.label("status_date"),
+                TaskStatus.comment.label("status_comment"),
                 EnumDocumentType.name.label("enum_document_type_name"),
                 EnumDocumentType.description.label("enum_document_type_description")).\
                 join(Entity, EmployeeTask.entity_iin == Entity.iin, isouter=True).\
@@ -187,7 +192,7 @@ async def get_employee_task_nested_list(limit: int = 100, skip: int = 0, **kwarg
                 recordDict['last_task_status'] = status_result[recordDict['id']]['last_task_status'] 
                 recordDict['all_task_status'] = status_result[recordDict['id']]['all_task_status']
             else:
-                recordDict['last_task_status'] = [] 
+                recordDict['last_task_status'] = {} 
                 recordDict['all_task_status'] = []
         listValue.append(recordDict)
     return listValue

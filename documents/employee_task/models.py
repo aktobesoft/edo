@@ -53,6 +53,7 @@ class EmployeeTaskNestedOut(BaseModel):
     content: Union[str, None]
     status: Union[str, None]
     status_date: Union[datetime.date, None]
+    status_comment: Union[str, None]
     
     class Config:
         orm_mode = True
@@ -73,7 +74,8 @@ class EmployeeTaskNestedOutWithAllStatus(BaseModel):
     content: Union[str, None]
     status: Union[str, None]
     status_date: Union[datetime.date, None]
-    last_task_status: list
+    status_comment: Union[str, None]
+    last_task_status: Union[dict, None]
     all_task_status: list
     
     class Config:
