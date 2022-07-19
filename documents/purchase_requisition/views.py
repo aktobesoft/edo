@@ -4,17 +4,17 @@ from sqlalchemy import String, func, null, select, insert, tuple_, update, delet
 from catalogs.approval_route.models import ApprovalRoute
 from catalogs.approval_route.views import get_approval_routes_by_metadata
 from catalogs.approval_status.models import ApprovalStatus
-from catalogs.enum_types.views import enum_document_type_fillDataFromDict, get_enum_document_type_id_by_metadata_name
-from catalogs.user.models import User, user_fillDataFromDict
+from catalogs.enum_types.views import enum_document_type_fill_data_from_dict, get_enum_document_type_id_by_metadata_name
+from catalogs.user.models import User, fill_user_data_from_dict
 from core.db import database
-from common_module.urls_module import correct_datetime, correct_datetime, is_need_filter, is_parameter_exist
+from common_module.urls_module import correct_datetime, correct_datetime, is_need_filter, is_key_exist
 
 from documents.purchase_requisition.models import PurchaseRequisition, PurchaseRequisitionOut
 from documents.purchase_requisition_items.views import delete_all_pr_items_by_purchase_requisition, get_pr_items_list_by_purchase_requisition_id, post_pr_items_by_purchase_requisition, update_pr_items_by_purchase_requisition
 from catalogs.approval_process.models import ApprovalProcess
-from catalogs.counterparty.models import Counterparty, counterparty_fillDataFromDict
+from catalogs.counterparty.models import Counterparty, counterparty_fill_data_from_dict
 from catalogs.enum_types.models import EnumDocumentType
-from catalogs.entity.models import Entity, entity_fillDataFromDict
+from catalogs.entity.models import Entity, entity_fill_data_from_dict
 
 
 async def get_purchase_requisition_by_id(purchase_requisition_id: int, **kwargs):
@@ -80,13 +80,13 @@ async def get_purchase_requisition_nested_by_id(purchase_requisition_id: int, **
         raise HTTPException(status_code=404, detail="Item not found") 
 
     recordDict = dict(result)
-    recordDict['entity'] = entity_fillDataFromDict(recordDict)
-    recordDict['enum_document_type'] = enum_document_type_fillDataFromDict(recordDict)
-    recordDict['counterparty'] = counterparty_fillDataFromDict(recordDict)
-    recordDict['author'] = user_fillDataFromDict(recordDict)
+    recordDict['entity'] = entity_fill_data_from_dict(recordDict)
+    recordDict['enum_document_type'] = enum_document_type_fill_data_from_dict(recordDict)
+    recordDict['counterparty'] = counterparty_fill_data_from_dict(recordDict)
+    recordDict['author'] = fill_user_data_from_dict(recordDict)
     recordDict['items'] = await get_pr_items_list_by_purchase_requisition_id(purchase_requisition_id)
 
-    if(is_parameter_exist('include_approve_route', kwargs)):
+    if(is_key_exist('include_approve_route', kwargs)):
         kwargs['approval_process_id'] = [recordDict['approval_process_id']]
         routes_result  = await get_approval_routes_by_metadata('purchase_requisition', **kwargs)
         include_approve_route = True
@@ -141,7 +141,7 @@ async def get_purchase_requisition_list(limit: int = 100, skip: int = 0, **kwarg
     if(is_need_filter('entity_iin_list', kwargs)):
         query = query.where(PurchaseRequisition.entity_iin.in_(kwargs['entity_iin_list']))
 
-    if(is_parameter_exist('include_approve_route', kwargs)):
+    if(is_key_exist('include_approve_route', kwargs)):
         include_approve_route = True
         routes_result  = await get_approval_routes_by_metadata('purchase_requisition', **kwargs)
     else:
@@ -207,7 +207,7 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
     
     print(kwargs)
     
-    if(is_parameter_exist('include_approve_route', kwargs)):
+    if(is_key_exist('include_approve_route', kwargs)):
         include_approve_route = True
         routes_result  = await get_approval_routes_by_metadata('purchase_requisition', **kwargs)
     else:
@@ -215,10 +215,10 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
 
     for rec in records:
         recordDict = dict(rec)
-        recordDict['entity'] = entity_fillDataFromDict(rec)
-        recordDict['enum_document_type'] = enum_document_type_fillDataFromDict(rec)
-        recordDict['counterparty'] = counterparty_fillDataFromDict(rec)
-        recordDict['author'] = user_fillDataFromDict(rec)
+        recordDict['entity'] = entity_fill_data_from_dict(rec)
+        recordDict['enum_document_type'] = enum_document_type_fill_data_from_dict(rec)
+        recordDict['counterparty'] = counterparty_fill_data_from_dict(rec)
+        recordDict['author'] = fill_user_data_from_dict(rec)
         if(include_approve_route):
             if recordDict['approval_process_id'] in routes_result:
                 recordDict['current_approval_routes'] = routes_result[recordDict['approval_process_id']]['current_approval_routes']

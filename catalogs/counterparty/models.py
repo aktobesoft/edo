@@ -92,7 +92,7 @@ class CounterpartyListNestedOut(BaseModel):
     info: Paginator
     result: list[CounterpartyNestedOut]
 
-def counterparty_fillDataFromDict(queryResult : dict):
+def counterparty_fill_data_from_dict(queryResult : dict):
     return {
         'id': queryResult['counterparty_id'],
         'iin': queryResult['counterparty_iin'],

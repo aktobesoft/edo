@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy import func, select, insert, update, delete
-from catalogs.enum_types.views import enum_business_type_fillDataFromDict
+from catalogs.enum_types.views import enum_business_type_fill_data_from_dict
 from core.db import database
 import asyncpg
 from common_module.urls_module import correct_datetime, is_need_filter
@@ -125,7 +125,7 @@ async def get_entity_nested_list(limit: int = 100, skip: int = 0, **kwargs):
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['type'] = enum_business_type_fillDataFromDict(rec)
+        recordDict['type'] = enum_business_type_fill_data_from_dict(rec)
         listValue.append(recordDict)
     return listValue
 

@@ -17,8 +17,10 @@ class TaskStatus(Base):
     comment = Column(String(350), nullable = True,)
     entity_iin = Column(String, ForeignKey('entity.iin'), nullable = False, index = True)
     entity = relationship("Entity")
-    user_id = Column(Integer, ForeignKey('user.id'), nullable = False, index = True)
-    user = relationship("User")
+    author_id = Column(Integer, ForeignKey('user.id'), nullable = False, index = True)
+    author = relationship("User", foreign_keys=[author_id])
+    assigned_user_id = Column(Integer, ForeignKey('user.id'), nullable = True, index = True)
+    assigned_user = relationship("User", foreign_keys=[assigned_user_id])
 
     def __repr__(self) -> str:
         return self.name
@@ -31,7 +33,8 @@ class TaskStatusOut(BaseModel):
     document_id: int
     enum_document_type_id: int
     entity_iin: str
-    user_id: int
+    author_id: int
+    assigned_user_id: int
     date: Union[datetime, None]
     
     class Config:
@@ -45,6 +48,7 @@ class TaskStatusPUT(BaseModel):
     document_id: int
     enum_document_type_id: int
     entity_iin: str
+    assigned_user_id: int
     comment: str
     
     class Config:
@@ -57,6 +61,7 @@ class TaskStatusPOST(BaseModel):
     document_id: int
     enum_document_type_id: int
     entity_iin: str
+    assigned_user_id: int
     comment: str
     
     class Config:

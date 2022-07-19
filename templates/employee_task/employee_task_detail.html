@@ -87,6 +87,19 @@
                       
                       <div class="tab-pane fade show active" id="custom-tabs-main" role="tabpanel" aria-labelledby="custom-tabs-main-tab">
                         <div class="mt-2 ml-1 row">
+
+                          <label for="rout_user_id" class="col-sm-2 col-form-label">Исполнитель</label>
+                            <div class="col-sm-10 mt-2">
+                              <select v-on:click="getUserList()" v-model="employee_task.assigned_user_id" class="form-control"
+                                aria-label="Пользователь" id="rout_user">
+                                <option value="0">---------</option>
+                                <option v-for="item in userList"
+                                  v-bind:value="item.id">
+                                  [[ item.name ]]
+                                </option>
+                              </select>
+                            </div>
+
                           <label for="id" class="col-sm-2 col-form-label">Статус документа</label>
                           <div class="col-sm-10 mt-2 ">
                             <select v-model="employee_task.status" class="form-control"
@@ -112,7 +125,8 @@
                           <thead class="table-dark">
                             <tr>
                               <th scope="col">ID</th>
-                              <th scope="col">Пользователь</th>
+                              <!-- <th scope="col">Автор записи</th> -->
+                              <th scope="col">Исполнитель</th>
                               <th scope="col">Статус</th>
                               <th scope="col">Комментарий</th>
                               <th scope="col">Дата статуса</th>
@@ -121,7 +135,8 @@
                           <tbody v-for="(item, index) in employee_task.all_task_status" :key="index">
                             <tr>
                               <td>[[ item.id ]]</td>
-                              <td>[[ item.user_name]]</td>
+                              <!-- <td>[[ item.author_name]]</td> -->
+                              <td>[[ item.assigned_user_name]]</td>
                               <td>
                                 <template v-if="item.status === 'согласован'">
                                   <i class='fas fa-circle' style='color:#28a745'>&nbsp;</i>
@@ -250,21 +265,18 @@
           "name": "",
           "email": ""
         },
+        "assigned_user": {
+          "id": 0,
+          "name": "",
+          "email": ""
+        },
         "enum_document_type_id": 0,
         "entity_iin": "",
-        "items": []
       },
       employee_task_id: "{{itemId}}",
       entityList: [],
-      item_service: true,
-      item_type: '',
-      item_description: '',
-      item_description_code: '',
-      item_quantity: 0,
-      item_index: -1,
-      item_position: 0,
-      currentItemIndex: -1,
       isReadOnly: false,
+      userList: [],
       statusList: [
         { text: 'новый', value: 'новый' },
         { text: 'в работе', value: 'в работе' },
@@ -280,7 +292,7 @@
         await this.getEmployeeTask()
       }
       await this.getEntityList()
-      // await this.getEnumDocumentTypeList()
+      await this.getUserList()
 
     },
     filters: {
@@ -305,6 +317,19 @@
           console.log(err);
           check_status(err)
           return null
+        }
+      },
+      getUserList: async function () {
+        if (this.userList.length > 0) {
+          return
+        }
+        try {
+          let response = await axios.get("{{url_for('get_user_list')}}?skip=0&limit=100&", get_config())
+          console.log(response.data)
+          this.userList = response.data['result']
+        } catch (err) {
+          console.log(err);
+          check_status(err)
         }
       },
       checkDocumentStatus: function () {
@@ -361,7 +386,8 @@
       postNewTaskStatus: async function () {
 
         if(this.employee_task.status == this.employee_task.last_task_status.status && 
-            this.employee_task.comment == this.employee_task.last_task_status.comment)
+            this.employee_task.status_comment == this.employee_task.last_task_status.comment &&
+            this.employee_task.assigned_user_id == this.employee_task.last_task_status.assigned_user_id)
           return 
 
         task_status =  {
@@ -370,7 +396,8 @@
           "document_id": this.employee_task_id,
           "enum_document_type_id": this.employee_task.enum_document_type_id,
           "entity_iin": this.employee_task.entity_iin,
-          "comment": this.employee_task.comment,
+          "comment": this.employee_task.status_comment,
+          "assigned_user_id": this.employee_task.assigned_user_id,
         }
         console.log("before send post")
         console.log(JSON.stringify(task_status))

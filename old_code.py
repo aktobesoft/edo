@@ -47,9 +47,9 @@
 #     listValue = []
 #     for rec in records:
 #         recordDict = dict(rec)
-#         recordDict['entity'] = entity_fillDataFromDict(rec)
-#         recordDict['enum_document_type'] = enum_document_type_fillDataFromDict(rec)
-#         recordDict['counterparty'] = counterparty_fillDataFromDict(rec)
+#         recordDict['entity'] = entity_fill_data_from_dict(rec)
+#         recordDict['enum_document_type'] = enum_document_type_fill_data_from_dict(rec)
+#         recordDict['counterparty'] = counterparty_fill_data_from_dict(rec)
 #         listValue.append(recordDict)
 #     return listValue
 

@@ -4,20 +4,20 @@ from fastapi import HTTPException
 from sqlalchemy import String, Table, func, select, insert, update, delete, event, table
 from catalogs.approval_route.models import ApprovalRoute
 from catalogs.approval_status.models import ApprovalStatus
-from catalogs.enum_types.views import enum_document_type_fillDataFromDict
+from catalogs.enum_types.views import enum_document_type_fill_data_from_dict
 from common_module.approve_module import notificate_user_by_approval_process_id
 from common_module.urls_module import is_need_filter
 from core.db import database
 from documents.purchase_requisition.models import PurchaseRequisition
 
 from catalogs.approval_process.models import ApprovalProcess
-from catalogs.approval_template.models import ApprovalTemplate, approval_template_fillDataFromDict
+from catalogs.approval_template.models import ApprovalTemplate, approval_template_fill_data_from_dict
 from catalogs.approval_template_step.models import ApprovalTemplateStep
 from catalogs.approval_template_step.views import get_approval_template_step_list
 from catalogs.approval_route.views import delete_approval_routes_by_approval_process_id, get_approval_route_by_aproval_process_id,\
                  post_approval_routes_by_approval_process_id, get_approval_route_nested_by_aproval_process_id, update_approval_routes_by_approval_process_id
 from catalogs.enum_types.models import EnumDocumentType
-from catalogs.entity.models import Entity, entity_fillDataFromDict
+from catalogs.entity.models import Entity, entity_fill_data_from_dict
 from documents.purchase_requisition.views import get_purchase_requisition_nested_by_id
 
 async def collectRoutes(list_of_object: list, approval_process_id):
@@ -103,10 +103,10 @@ async def get_approval_process_nested_list(limit: int = 100,skip: int = 0, **kwa
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['enum_document_type'] = enum_document_type_fillDataFromDict(recordDict)
+        recordDict['enum_document_type'] = enum_document_type_fill_data_from_dict(recordDict)
         recordDict['document'] = {'number': recordDict['number'], 'date': recordDict['date']}
-        recordDict['entity'] = entity_fillDataFromDict(recordDict)
-        recordDict['approval_template'] = approval_template_fillDataFromDict(recordDict)
+        recordDict['entity'] = entity_fill_data_from_dict(recordDict)
+        recordDict['approval_template'] = approval_template_fill_data_from_dict(recordDict)
         listValue.append(recordDict)
     return listValue
 

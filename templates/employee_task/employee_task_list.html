@@ -74,6 +74,7 @@
                     <th width="20%">Содержание записки</th>
                     <th width="20%">Комментарий</th>
                     <th width="5%">Автор</th>
+                    <th width="5%">Исполнитель</th>
                     <th width="5%">Операции</th>
                   </tr>
                 </thead>
@@ -98,6 +99,7 @@
                     <td>[[ item.content ]]</td>
                     <td>[[ item.comment ]]</td>
                     <td>[[ item.author.name ]]</td>
+                    <td>[[ item.assigned_user.name ]]</td>
                     <td>
                       <button v-on:click="openEmployeeTask(item)" class="btn btn-success btn-sm rounded-3"
                         type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">

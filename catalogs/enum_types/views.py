@@ -45,14 +45,14 @@ async def get_enum_document_type_id_by_metadata_name(metadata_name: str):
         raise HTTPException(status_code=404, detail="Item not found") 
     return result['id']
 
-def enum_document_type_fillDataFromDict(queryResult : dict):
+def enum_document_type_fill_data_from_dict(queryResult : dict):
     return {
         'id': queryResult['enum_document_type_id'],
         'name': queryResult['enum_document_type_name'],
         'description': queryResult['enum_document_type_description']
         }
 
-def enum_business_type_fillDataFromDict(queryResult : dict):
+def enum_business_type_fill_data_from_dict(queryResult : dict):
     return {
         'id': queryResult['enum_business_type_id'],
         'name': queryResult['enum_business_type_name'],

@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy import func, select, insert, update, delete
-from catalogs.enum_types.views import enum_business_type_fillDataFromDict
+from catalogs.enum_types.views import enum_business_type_fill_data_from_dict
 from core.db import database
 import asyncpg
 from datetime import date, datetime
@@ -34,7 +34,7 @@ async def get_counterparty_nested_by_iin(counterparty_iin: str, **kwargs):
                     where(Counterparty.iin == counterparty_iin)
     result = await database.fetch_one(query)
     resultDict = dict(result)
-    resultDict['type'] = enum_business_type_fillDataFromDict(resultDict)
+    resultDict['type'] = enum_business_type_fill_data_from_dict(resultDict)
     return resultDict
 
 async def delete_counterparty_by_iin(counterparty_iin: str):
@@ -91,7 +91,7 @@ async def get_counterparty_nested_list(limit: int = 100, skip: int = 0, **kwargs
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['type'] = enum_business_type_fillDataFromDict(rec)
+        recordDict['type'] = enum_business_type_fill_data_from_dict(rec)
         listValue.append(recordDict)
     return listValue
 

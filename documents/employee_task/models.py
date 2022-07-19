@@ -30,6 +30,7 @@ class EmployeeTaskOut(BaseModel):
     content: Union[str, None]
     enum_document_type_id: int
     author_id: Union[int, None]
+    assigned_user_id: Union[int, None]
     entity_iin: str
     status: Union[str, None]
     status_date: Union[datetime.date, None]
@@ -48,6 +49,8 @@ class EmployeeTaskNestedOut(BaseModel):
     entity: EntitySmallOut
     author_id: Union[int, None]
     author: UserSmallOut
+    assigned_user_id: Union[int, None]
+    assigned_user: UserSmallOut
     enum_document_type: EnumDocumentTypeOut
     comment: str
     content: Union[str, None]
@@ -69,6 +72,8 @@ class EmployeeTaskNestedOutWithAllStatus(BaseModel):
     entity: EntitySmallOut
     author_id: Union[int, None]
     author: UserSmallOut
+    assigned_user_id: Union[int, None]
+    assigned_user: UserSmallOut
     enum_document_type: EnumDocumentTypeOut
     comment: str
     content: Union[str, None]

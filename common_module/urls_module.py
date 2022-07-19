@@ -67,7 +67,7 @@ def is_need_filter(key: str = 'entity_iin', parameters: dict = {}):
         return True
     return True
 
-def is_parameter_exist(key: str = '', parameters: dict = {}):
+def is_key_exist(key: str = '', parameters: dict = {}):
     
     if (key not in parameters):
         return False

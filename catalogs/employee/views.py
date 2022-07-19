@@ -4,7 +4,7 @@ from core.db import database
 import asyncpg
 from common_module.urls_module import correct_datetime, is_need_filter
 
-from catalogs.entity.models import Entity, entity_fillDataFromDict
+from catalogs.entity.models import Entity, entity_fill_data_from_dict
 from catalogs.employee.models import Employee
 
 async def get_employee_by_id(employee_id: int, **kwargs):
@@ -76,7 +76,7 @@ async def get_employee_nested_list(limit: int = 100, skip: int = 0, **kwargs):
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['entity'] = entity_fillDataFromDict(recordDict)
+        recordDict['entity'] = entity_fill_data_from_dict(recordDict)
         listValue.append(recordDict)
     return listValue
 

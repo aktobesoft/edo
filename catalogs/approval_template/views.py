@@ -2,7 +2,7 @@ import json
 from fastapi import HTTPException
 from sqlalchemy import select, insert, update, delete
 import asyncpg
-from catalogs.enum_types.views import enum_document_type_fillDataFromDict
+from catalogs.enum_types.views import enum_document_type_fill_data_from_dict
 from core.db import database
 from common_module.urls_module import correct_datetime, is_need_filter
 
@@ -11,7 +11,7 @@ from catalogs.approval_template_step.views import get_approval_template_step_lis
                 post_approval_template_steps_by_approval_template_id, update_approval_template_steps_by_approval_template_id
 from catalogs.counterparty.models import Counterparty
 from catalogs.enum_types.models import EnumDocumentType
-from catalogs.entity.models import Entity, entity_fillDataFromDict
+from catalogs.entity.models import Entity, entity_fill_data_from_dict
 
 
 async def get_approval_template_by_id(approval_template_id: int, **kwargs):
@@ -46,8 +46,8 @@ async def get_approval_template_nested_by_id(approval_template_id: int, **kwargs
     if result == None:
         raise HTTPException(status_code=404, detail="Item not found")
     recordDict = dict(result)
-    recordDict['entity'] = entity_fillDataFromDict(recordDict)
-    recordDict['enum_document_type'] = enum_document_type_fillDataFromDict(recordDict)
+    recordDict['entity'] = entity_fill_data_from_dict(recordDict)
+    recordDict['enum_document_type'] = enum_document_type_fill_data_from_dict(recordDict)
     return {**recordDict, 'steps': await get_approval_template_step_nested_list(approval_template_id, **kwargs)}
 
 async def delete_approval_template_by_id(approval_template_id: int, **kwargs):
@@ -94,8 +94,8 @@ async def get_approval_template_nested_list(limit: int = 100,skip: int = 0,**kwa
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['entity'] = entity_fillDataFromDict(recordDict)
-        recordDict['enum_document_type'] = enum_document_type_fillDataFromDict(recordDict)
+        recordDict['entity'] = entity_fill_data_from_dict(recordDict)
+        recordDict['enum_document_type'] = enum_document_type_fill_data_from_dict(recordDict)
         listValue.append(recordDict)
     return listValue
 

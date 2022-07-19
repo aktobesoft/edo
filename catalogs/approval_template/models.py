@@ -100,7 +100,7 @@ class ApprovalTemplatePUT(BaseModel):
     class Config:
         orm_mode = True
 
-def approval_template_fillDataFromDict(queryResult : dict):
+def approval_template_fill_data_from_dict(queryResult : dict):
     return {
         'id': queryResult['approval_template_id'],
         'enum_document_type_id': queryResult['enum_document_type_id'],

@@ -76,11 +76,21 @@ class UserSmallOut(BaseModel):
     name: Union[str, None]
     email: Union[str, None]
 
-def user_fillDataFromDict(queryResult : dict):
+def fill_user_data_from_dict(queryResult : dict):
     return {
         'id': queryResult['user_id'],
         'name': queryResult['user_name'],
         'email': queryResult['user_email'],
-        # 'is_active': queryResult['user_is_active'],
-        # 'is_company': queryResult['user_is_company']
+        } 
+def fill_assigned_user_data_from_dict(queryResult : dict):
+    return {
+        'id': queryResult['assigned_user_id'],
+        'name': queryResult['assigned_user_name'],
+        'email': queryResult['assigned_user_email'],
+        } 
+def fill_author_data_from_dict(queryResult : dict):
+    return {
+        'id': queryResult['author_id'],
+        'name': queryResult['author_name'],
+        'email': queryResult['author_email'],
         } 

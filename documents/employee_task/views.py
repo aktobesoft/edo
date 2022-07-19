@@ -6,14 +6,15 @@ from catalogs.approval_route.views import get_approval_routes_by_metadata
 from catalogs.approval_status.models import ApprovalStatus
 from catalogs.task_status.models import TaskStatus
 from catalogs.task_status.views import get_task_status_by_metadata
-from catalogs.enum_types.views import enum_document_type_fillDataFromDict, get_enum_document_type_id_by_metadata_name
-from catalogs.user.models import User, user_fillDataFromDict
+from catalogs.enum_types.views import enum_document_type_fill_data_from_dict, get_enum_document_type_id_by_metadata_name
+from catalogs.user.models import User, fill_assigned_user_data_from_dict, fill_author_data_from_dict, fill_user_data_from_dict
 from core.db import database
-from common_module.urls_module import correct_datetime, correct_datetime, is_need_filter, is_parameter_exist
+from sqlalchemy.orm import aliased
+from common_module.urls_module import correct_datetime, correct_datetime, is_need_filter, is_key_exist
 
 from documents.employee_task.models import EmployeeTask, EmployeeTaskOut
 from catalogs.enum_types.models import EnumDocumentType
-from catalogs.entity.models import Entity, entity_fillDataFromDict
+from catalogs.entity.models import Entity, entity_fill_data_from_dict
 
 
 async def get_employee_task_by_id(employee_task_id: int, **kwargs):
@@ -45,14 +46,19 @@ async def get_employee_task_count(**kwargs):
 
 async def get_employee_task_nested_by_id(employee_task_id: int, **kwargs):
     employee_task_enum_document_type_id = await get_enum_document_type_id_by_metadata_name("employee_task")
+    UserT = aliased(User)
+    UserAssignedT = aliased(User)
     query = select(
                 EmployeeTask,
                 Entity.name.label("entity_name"),
                 Entity.iin.label("entity_iin"),
                 Entity.id.label("entity_id"),
-                User.id.label("user_id"),
-                User.name.label("user_name"),
-                User.email.label("user_email"),
+                UserT.id.label("author_id"),
+                UserT.name.label("author_name"),
+                UserT.email.label("author_email"),
+                UserAssignedT.id.label("assigned_user_id"),
+                UserAssignedT.name.label("assigned_user_name"),
+                UserAssignedT.email.label("assigned_user_email"),
                 TaskStatus.status.label("status"),
                 TaskStatus.date.label("status_date"),
                 TaskStatus.comment.label("status_comment"),
@@ -60,7 +66,8 @@ async def get_employee_task_nested_by_id(employee_task_id: int, **kwargs):
                 EnumDocumentType.description.label("enum_document_type_description")).\
                 join(TaskStatus, (EmployeeTask.id == TaskStatus.document_id) & 
                     (EmployeeTask.enum_document_type_id == TaskStatus.enum_document_type_id) & (TaskStatus.is_active), isouter=True).\
-                join(User, EmployeeTask.author_id == User.id, isouter=True).\
+                join(UserT, EmployeeTask.author_id == UserT.id, isouter=True).\
+                join(UserAssignedT, TaskStatus.assigned_user_id == UserAssignedT.id, isouter=True).\
                 join(Entity, EmployeeTask.entity_iin == Entity.iin, isouter=True).\
                 join(EnumDocumentType, EmployeeTask.enum_document_type_id == EnumDocumentType.id, isouter=True).\
                 where(EmployeeTask.id == employee_task_id).\
@@ -73,7 +80,7 @@ async def get_employee_task_nested_by_id(employee_task_id: int, **kwargs):
     if result == None:
         raise HTTPException(status_code=404, detail="Item not found") 
 
-    if(is_parameter_exist('include_task_status', kwargs)):
+    if(is_key_exist('include_task_status', kwargs)):
         kwargs['document_id'] = [employee_task_id]
         status_result  = await get_task_status_by_metadata('employee_task', **kwargs)
         include_task_status = True
@@ -81,9 +88,10 @@ async def get_employee_task_nested_by_id(employee_task_id: int, **kwargs):
         include_task_status = False
 
     recordDict = dict(result)
-    recordDict['entity'] = entity_fillDataFromDict(recordDict)
-    recordDict['enum_document_type'] = enum_document_type_fillDataFromDict(recordDict)
-    recordDict['author'] = user_fillDataFromDict(recordDict)
+    recordDict['entity'] = entity_fill_data_from_dict(recordDict)
+    recordDict['enum_document_type'] = enum_document_type_fill_data_from_dict(recordDict)
+    recordDict['author'] = fill_author_data_from_dict(recordDict)
+    recordDict['assigned_user'] = fill_assigned_user_data_from_dict(recordDict)
 
     if include_task_status:
         if employee_task_id in status_result:
@@ -121,9 +129,13 @@ async def get_employee_task_list(limit: int = 100, skip: int = 0, **kwargs)->lis
                 TaskStatus.status.label("status"),
                 TaskStatus.date.label("status_date"),
                 TaskStatus.comment.label("status_comment"),
+                User.id.label("assigned_user_id"),
+                User.name.label("assigned_user_name"),
+                User.email.label("assigned_user_email"),
                 EmployeeTask.author_id).\
                 join(TaskStatus, (EmployeeTask.id == TaskStatus.document_id) & 
                     (EmployeeTask.enum_document_type_id == TaskStatus.enum_document_type_id) & (TaskStatus.is_active), isouter=True).\
+                join(User, TaskStatus.assigned_user_id == User.id, isouter=True).\
                 where(EmployeeTask.enum_document_type_id == employee_task_enum_document_type_id).\
                 order_by(EmployeeTask.id).limit(limit).offset(skip)
     # RLS
@@ -139,6 +151,10 @@ async def get_employee_task_list(limit: int = 100, skip: int = 0, **kwargs)->lis
 
 async def get_employee_task_nested_list(limit: int = 100, skip: int = 0, **kwargs)->list[EmployeeTaskOut]:
     employee_task_enum_document_type_id = await get_enum_document_type_id_by_metadata_name("employee_task")
+
+    UserT = aliased(User)
+    UserAssignedT = aliased(User)
+
     query = select( 
                 EmployeeTask.id, 
                 EmployeeTask.guid, 
@@ -150,19 +166,23 @@ async def get_employee_task_nested_list(limit: int = 100, skip: int = 0, **kwarg
                 EmployeeTask.entity_iin.label('entity_iin'),
                 Entity.name.label("entity_name"),
                 Entity.id.label("entity_id"),
-                User.id.label("user_id"),
-                User.name.label("user_name"),
-                User.email.label("user_email"),
+                UserT.id.label("author_id"),
+                UserT.name.label("author_name"),
+                UserT.email.label("author_email"),
+                UserAssignedT.id.label("assigned_user_id"),
+                UserAssignedT.name.label("assigned_user_name"),
+                UserAssignedT.email.label("assigned_user_email"),
                 TaskStatus.status.label("status"),
                 TaskStatus.date.label("status_date"),
                 TaskStatus.comment.label("status_comment"),
                 EnumDocumentType.name.label("enum_document_type_name"),
                 EnumDocumentType.description.label("enum_document_type_description")).\
-                join(Entity, EmployeeTask.entity_iin == Entity.iin, isouter=True).\
-                join(User, EmployeeTask.author_id == User.id, isouter=True).\
-                join(EnumDocumentType, EmployeeTask.enum_document_type_id == EnumDocumentType.id, isouter=True).\
                 join(TaskStatus, (EmployeeTask.id == TaskStatus.document_id) & 
                     (EmployeeTask.enum_document_type_id == TaskStatus.enum_document_type_id) & (TaskStatus.is_active), isouter=True).\
+                join(Entity, EmployeeTask.entity_iin == Entity.iin, isouter=True).\
+                join(UserT, EmployeeTask.author_id == UserT.id, isouter=True).\
+                join(UserAssignedT, TaskStatus.assigned_user_id == UserAssignedT.id, isouter=True).\
+                join(EnumDocumentType, EmployeeTask.enum_document_type_id == EnumDocumentType.id, isouter=True).\
                 where(EmployeeTask.enum_document_type_id == employee_task_enum_document_type_id).\
                     order_by(EmployeeTask.id)
                
@@ -176,7 +196,7 @@ async def get_employee_task_nested_list(limit: int = 100, skip: int = 0, **kwarg
     if (len(records) == 0):
         return listValue
 
-    if(is_parameter_exist('include_task_status', kwargs)):
+    if(is_key_exist('include_task_status', kwargs)):
         status_result  = await get_task_status_by_metadata('employee_task', **kwargs)
         include_task_status = True
     else:
@@ -184,9 +204,10 @@ async def get_employee_task_nested_list(limit: int = 100, skip: int = 0, **kwarg
     
     for rec in records:
         recordDict = dict(rec)
-        recordDict['entity'] = entity_fillDataFromDict(rec)
-        recordDict['enum_document_type'] = enum_document_type_fillDataFromDict(rec)
-        recordDict['author'] = user_fillDataFromDict(rec)
+        recordDict['entity'] = entity_fill_data_from_dict(rec)
+        recordDict['enum_document_type'] = enum_document_type_fill_data_from_dict(rec)
+        recordDict['author'] = fill_author_data_from_dict(rec)
+        recordDict['assigned_user'] = fill_assigned_user_data_from_dict(rec)
         if include_task_status:
             if recordDict['id'] in status_result:
                 recordDict['last_task_status'] = status_result[recordDict['id']]['last_task_status'] 

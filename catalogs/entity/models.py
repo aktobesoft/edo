@@ -101,7 +101,7 @@ class EntityListNestedOut(BaseModel):
     info: Paginator
     result: list[EntityNestedOut]
 
-def entity_fillDataFromDict(queryResult : dict):
+def entity_fill_data_from_dict(queryResult : dict):
     return {
         'id': queryResult['entity_id'],
         'iin': queryResult['entity_iin'],

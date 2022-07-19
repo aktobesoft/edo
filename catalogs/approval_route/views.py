@@ -4,10 +4,10 @@ from catalogs.approval_process.models import ApprovalProcess
 from catalogs.approval_status.models import ApprovalStatus
 from catalogs.enum_types.views import get_enum_document_type_id_by_metadata_name
 from core.db import database
-from common_module.urls_module import correct_datetime, is_need_filter, is_parameter_exist
+from common_module.urls_module import correct_datetime, is_need_filter, is_key_exist
 
 from catalogs.approval_route.models import ApprovalRoute, ApprovalRouteIn
-from catalogs.user.models import User, User, user_fillDataFromDict
+from catalogs.user.models import User, User, fill_user_data_from_dict
 
 async def get_approval_route_by_id(approval_route_id: int):
     query = select(ApprovalRoute,
@@ -53,7 +53,7 @@ async def get_approval_route_nested_by_aproval_process_id(aproval_process_id: in
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['user'] = user_fillDataFromDict(recordDict)
+        recordDict['user'] = fill_user_data_from_dict(recordDict)
         listValue.append(recordDict)
     return listValue
 
@@ -133,7 +133,7 @@ async def get_approval_routes_by_metadata(metadata_name: str, **kwargs):
     if(is_need_filter('entity_iin_list', kwargs)):
         query_min = query_min.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
 
-    if(is_parameter_exist('approval_process_id', kwargs)):
+    if(is_key_exist('approval_process_id', kwargs)):
         query_min = query_min.where(ApprovalProcess.id.in_(kwargs['approval_process_id']))
 
     query_current_approval_routes = select(
@@ -180,7 +180,7 @@ async def get_approval_routes_by_metadata(metadata_name: str, **kwargs):
     if(is_need_filter('entity_iin_list', kwargs)):
         query_all_approval_routes = query_all_approval_routes.where(ApprovalProcess.entity_iin.in_(kwargs['entity_iin_list']))
 
-    if(is_parameter_exist('approval_process_id', kwargs)):
+    if(is_key_exist('approval_process_id', kwargs)):
         query_min = query_min.where(ApprovalProcess.id.in_(kwargs['approval_process_id']))
     
     query = query_current_approval_routes.union_all(query_all_approval_routes).alias('approval_route_list')           

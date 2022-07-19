@@ -7,7 +7,7 @@ from catalogs.approval_process.views import check_approval_process, is_approval_
 from core.db import database
 
 from catalogs.approval_status.models import ApprovalStatus
-from catalogs.user.models import User, user_fillDataFromDict
+from catalogs.user.models import User, fill_user_data_from_dict
 
 async def get_approval_status_by_id(approval_status_id: int):
     query = select(ApprovalStatus).where(ApprovalStatus.id == approval_status_id)
@@ -25,7 +25,7 @@ async def get_approval_status_nested_by_id(aproval_status_id: int):
     listValue = []
     for rec in records:
         recordDict = dict(rec)
-        recordDict['user'] = user_fillDataFromDict(recordDict)
+        recordDict['user'] = fill_user_data_from_dict(recordDict)
         listValue.append(recordDict)
     return listValue
 

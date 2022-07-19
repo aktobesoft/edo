@@ -69,7 +69,7 @@ class EmployeeListNestedOut(BaseModel):
     info: Paginator
     result: list[EmployeeNestedOut]
 
-def employee_fillDataFromDict(queryResult : dict):
+def employee_fill_data_from_dict(queryResult : dict):
     return {
         'id': queryResult['employee_id'],
         'name': queryResult['employee_name'],

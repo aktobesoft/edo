@@ -9,7 +9,7 @@ from core.db import database
 from common_module.urls_module import correct_datetime
 
 from catalogs.approval_template_step.models import ApprovalTemplateStep, _ApprovalTemplateStepPUT
-from catalogs.user.models import User, user_fillDataFromDict
+from catalogs.user.models import User, fill_user_data_from_dict
 from catalogs.enum_types.models import EnumStepType
 
 async def get_approval_template_step_by_id(approval_template_step_id: int):
@@ -44,7 +44,7 @@ async def get_approval_template_step_nested_list(approval_template_id: int, **kw
     listValue = []
     for record in result:
         recordDict = dict(record)
-        recordDict['user'] = user_fillDataFromDict(recordDict)
+        recordDict['user'] = fill_user_data_from_dict(recordDict)
         listValue.append(recordDict)
     return listValue
 
