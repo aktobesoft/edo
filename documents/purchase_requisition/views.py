@@ -205,8 +205,6 @@ async def get_purchase_requisition_nested_list(limit: int = 100, skip: int = 0, 
     if (len(records) == 0):
         return listValue
     
-    print(kwargs)
-    
     if(is_key_exist('include_approve_route', kwargs)):
         include_approve_route = True
         routes_result  = await get_approval_routes_by_metadata('purchase_requisition', **kwargs)

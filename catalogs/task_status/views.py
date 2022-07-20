@@ -150,9 +150,7 @@ async def get_task_status_by_metadata(metadata_name: str, **kwargs):
             UserAssignedT.name.label('assigned_user_name')).\
             join(UserT, (TaskStatus.author_id == UserT.id), isouter=True).\
             join(UserAssignedT, (TaskStatus.assigned_user_id == UserAssignedT.id), isouter=True).\
-            where((TaskStatus.is_active)  & (TaskStatus.enum_document_type_id == metadata_name_enum_document_type_id)).\
             where(tuple_(TaskStatus.id, TaskStatus.document_id).in_(query_min))
-    
 
     query_all_task_status = select(
             func.lower("all_task_status", type_= String).label('query_type'), 
@@ -179,7 +177,7 @@ async def get_task_status_by_metadata(metadata_name: str, **kwargs):
         query_all_task_status = query_all_task_status.where(TaskStatus.entity_iin.in_(kwargs['entity_iin_list']))
 
     if(is_key_exist('document_id', kwargs)):
-        query_min = query_min.where(TaskStatus.document_id.in_(kwargs['document_id']))
+        query_all_task_status = query_all_task_status.where(TaskStatus.document_id.in_(kwargs['document_id']))
     
     query = query_current_task_status.union_all(query_all_task_status).alias('task_status_list')   
     

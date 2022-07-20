@@ -90,7 +90,7 @@
 
                           <label for="rout_user_id" class="col-sm-2 col-form-label">Исполнитель</label>
                             <div class="col-sm-10 mt-2">
-                              <select v-on:click="getUserList()" v-model="employee_task.assigned_user_id" class="form-control"
+                              <select v-on:click="getUserList()" v-model="task_status.assigned_user_id" class="form-control"
                                 aria-label="Пользователь" id="rout_user">
                                 <option value="0">---------</option>
                                 <option v-for="item in userList"
@@ -102,7 +102,7 @@
 
                           <label for="id" class="col-sm-2 col-form-label">Статус документа</label>
                           <div class="col-sm-10 mt-2 ">
-                            <select v-model="employee_task.status" class="form-control"
+                            <select v-model="task_status.status" class="form-control"
                               aria-label="Статус документа" id="item_entity">
                               <option value="0">---------</option>
                               <option v-for="item in statusList" v-bind:value="item.value">
@@ -114,7 +114,7 @@
                           <label for="id" class="col-sm-2 col-form-label">Комментарий по статусу</label>
                           <div class="col-sm-10 mt-2">
                             <textarea class="form-control" rows="3" placeholder="Комментарий"
-                              v-model="employee_task.status_comment"></textarea>
+                              v-model="task_status.comment"></textarea>
                           </div>
                       
                         </div>
@@ -277,6 +277,11 @@
       entityList: [],
       isReadOnly: false,
       userList: [],
+      task_status: {
+        'comment': '',
+        'status': '',
+        'assigned_user_id': 0,
+      },
       statusList: [
         { text: 'новый', value: 'новый' },
         { text: 'в работе', value: 'в работе' },
@@ -310,6 +315,11 @@
           console.log(response.data)
           this.employee_task = response.data
           this.employee_task.date = this.dateToStr(this.employee_task.date)
+          if (this.task_status.status == '' && this.task_status.assigned_user_id == 0 && this.task_status.comment == ''){
+            this.task_status.status = this.employee_task.status  
+            this.task_status.assigned_user_id = this.employee_task.assigned_user_id
+            this.task_status.comment = this.employee_task.status_comment
+          }
           console.log(response.data)
           this.checkDocumentStatus()
           return response
@@ -385,19 +395,22 @@
       },
       postNewTaskStatus: async function () {
 
-        if(this.employee_task.status == this.employee_task.last_task_status.status && 
-            this.employee_task.status_comment == this.employee_task.last_task_status.comment &&
-            this.employee_task.assigned_user_id == this.employee_task.last_task_status.assigned_user_id)
+        if(this.task_status.status == this.employee_task.status && 
+            this.task_status.comment == this.employee_task.status_comment &&
+            this.task_status.assigned_user_id == this.employee_task.assigned_user_id &&
+            this.task_status.status != '' && 
+            this.task_status.comment != '' &&
+            this.task_status.assigned_user_id != 0)
           return 
 
         task_status =  {
           "is_active": true,
-          "status": this.employee_task.status,
+          "status": this.task_status.status,
           "document_id": this.employee_task_id,
           "enum_document_type_id": this.employee_task.enum_document_type_id,
           "entity_iin": this.employee_task.entity_iin,
-          "comment": this.employee_task.status_comment,
-          "assigned_user_id": this.employee_task.assigned_user_id,
+          "comment": this.task_status.comment,
+          "assigned_user_id": this.task_status.assigned_user_id,
         }
         console.log("before send post")
         console.log(JSON.stringify(task_status))

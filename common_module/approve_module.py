@@ -66,6 +66,5 @@ def send_message(context):
         }
     response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(data), headers=headers)
     content = response.content
-    print(content)
     # need message log
 
