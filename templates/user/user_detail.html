@@ -129,7 +129,7 @@
         "entity_count": 0,
         "is_company": true,
         "is_active": true,
-        "employee_id": 0,
+        "employee_id": null,
         "entity_iin": 0,
         "hashed_password": ""
       },
@@ -223,7 +223,7 @@
           "name": this.user.name,
           "email": this.user.email,
           "is_company": this.user.is_company,
-          "employee_id": this.user.employee_id,
+          "employee_id": this.user.employee_id == 0 ? null: this.user.employee_id,
           "entity_iin": this.user.entity_iin,
           "is_active": this.user.is_active,
           "hashed_password": this.user.hashed_password,

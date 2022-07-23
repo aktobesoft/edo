@@ -1,0 +1,45 @@
+{% extends 'index.html' %}
+{% block form_content %}
+
+<form method="POST" action='#' novalidate>
+  <div id="vue">
+    <div class="row">
+      <div class="col-12">
+        <div class="card mt-2">
+          <div class="card-header">
+            <h3 class="card-title">Отчет по остатками ТМЗ</h3>
+
+
+          </div>
+          <input type="text" id="messageText">
+          <div class="card-body table-responsive p-0">
+            <button onclick="sendMessage()" class="btn btn-success btn-sm rounded-3"
+                        type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
+                        Получить остатки товаров
+                      </button>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+  var client_id = "1409400075321";
+  var ws = new WebSocket(`ws://127.0.0.1:8000/ws/${client_id}`);
+  ws.onmessage = function (event) {
+  console.log(event.data)
+  };
+  function sendMessage(event) {
+    var input = document.getElementById("messageText")
+    ws.send(input.value)
+    input.value = ''
+    // event.preventDefault()
+  }
+</script>
+
+
+
+{% endblock %}

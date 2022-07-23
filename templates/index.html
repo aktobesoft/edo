@@ -32,15 +32,15 @@
   <link rel="stylesheet" href="{{ url_for('static', path='plugins/daterangepicker/daterangepicker.css') }}">
   <!-- summernote -->
   <link rel="stylesheet" href="{{ url_for('static', path='plugins/summernote/summernote-bs4.min.css') }}">
-  </head>
+</head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
   <div class="wrapper">
 
     <!-- Preloader -->
     <div class="preloader flex-column justify-content-center align-items-center">
-      <img class="animation__shake" src="{{ url_for('static', path='dist/img/load.png') }}" alt="load" height="60"
-        width="60">
+      <img class="animation" src="{{ url_for('static', path='dist/img/load.png') }}" alt="load" height="100"
+        width="100">
     </div>
 
     <!-- Navbar -->
@@ -205,12 +205,12 @@
             <a href="#" class="d-block" id="username">Alexander Pierce</a>
           </div>
           <div class="info">
-            <button type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" title="Выйти" class="btn btn-sm btn-light"
-            onclick="log_out()">
-              <i class="fa fa-sign-out-alt"  title="Выйти" ></i>
+            <button type="button" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"
+              title="Выйти" class="btn btn-sm btn-light" onclick="log_out()">
+              <i class="fa fa-sign-out-alt" title="Выйти"></i>
             </button>
-          
-        </div>
+
+          </div>
         </div>
 
         <!-- SidebarSearch Form -->
@@ -231,63 +231,89 @@
             <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
 
+            <li class="nav-item">
+              <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-list-ul"></i>
+                <p>
+                  Справочники
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{{ url_for('entity_list') }}" class="nav-link">
+                    <i class="nav-icon fas fa-file"></i>
+                    <p>Организация</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{{ url_for('employee_list') }}" class="nav-link">
+                    <i class="nav-icon fas fa-file"></i>
+                    <p>Сотрудники</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{{ url_for('user_list') }}" class="nav-link">
+                    <i class="nav-icon fas fa-file"></i>
+                    <p>Пользователи</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{{ url_for('counterparty_list') }}" class="nav-link">
+                    <i class="nav-icon fas fa-file"></i>
+                    <p>Контрагенты</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{{ url_for('approval_template_list') }}" class="nav-link">
+                    <i class="nav-icon fas fa-file"></i>
+                    <p>Шаблон согласования</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{{ url_for('approval_process_list') }}" class="nav-link">
+                    <i class="nav-icon fas fa-file"></i>
+                    <p>Процессы согласования</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-list-ul"></i>
+                <p>
+                  Документы
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{{ url_for('purchase_requisition_list') }}" class="nav-link">
+                    <i class="nav-icon fas fa-file-signature"></i>
+                    <p>Заявки на расходование средств</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{{ url_for('employee_task_list') }}" class="nav-link">
+                    <i class="nav-icon fas fa-file-signature"></i>
+                    <p>Служебная записка на исполнение</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
 
             <li class="nav-item">
+              <a href="{{url_for('report_balance_inventory')}}" class="nav-link">
+                <i class="nav-icon fas fa-file"></i>
+                <p>Остатки номенклатуры</p>
+              </a>
+            </li>
 
-            <li class="nav-item">
-              <a href="{{ url_for('entity_list') }}" class="nav-link">
-                <i class="nav-icon fas fa-file"></i>
-                <p>Организация</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ url_for('employee_list') }}" class="nav-link">
-                <i class="nav-icon fas fa-file"></i>
-                <p>Сотрудники</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ url_for('user_list') }}" class="nav-link">
-                <i class="nav-icon fas fa-file"></i>
-                <p>Пользователи</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ url_for('counterparty_list') }}" class="nav-link">
-                <i class="nav-icon fas fa-file"></i>
-                <p>Контрагенты</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ url_for('purchase_requisition_list') }}" class="nav-link">
-                <i class="nav-icon fas fa-file"></i>
-                <p>Заявки на расходование средств</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ url_for('employee_task_list') }}" class="nav-link">
-                <i class="nav-icon fas fa-file"></i>
-                <p>Служебная записка на исполнение</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ url_for('approval_template_list') }}" class="nav-link">
-                <i class="nav-icon fas fa-file"></i>
-                <p>Шаблон согласования</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ url_for('approval_process_list') }}" class="nav-link">
-                <i class="nav-icon fas fa-file"></i>
-                <p>Процессы согласования</p>
-              </a>
-            </li>
             <li class="nav-item">
               <a href="{{url_for('index')}}ws" class="nav-link">
                 <i class="nav-icon fas fa-file"></i>
                 <p>Web socket</p>
               </a>
-            </li>
             </li>
 
           </ul>
@@ -363,7 +389,7 @@
   <script src="{{ url_for('static', path='dist/js/adminlte.js') }}"></script>
   <!-- AdminLTE for demo purposes -->
   <script src="{{ url_for('static', path='dist/js/demo.js') }}"></script>
-  
+
   <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 
 </body>

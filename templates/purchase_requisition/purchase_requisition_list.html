@@ -98,7 +98,7 @@
                     </td>
                     <td>[[ item.counterparty.name]] ([[ item.counterparty.iin]])</td>
                     <td>[[ item.sum ]]</td>
-                    <td>[[ item.comment ]]</td>
+                    <td>[[ item.comment|truncate(30)]]</td>
                     <td>[[ item.author.name ]]</td>
                     <td>
                       <button v-on:click="openPurchaseRequisition(item)" class="btn btn-success btn-sm rounded-3"
@@ -166,6 +166,11 @@
       liveSubstr: function (string) {
         if(string == "") return ""
         return string.substring(0, 10);
+      },
+      truncate: function (string, length = 0) {
+        if (string == null) return ""
+        if (string.length <= length || string.length == 0) return string;
+        return string.substring(0, length) + " [...]"
       },
     },
     computed: {

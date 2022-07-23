@@ -96,8 +96,8 @@
                       </template>
                       [[ item.status]]
                     </td>
-                    <td>[[ item.content ]]</td>
-                    <td>[[ item.comment ]]</td>
+                    <td>[[ item.content|truncate(30) ]]</td>
+                    <td>[[ item.comment|truncate(30) ]]</td>
                     <td>[[ item.author.name ]]</td>
                     <td>[[ item.assigned_user.name ]]</td>
                     <td>
@@ -164,10 +164,16 @@
     },
     filters: {
       liveSubstr: function (string) {
-        if(string == "") return ""
+        if (string == "") return ""
         return string.substring(0, 10);
       },
+      truncate: function (string, length = 0) {
+        if (string == null) return ""
+        if (string.length <= length || string.length == 0) return string;
+        return string.substring(0, length) + " [...]"
+      },
     },
+    
     computed: {
       
     },

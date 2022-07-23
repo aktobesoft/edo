@@ -97,3 +97,10 @@ async def approval_process_list(request: Request):
 @interfaceRoute.get("/approval_process/{itemId}", response_class=HTMLResponse)
 async def approval_process_detail(request: Request, itemId: str):
     return templates.TemplateResponse("approval_process_rout/approval_process_rout_detail.html", context={'request': request, 'itemId': int(itemId)})
+
+# ----------------------------------------------
+# report   
+
+@interfaceRoute.get("/report/balance_inv", response_class=HTMLResponse)
+async def report_balance_inventory(request: Request):
+    return templates.TemplateResponse("report/balance_inventory.html", context={'request': request})

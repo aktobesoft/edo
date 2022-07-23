@@ -225,10 +225,10 @@ async def get_max_employee_task_number(entity_iin: str)->str:
     if result == None or result['number'] == null or result['number'] == None:
         number = 1
     else:
-        number = ''.join(filter(str.isdigit, result['number']))
-        number = int(number) + 1
+        number = result['number']
+        number = number + 1
 
-    return str(number)
+    return number
 
 async def post_employee_task(employeeTaskInstance : dict, **kwargs):
     # RLS
@@ -257,7 +257,6 @@ async def update_employee_task(employeeTaskInstance: dict, employeeTaskId: int, 
     employee_task_enum_document_type_id = await get_enum_document_type_id_by_metadata_name("employee_task")
 
     query = update(EmployeeTask).values(
-                number = employeeTaskInstance["number"], 
                 date = employeeTaskInstance["date"],
                 content = employeeTaskInstance["content"], 
                 comment = employeeTaskInstance["comment"], 

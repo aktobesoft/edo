@@ -7,9 +7,9 @@ class BaseDocument:
 
     id = Column(Integer, primary_key = True, autoincrement = True)
     guid = Column(String(36), nullable = False, index = True)
-    number = Column(String(150), nullable = False)
+    number = Column(Integer, nullable = False)
     date = Column(DateTime(timezone=True), nullable = False)
-    comment = Column(String(350), nullable=True)
+    comment = Column(String, nullable=True)
 
     @declared_attr
     def enum_document_type_id(cls):

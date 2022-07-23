@@ -236,10 +236,10 @@ async def get_max_purchase_requisition_number(entity_iin: str)->str:
     if result == None or result['number'] == null or result['number'] == None:
         number = 1
     else:
-        number = ''.join(filter(str.isdigit, result['number']))
-        number = int(number) + 1
+        number = result['number']
+        number = number + 1
 
-    return str(number)
+    return number
 
 async def post_purchase_requisition(purchaseRequisitionInstance : dict, **kwargs):
     # RLS
@@ -270,7 +270,6 @@ async def update_purchase_requisition(purchaseRequisitionInstance: dict, purchas
     purchase_requisition_enum_document_type_id = await get_enum_document_type_id_by_metadata_name("purchase_requisition")
 
     query = update(PurchaseRequisition).values(
-                number = purchaseRequisitionInstance["number"], 
                 date = purchaseRequisitionInstance["date"],
                 comment = purchaseRequisitionInstance["comment"], 
                 sum = purchaseRequisitionInstance["sum"], 
